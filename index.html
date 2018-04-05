@@ -1,5 +1,32 @@
 <html>
 <body>
 <font color=green>Hello World!  XJ7492</font>
+  
+  
+<input type="button" onclick="doSomething()">
+
+  <script>
+    
+  var doSomething = function() {
+    
+   var sessionId = '2fcee36055be476fba02e7efa7b685ea';
+   var url = 'https://mbiinc.preview.workfront.com/attask/api/v7.0/proj/count?method=GET&sessionID=' + sessionId + '&fields=*&name=b&name_Mod=cicontains';
+ 
+
+   var xhr = new XMLHttpRequest();
+   xhr.open('GET', 'myservice/username?id=some-unique-id');
+   xhr.onload = function() {
+    if (xhr.status === 200) {
+        alert('User\'s name is ' + xhr.responseText);
+    }
+    else {
+        alert('Request failed.  Returned status of ' + xhr.status);
+    }
+   };
+   xhr.send();
+ };  
+ </script>
+  
+  
 </body>
 </html>
