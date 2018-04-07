@@ -1,4 +1,4 @@
-
+﻿
  
 var ATTASK_INSTANCE = 'www.attasksandbox.com';   
 var isLoaded = false; 
@@ -27,6 +27,7 @@ var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 var timer = getParameterByName("timer");
 var scheduledReport = getParameterByName("scheduledReport");
 var ATAPP_HOST = document.location.protocol + '//' + document.location.host;
+var LICENSE_HOST = 'https://secure.atappstore.com'; 
 var logTo = getParameterByName("logTo");
 var logLevel = getParameterByName("logLevel");
 var api = "api/v7.0";
@@ -1969,7 +1970,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
  
 
                 $http({
-                    url:   ATAPP_HOST + '/Tools/Subform/UsageTracker.aspx?f=' + fname,
+                    url:   LICENSE_HOST + '/Tools/Subform/UsageTracker.aspx?f=' + fname,
                     method: "POST",
                     data: {dateTime: lDate, activity: json},
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }
@@ -1995,7 +1996,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         if (logTo != "")
         {
             $http({
-                url:   ATAPP_HOST + '/Tools/Subform/UberCalcStats.aspx?f=' + fname,
+                url:   LICENSE_HOST + '/Tools/Subform/UberCalcStats.aspx?f=' + fname,
                 method: "POST",
                 data: {executionTime: lDate, executionLog: json},
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }
@@ -2005,7 +2006,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             if (errors.length > 0)
             {
                 $http({
-                    url:   ATAPP_HOST + '/Tools/Subform/UberCalcStats.aspx?f=' + fname + ' ERR ' + new Date().getTime(),
+                    url:   LICENSE_HOST + '/Tools/Subform/UberCalcStats.aspx?f=' + fname + ' ERR ' + new Date().getTime(),
                     method: "POST",
                     data: {executionTime: lDate, executionLog: json},
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }
