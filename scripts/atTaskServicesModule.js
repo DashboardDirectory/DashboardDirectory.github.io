@@ -243,7 +243,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         if (first < count) {
             var batchURL = url + '&$$FIRST=' + first + '&$$LIMIT=' + batchSize;
 
-            $http.jsonp(batchURL).then(function (response) {
+            $http.get(batchURL).then(function (response) {
 
                 if (!(typeof response.data.error === 'undefined')   )
                 { if (response.data.error != null)
