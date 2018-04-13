@@ -146,8 +146,8 @@
 
     </style>
 
-    <script>
-        jQuery(document).ready(function () {
+   // <script>
+        //jQuery(document).ready(function () {
             // jQuery('.tabs .tab-links a').on('click', function (e) {
             //     var currentAttrValue = jQuery(this).attr('href');
 
@@ -160,14 +160,20 @@
             //    e.preventDefault();
            
             // });
-            foo();
-        });
-    </script>
+          //  foo();
+     //   });
+   // </script>
 </head>
 <body class="workfront">
 
     <form id="myForm" runat="server" >
+        <input type="button" onclick="doSomething()">
 
+     <script>  
+      var doSomething = function() {
+       foo();
+      };  
+      </script>
         <div id="_main">
             <div data-ng-controller="AtTaskAdminDashboardCTRL">
                 <div id="adminToolbox" style="position:relative; display: none;">
