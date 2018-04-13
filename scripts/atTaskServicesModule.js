@@ -20,6 +20,11 @@ function getParameterByName(name) {
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+//TODO: Get rid of this function
+function foo(){
+
+
+}
  
 
 
