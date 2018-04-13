@@ -277,12 +277,12 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
         if (typeof errorCallBack === 'undefined') errorCallBack = finalCallBack;
 
-        if (url.indexOf("&jsonp") == -1) url += "&jsonp=JSON_CALLBACK"
+       // if (url.indexOf("&jsonp") == -1) url += "&jsonp=JSON_CALLBACK"
 
         if (url.indexOf("search?") == -1)
         {
 
-            $http.jsonp(url).then(
+            $http.get(url).then(
                             function (response) {
 
                                 if (!(typeof response.data.error === 'undefined')   )
@@ -305,7 +305,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         {
             // get rowcount query by swapping search keyword for count keyword
             var countUrl = url.replace('search?', 'count?');
-            $http.jsonp(countUrl).then(
+            $http.get(countUrl).then(
                       function (response) {
 
                           if (!(typeof response.data.error === 'undefined')   )
