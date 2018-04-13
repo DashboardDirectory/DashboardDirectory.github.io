@@ -277,6 +277,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
         if (typeof errorCallBack === 'undefined') errorCallBack = finalCallBack;
 
+        url  = url.replace('&jsonp=JSON_CALLBACK','');
        // if (url.indexOf("&jsonp") == -1) url += "&jsonp=JSON_CALLBACK"
 
         if (url.indexOf("search?") == -1)
