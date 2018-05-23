@@ -20,14 +20,6 @@ function getParameterByName(name) {
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-//TODO: Get rid of this function
-function foo(){
-
-
-}
- 
-
-
 var atTaskServiceModule = angular.module('atTaskServiceModule', ['ngFileUpload']);
 
 atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
@@ -338,6 +330,23 @@ this.atTaskPut = function (url, callback, error) {
     if (url.indexOf("&jsonp") == -1) url += "&jsonp=JSON_CALLBACK";
          
     $http.jsonp(url).then(callback, error);
+}
+
+this.atTaskPutWithBodyExample = function () {
+    //var $allUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&updates={ name :'MM TEST2' }&ID=58ee774300b51b98b89d7294c23f6cfa";
+    var $mostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&ID=58ee774300b51b98b89d7294c23f6cfa";
+    var $lesserMostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929";
+    var $url = "https://mbiinc.preview.workfront.com/attask/api/v7.0/project";
+    
+    var $data = "{name : 'RM TESTY', ID : '58ee774300b51b98b89d7294c23f6cfa'}";
+    // $data = JSON.stringify($data);
+    var $params = {params: {  ID : "58ee774300b51b98b89d7294c23f6cfa",  sessionID: "c72d0eb145ff4fc89d282dc46ffe9929", method: "PUT" }}
+    $http.put($lesserMostUrl, $data).then( function(response){
+        alert('put finished successfully');
+    }, function(response) {
+        alert('put request failed!');
+    });     
+    // $http.jsonp(url).then(callback, error);
 }
 
 

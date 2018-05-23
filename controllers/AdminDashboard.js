@@ -1876,6 +1876,9 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         }
     }
 
+    $scope.runPostExample = function (){
+        atTaskWebService.atTaskPutWithBodyExample();
+    }
 
     $scope.runTool = function ()
     {
