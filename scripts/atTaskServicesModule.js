@@ -318,53 +318,55 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                          }
                       }                  
             
-        , function (response) {
+            , function (response) {
             errorCallBack
-        }
+            }
                 );
+        }
+
+    };
+
+    this.atTaskPut = function (url, callback, error) {
+        if (url.indexOf("&jsonp") == -1) url += "&jsonp=JSON_CALLBACK";
+        $http.jsonp(url).then(callback, error);
     }
 
-};
-
-this.atTaskPut = function (url, callback, error) {
-    if (url.indexOf("&jsonp") == -1) url += "&jsonp=JSON_CALLBACK";
-         
-    $http.jsonp(url).then(callback, error);
-}
-
-this.atTaskPutWithBodyExample = function () {
-    //var $allUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&updates={ name :'MM TEST2' }&ID=58ee774300b51b98b89d7294c23f6cfa";
-    var $mostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&ID=58ee774300b51b98b89d7294c23f6cfa";
-    var $lesserMostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929";
-    var $url = "https://mbiinc.preview.workfront.com/attask/api/v7.0/project";
-    
-    var $data = "{name : 'RM TESTY', ID : '58ee774300b51b98b89d7294c23f6cfa'}";
-    // $data = JSON.stringify($data);
-    var $params = {params: {  ID : "58ee774300b51b98b89d7294c23f6cfa",  sessionID: "c72d0eb145ff4fc89d282dc46ffe9929", method: "PUT" }}
-    $http.put($lesserMostUrl, $data).then( function(response){
-        alert('put finished successfully');
-    }, function(response) {
-        alert('put request failed!');
-    });     
-    // $http.jsonp(url).then(callback, error);
-}
-
-
-this.atTaskErrorStepBulkUpdate = function (objType,url,updateBlock,updatesRemaining,callback,error,chunkData)
-{
-    var context = this;
-    if (chunkData == null)
-        chunkData = [];
-
-    if (updateBlock.length == 0)  
-    {
-        //Have finished single-updating the block that threw an error code, resume processing the rest of the bulk updates.
-        context.atTaskBulkUpdate(objType,url, updatesRemaining, callback, error, chunkData);         
+    this.atTaskPut2 = function (url, $bodyParams, callback, error) {     
+        $http.put(url, $bodyParams).then(callback, error);
     }
-    else
 
+
+    this.atTaskPutWithBodyExample = function () {
+        //var $allUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&updates={ name :'MM TEST2' }&ID=58ee774300b51b98b89d7294c23f6cfa";
+        var $mostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&ID=58ee774300b51b98b89d7294c23f6cfa";
+        var $lesserMostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929";
+        var $url = "https://mbiinc.preview.workfront.com/attask/api/v7.0/project";
+        
+        var $data = "{name : 'RM TESTY', ID : '58ee774300b51b98b89d7294c23f6cfa'}";
+        // $data = JSON.stringify($data);
+        var $params = {params: {  ID : "58ee774300b51b98b89d7294c23f6cfa",  sessionID: "c72d0eb145ff4fc89d282dc46ffe9929", method: "PUT" }}
+        $http.put($lesserMostUrl, $data).then( function(response){
+            alert('put finished successfully');
+        }, function(response) {
+            alert('put request failed!');
+        });     
+        // $http.jsonp(url).then(callback, error);
+    }
+
+
+    this.atTaskErrorStepBulkUpdate = function (objType,url,updateBlock,updatesRemaining,callback,error,chunkData)
     {
+        var context = this;
+        if (chunkData == null)
+            chunkData = [];
 
+        if (updateBlock.length == 0)  
+        {
+            //Have finished single-updating the block that threw an error code, resume processing the rest of the bulk updates.
+            context.atTaskBulkUpdate(objType,url, updatesRemaining, callback, error, chunkData); 
+            return;        
+        }
+        
         upd = JSON.stringify(updateBlock.shift(),null,'');
         upd = upd.replace(/%/g,'%25').replace(/&/g,'%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
 
@@ -388,102 +390,140 @@ this.atTaskErrorStepBulkUpdate = function (objType,url,updateBlock,updatesRemain
                 chunkData.push({type:objType,comments:'UPDATES',updates:results.config.url});
                 context.atTaskErrorStepBulkUpdate(objType,url, updateBlock,updatesRemaining,callback, error,chunkData);        
             }
-
-        });
+        }
+        // hmmm, should the error callback be passed into atTaskPut here?
+        );
     }
 
-}
-
-this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chunkData,callback,error)
-{
-    var id = obj.ID;
-    var baseFields = {};
-    var custFields = [{}];
-    var maxSize = 3000;
-    var i = 0;
-    var totSize = 0;
-    var context = this;
-
-
-    for (var fld in obj)
+    this.atTaskErrorStepBulkUpdate2 = function (objType, url, updatesRemaining, callback, error, chunkData)
     {
-        if (fld.indexOf("DE:") > -1 && fld != "ID")
-        { 
-    
-            if (totSize + JSON.stringify(obj[fld]).length + 1 > maxSize || singleFieldMode)
-            { 
-                i++;
-                custFields[i] = {};
-                totSize = 0;
-            }
+        var context = this;
+        if (chunkData == null)
+            chunkData = [];
 
-            totSize += JSON.stringify(obj[fld]).length + 1;
-
-            custFields[i][fld] = obj[fld];
-        } 
-        else if (fld != "ID")
-        {
-            baseFields[fld] = obj[fld];
+        if (updatesRemaining.length == 0){
+            callback(chunkData);
+            return;
         }
 
+        var update = updatesRemaining.shift();
+        this.atTaskPut2(url, update, function (results) {
+            if (!(typeof results.data.error === 'undefined')   )
+            {    
+                if (results.data.error != null)
+                {
+                    if (results.data.error.message == 'category cannot be null' || results.data.error.message.indexOf('Invalid Parameter') != -1)                        
+                        chunkData.push({type:objType,updates:results.config.url, comments:'ERROR. This record is missing a required custom form assigment.' });                        
+                    else
+                        chunkData.push({type:objType,updates:results.config.url, comments: 'ERROR. ' + results.data.error.message });
+
+                    context.atTaskErrorStepBulkUpdate2(objType,url, updatesRemaining, callback, error, chunkData);
+                }
+            }
+            else
+            {
+                chunkData.push({type:objType,comments:'UPDATES',updates:results.config.url});
+                context.atTaskErrorStepBulkUpdate2(objType,url, updatesRemaining, callback, error, chunkData);        
+            }
+
+        }, error);
+
     }
 
-    putCustomFields = function (url, ID, custFields,chunkData,callback,error)
+
+
+    this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chunkData,callback,error)
     {
-        if (custFields.length > 0)
+        var id = obj.ID;
+        var baseFields = {};
+        var custFields = [{}];
+        var maxSize = 3000;
+        var i = 0;
+        var totSize = 0;
+        var context = this;
+
+
+        for (var fld in obj)
         {
-            var custField = custFields.shift();
-            custField['ID'] = ID;
+            if (fld.indexOf("DE:") > -1 && fld != "ID")
+            { 
+        
+                if (totSize + JSON.stringify(obj[fld]).length + 1 > maxSize || singleFieldMode)
+                { 
+                    i++;
+                    custFields[i] = {};
+                    totSize = 0;
+                }
 
-            var tmpURL = url + '&updates=[' + JSON.stringify(custField).replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B') + ']';
+                totSize += JSON.stringify(obj[fld]).length + 1;
 
-            context.atTaskPut(tmpURL , function (results) {
-                chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});              
-                putCustomFields(url,ID,custFields,chunkData,callback,error);  
+                custFields[i][fld] = obj[fld];
+            } 
+            else if (fld != "ID")
+            {
+                baseFields[fld] = obj[fld];
+            }
+
+        }
+
+        putCustomFields = function (url, ID, custFields,chunkData,callback,error)
+        {
+            if (custFields.length > 0)
+            {
+                var custField = custFields.shift();
+                custField['ID'] = ID;
+
+                var tmpURL = url + '&updates=[' + JSON.stringify(custField).replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B') + ']';
+
+                context.atTaskPut(tmpURL , function (results) {
+                    chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});              
+                    putCustomFields(url,ID,custFields,chunkData,callback,error);  
+                }, error);
+
+
+            }
+            else
+            {
+                callback(chunkData);
+            }
+        }
+
+        var tmpURL = JSON.stringify(baseFields);
+        if ( tmpURL != "{}")
+        {
+            baseFields[ID] = ID;
+
+            tmpURL = tmpURL.replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
+
+            tmpURL = url + '&updates=[' + tmpURL + ']';
+
+            context.atTaskPut(tmpURL, function (results) { 
+                chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});             
+                putCustomFields(url,ID,custFields,chunkData,callback,error);                          
             }, error);
-
 
         }
         else
         {
-            callback(chunkData);
+            putCustomFields(url,id,custFields,chunkData,callback,error); 
         }
-    }
-
-    var tmpURL = JSON.stringify(baseFields);
-    if ( tmpURL != "{}")
-    {
-        baseFields[ID] = ID;
-
-        tmpURL = tmpURL.replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
-
-        tmpURL = url + '&updates=[' + tmpURL + ']';
-
-        context.atTaskPut(tmpURL, function (results) { 
-            chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});             
-            putCustomFields(url,ID,custFields,chunkData,callback,error);                          
-        }, error);
 
     }
-    else
-    {
-        putCustomFields(url,id,custFields,chunkData,callback,error); 
-    }
-
-}
     
-this.atTaskBulkUpdate = function (objType, url, updates, callback, error, chunkData) {
-    var maxURL = 3500;
-    var context = this;
-    var postSet = [];
-    var tmpURL = url + '&updates=[';
-    var updatesRemaining = updates;
-    if (chunkData == null)
-        chunkData = [];
-        
- 
-    if (updates.length > 0) {
-
+    this.atTaskBulkUpdate = function (objType, url, updates, callback, error, chunkData) {
+        var maxURL = 3500;
+        var context = this;
+        var postSet = [];
+        var tmpURL = url + '&updates=[';
+        var updatesRemaining = updates;
+        if (chunkData == null)
+            chunkData = [];
+            
+        if (updates.length == 0){
+            callback(chunkData);
+            return;
+        }
+    
         var updateBlock = [];
         var strJSON = JSON.stringify(updatesRemaining[0], null, ' ');
         strJSON = strJSON.replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
@@ -491,7 +531,7 @@ this.atTaskBulkUpdate = function (objType, url, updates, callback, error, chunkD
         if (strJSON.length + tmpURL.length > maxURL)
         {
             context.atTaskStepUpdateCustomFields(objType,url,updatesRemaining.shift(),false,chunkData,
-             function() {context.atTaskBulkUpdate(objType,url, updatesRemaining, callback, error,chunkData )}
+                function() {context.atTaskBulkUpdate(objType,url, updatesRemaining, callback, error,chunkData )}
             ,error);
         }
         else
@@ -506,9 +546,9 @@ this.atTaskBulkUpdate = function (objType, url, updates, callback, error, chunkD
             //     console.log(updates.length + ' query sent:');
             //    console.log(tmpURL + ']');
 
-              
+                
             this.atTaskPut(tmpURL + ']', function (results) {
-             
+                
 
                 if (!(typeof results.data.error === 'undefined')   )
                 {
@@ -520,7 +560,7 @@ this.atTaskBulkUpdate = function (objType, url, updates, callback, error, chunkD
                         else
                             chunkData.push({type:objType,updates:results.config.url, comments: 'ERROR. Bulk update failed. Stepping each item one at a time. Message:' + results.data.error.message});
                 
-                 
+                    
                         context.atTaskErrorStepBulkUpdate(objType,url, updateBlock,updatesRemaining,callback, error,chunkData);                 
                     }
                 }
@@ -531,123 +571,139 @@ this.atTaskBulkUpdate = function (objType, url, updates, callback, error, chunkD
                                         
 
                     context.atTaskBulkUpdate(objType,url, updatesRemaining, callback, error,chunkData );
-                     
+                        
                 }
                 
             }, error);
         }
 
-    }
-    else {
-        callback(chunkData);
+
     }
 
+    this.atTaskBulkUpdate2 = function (objType, url, updates, callback, error, chunkData) {
+        // TODO: (Ryan) This code assumes the url already has method=PUT and Session_id in the query string
+        if (chunkData == null)
+            chunkData = [];
+        
+        this.atTaskPut2(url, updates, function (results) {
+            if (!(typeof results.data.error === 'undefined')) {
+                if (results.data.error != null) {
+                    if (results.data.error.message == 'category cannot be null' || results.data.error.message.indexOf('Invalid Parameter') != -1) {
+                        chunkData.push({type:objType,updates: results.config.url,comments:'ERROR. Bulk update failed. One or more records are missing a required custom form attachment. Re-running update one record at a time...'});
+                    }
+                    else {
+                        chunkData.push({type:objType,updates:results.config.url, comments: 'ERROR. Bulk update failed. Stepping each item one at a time. Message:' + results.data.error.message});
+                    }
+                    
+                    // switch to update one row at a time mode
+                    atTaskErrorStepBulkUpdate2(objType,url, updates, callback, error, chunkData);    
+                }
+            }
+            else {
+                chunkData.push({type:objType,comments:'UPDATES',updates:results.config.url}); 
+                callback(chunkData);   
+            }
+            
+        }, error);
+    }
 
-}
-
-
-this.atTaskInternalObjectGet = function (url, success, error) {
-
-    if(url.indexOf("jsonp") == -1) url += "&jsonp=JSON_CALLBACK";
-
-    $http.jsonp(url).then(success,error);
-
-}
-
-
-this.atTaskGet = function (url, finalCallBack, errorCallBack, incrementalCallBack) {
-    batchedLoad(url, 1000, finalCallBack, errorCallBack, incrementalCallBack);
-
-}
-
-this.atTaskBatchGet = function (atTaskInstance, atTaskObject, sessionId, filter, fields, finalCallBack, errorCallBack, incrementalCallBack) {
-    var url = 'https://' + atTaskInstance + '/attask/api-internal/' + atTaskObject + '/search?method=GET' + filter + '&sessionID=' + sessionId + '&fields= ' + fields + '&jsonp=JSON_CALLBACK';
-    batchedLoad(url, 1000, finalCallBack, errorCallBack, incrementalCallBack);
-}
 
 
 
-function atTaskExpandSetForIDFilter(loadSet, idName, idListOrig) {
-    // Takes a loadSet Query, a list of WorkFront ID's, and the name of the identifier, and breaks the query, if needed, into smaller 
-    //  queries that can be processed using JSONP with limited http query header length limits.  (set to 1500).
+    this.atTaskInternalObjectGet = function (url, success, error) {
 
-    var maxQuerySize = 1500;
-    var tmpEndQuery = idName + "_Mod=in";
-    var idList = idListOrig.concat([]);
+        if(url.indexOf("jsonp") == -1) url += "&jsonp=JSON_CALLBACK";
 
-    var len = loadSet.query.length + tmpEndQuery.length + 1;
+        $http.jsonp(url).then(success,error);
 
-    var returnQuery = [];
-    var tmpQuery = "";
+    }
 
-    while (idList.length > 0) {
-        while (len <= maxQuerySize && idList.length > 0) {
-            var head = "&" + idName + "=" + idList.shift();
-            tmpQuery += head;
-            len += head.length;
+
+    this.atTaskGet = function (url, finalCallBack, errorCallBack, incrementalCallBack) {
+        batchedLoad(url, 1000, finalCallBack, errorCallBack, incrementalCallBack);
+
+    }
+
+    this.atTaskBatchGet = function (atTaskInstance, atTaskObject, sessionId, filter, fields, finalCallBack, errorCallBack, incrementalCallBack) {
+        var url = 'https://' + atTaskInstance + '/attask/api-internal/' + atTaskObject + '/search?method=GET' + filter + '&sessionID=' + sessionId + '&fields= ' + fields + '&jsonp=JSON_CALLBACK';
+        batchedLoad(url, 1000, finalCallBack, errorCallBack, incrementalCallBack);
+    }
+
+
+
+    function atTaskExpandSetForIDFilter(loadSet, idName, idListOrig) {
+        // Takes a loadSet Query, a list of WorkFront ID's, and the name of the identifier, and breaks the query, if needed, into smaller 
+        //  queries that can be processed using JSONP with limited http query header length limits.  (set to 1500).
+
+        var maxQuerySize = 1500;
+        var tmpEndQuery = idName + "_Mod=in";
+        var idList = idListOrig.concat([]);
+
+        var len = loadSet.query.length + tmpEndQuery.length + 1;
+
+        var returnQuery = [];
+        var tmpQuery = "";
+
+        while (idList.length > 0) {
+            while (len <= maxQuerySize && idList.length > 0) {
+                var head = "&" + idName + "=" + idList.shift();
+                tmpQuery += head;
+                len += head.length;
+            }
+
+            returnQuery.push({ dataSetName: loadSet.dataSetName, query: loadSet.query + tmpQuery + "&" + tmpEndQuery });
+            var len = loadSet.query.length + tmpEndQuery.length + 1;
+            tmpQuery = "";
+
         }
 
-        returnQuery.push({ dataSetName: loadSet.dataSetName, query: loadSet.query + tmpQuery + "&" + tmpEndQuery });
-        var len = loadSet.query.length + tmpEndQuery.length + 1;
-        tmpQuery = "";
+        return returnQuery;
 
     }
 
-    return returnQuery;
+    this.atTaskLoadSetWithIdFilters = function (loadSet, idName, idList, finalCallBack, errorCallBack,incrementalCallBack) {
+        var totalLoadSet = [];
 
-}
+        loadSet.map(function (ls) {
+            totalLoadSet = totalLoadSet.concat(atTaskExpandSetForIDFilter(ls, idName, idList));
+        });
 
-this.atTaskLoadSetWithIdFilters = function (loadSet, idName, idList, finalCallBack, errorCallBack,incrementalCallBack) {
-    var totalLoadSet = [];
+        this.atTaskLoadSet(totalLoadSet, finalCallBack, errorCallBack,incrementalCallBack);
 
-    loadSet.map(function (ls) {
-        totalLoadSet = totalLoadSet.concat(atTaskExpandSetForIDFilter(ls, idName, idList));
-    });
-
-    this.atTaskLoadSet(totalLoadSet, finalCallBack, errorCallBack,incrementalCallBack);
-
-}
+    }
 
 
-this.atTaskLoadSet = function (loadSet, finalCallBack, errorCallBack,incrementalCallBack) {
-    // loadset = [{'dataSetName' : name , 'query' : query}]
-    // results = {name1 : [data1], name2 : [data2] ... }
+    this.atTaskLoadSet = function (loadSet, finalCallBack, errorCallBack,incrementalCallBack) {
+        // loadset = [{'dataSetName' : name , 'query' : query}]
+        // results = {name1 : [data1], name2 : [data2] ... }
 
-    var results = {};
-        
+        var results = {};
+            
 
-    loadSet.map(function (itm) { itm["loaded"] = false; results[itm.dataSetName] = []; });
+        loadSet.map(function (itm) { itm["loaded"] = false; results[itm.dataSetName] = []; });
 
-    // make parallel batch loads of all dataSets, perform call back when last set is completed.
-    loadSet.map(
-                function (itm, i, arr) {
-                    itm.batchCount = 0;
-                    batchedLoad(itm.query, 1000,
-                        function (data) {
-                            itm.loaded = true;
-                           
-                            results[itm.dataSetName] = results[itm.dataSetName].concat(data);
-                            if (arr.filter(function (itm2) { return (itm2.loaded == false) }).length == 0) {
-                                finalCallBack(results);
-                            }
+        // make parallel batch loads of all dataSets, perform call back when last set is completed.
+        loadSet.map(
+            function (itm, i, arr) {
+                itm.batchCount = 0;
+                batchedLoad(itm.query, 1000,
+                    function (data) {
+                        itm.loaded = true;
+                    
+                        results[itm.dataSetName] = results[itm.dataSetName].concat(data);
+                        if (arr.filter(function (itm2) { return (itm2.loaded == false) }).length == 0) {
+                            finalCallBack(results);
                         }
-                       , errorCallBack, (incrementalCallBack != null ?                    
-                    function (iData)
-                    {
-                        iData.dataSetName = itm.dataSetName;
-                        iData.batchCount = itm.batchCount++;
-                        incrementalCallBack(iData);
-                    }:null))
+                    }
+                , errorCallBack, (incrementalCallBack != null ?                    
+                function (iData)
+                {
+                    iData.dataSetName = itm.dataSetName;
+                    iData.batchCount = itm.batchCount++;
+                    incrementalCallBack(iData);
+                }:null))
+            })
+    }
 
-                }
-
-
-
-)
-}
-                     
-
-}
-)
- 
+})  
 // JavaScript source code
