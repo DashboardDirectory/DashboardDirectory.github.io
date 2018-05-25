@@ -510,7 +510,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     }
     
-    this.atTaskBulkUpdate = function (objType, url, updates, callback, error, chunkData) {
+    this.atTaskBulkUpdateOrig = function (objType, url, updates, callback, error, chunkData) {
         var maxURL = 3500;
         var context = this;
         var postSet = [];
@@ -580,7 +580,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     }
 
-    this.atTaskBulkUpdate2 = function (objType, url, updates, callback, error, chunkData) {
+    this.atTaskBulkUpdate = function (objType, url, updates, callback, error, chunkData) {
         // TODO: (Ryan) This code assumes the url already has method=PUT and Session_id in the query string
         if (chunkData == null)
             chunkData = [];
