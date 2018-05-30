@@ -144,7 +144,7 @@ function WorkfrontPut(objType,objID,updates, callback, error)
     {
         var URL = server + apiVer + objType + "?ID=" + objID + "&method=PUT&sessionID=" + sessionID + '&updates=' + updates + '&jsonp=JSON_CALLBACK';
        
-        atTaskWebService.atTaskPut (URL, callback, error) ;
+        atTaskWebService.atTaskPutOrig(URL, callback, error) ;
 
     }
 }

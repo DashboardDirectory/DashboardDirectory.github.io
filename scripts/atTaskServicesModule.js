@@ -326,12 +326,12 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     };
 
-    this.atTaskPut = function (url, callback, error) {
+    this.atTaskPutOrig = function (url, callback, error) {
         if (url.indexOf("&jsonp") == -1) url += "&jsonp=JSON_CALLBACK";
         $http.jsonp(url).then(callback, error);
     }
 
-    this.atTaskPut2 = function (url, $bodyParams, callback, error) {     
+    this.atTaskPut = function (url, $bodyParams, callback, error) {     
         $http.put(url, $bodyParams).then(callback, error);
     }
 
@@ -354,7 +354,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
     }
 
 
-    this.atTaskErrorStepBulkUpdate = function (objType,url,updateBlock,updatesRemaining,callback,error,chunkData)
+    this.atTaskErrorStepBulkUpdateOrig = function (objType,url,updateBlock,updatesRemaining,callback,error,chunkData)
     {
         var context = this;
         if (chunkData == null)
@@ -363,7 +363,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         if (updateBlock.length == 0)  
         {
             //Have finished single-updating the block that threw an error code, resume processing the rest of the bulk updates.
-            context.atTaskBulkUpdate(objType,url, updatesRemaining, callback, error, chunkData); 
+            context.atTaskBulkUpdateOrig(objType,url, updatesRemaining, callback, error, chunkData); 
             return;        
         }
         
@@ -371,7 +371,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         upd = upd.replace(/%/g,'%25').replace(/&/g,'%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
 
         var tmpURL = url + '&updates=[' + upd + ']';
-        this.atTaskPut(tmpURL, function (results) {
+        this.atTaskPutOrig(tmpURL, function (results) {
             if (!(typeof results.data.error === 'undefined')   )
             {    
                 if (results.data.error != null)
@@ -381,52 +381,52 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                     else
                         chunkData.push({type:objType,updates:results.config.url, comments: 'ERROR. ' + results.data.error.message });
 
-                    context.atTaskErrorStepBulkUpdate(objType,url, updateBlock, updatesRemaining, callback, error, chunkData);
+                    context.atTaskErrorStepBulkUpdateOrig(objType,url, updateBlock, updatesRemaining, callback, error, chunkData);
                 }
             }
             else
             {
                 // chunkData.push({type:objType,comments:'UPDATES',updates:'[{"ID":"' + results.data.data.map(function(i){return i.ID}).join('"}, {"ID":"') + '"}'});
                 chunkData.push({type:objType,comments:'UPDATES',updates:results.config.url});
-                context.atTaskErrorStepBulkUpdate(objType,url, updateBlock,updatesRemaining,callback, error,chunkData);        
+                context.atTaskErrorStepBulkUpdateOrig(objType,url, updateBlock,updatesRemaining,callback, error,chunkData);        
             }
         }
         // hmmm, should the error callback be passed into atTaskPut here?
         );
     }
 
-    this.atTaskErrorStepBulkUpdate2 = function (objType, url, updatesRemaining, callback, error, chunkData)
+    this.atTaskErrorStepBulkUpdate = function (objType, url, updatesRemaining, callback, error, results)
     {
         var context = this;
-        if (chunkData == null)
-            chunkData = [];
+        if (results == null)
+            results = [];
 
-        if (updatesRemaining.length == 0){
-            callback(chunkData);
+        if (updatesRemaining.length == 0) {
+            callback(results);
             return;
         }
 
-        var update = updatesRemaining.shift();
-        this.atTaskPut2(url, update, function (results) {
-            if (!(typeof results.data.error === 'undefined')   )
-            {    
-                if (results.data.error != null)
-                {
-                    if (results.data.error.message == 'category cannot be null' || results.data.error.message.indexOf('Invalid Parameter') != -1)                        
-                        chunkData.push({type:objType,updates:results.config.url, comments:'ERROR. This record is missing a required custom form assigment.' });                        
+        var success = function (r) {
+            if (!(typeof r.data.error === 'undefined')) {
+                if (r.data.error != null) {
+                    if (r.data.error.message == 'category cannot be null' || r.data.error.message.indexOf('Invalid Parameter') != -1)
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. This record is missing a required custom form assigment.' });
                     else
-                        chunkData.push({type:objType,updates:results.config.url, comments: 'ERROR. ' + results.data.error.message });
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. ' + r.data.error.message });
 
-                    context.atTaskErrorStepBulkUpdate2(objType,url, updatesRemaining, callback, error, chunkData);
+                    context.atTaskErrorStepBulkUpdate(objType, url, updatesRemaining, callback, error, results);
                 }
+                // hmmm - won't the recursive call chain be broken if r.data.error is null?
             }
-            else
-            {
-                chunkData.push({type:objType,comments:'UPDATES',updates:results.config.url});
-                context.atTaskErrorStepBulkUpdate2(objType,url, updatesRemaining, callback, error, chunkData);        
+            else {
+                results.push({ type: objType, comments: 'UPDATES', updates: r.config.url });
+                context.atTaskErrorStepBulkUpdate(objType, url, updatesRemaining, callback, error, results);
             }
 
-        }, error);
+        };
+
+        var update = updatesRemaining.shift();
+        this.atTaskPut(url, update, success, error);
 
     }
 
@@ -497,7 +497,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
             tmpURL = url + '&updates=[' + tmpURL + ']';
 
-            context.atTaskPut(tmpURL, function (results) { 
+            context.atTaskPutOrig(tmpURL, function (results) { 
                 chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});             
                 putCustomFields(url,ID,custFields,chunkData,callback,error);                          
             }, error);
@@ -547,7 +547,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
             //    console.log(tmpURL + ']');
 
                 
-            this.atTaskPut(tmpURL + ']', function (results) {
+            this.atTaskPutOrig(tmpURL + ']', function (results) {
                 
 
                 if (!(typeof results.data.error === 'undefined')   )
@@ -561,7 +561,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                             chunkData.push({type:objType,updates:results.config.url, comments: 'ERROR. Bulk update failed. Stepping each item one at a time. Message:' + results.data.error.message});
                 
                     
-                        context.atTaskErrorStepBulkUpdate(objType,url, updateBlock,updatesRemaining,callback, error,chunkData);                 
+                        context.atTaskErrorStepBulkUpdateOrig(objType,url, updateBlock,updatesRemaining,callback, error,chunkData);                 
                     }
                 }
                 else
@@ -580,31 +580,33 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     }
 
-    this.atTaskBulkUpdate = function (objType, url, updates, callback, error, chunkData) {
+    this.atTaskBulkUpdate = function (objType, url, updates, callback, error, results) {
         // TODO: (Ryan) This code assumes the url already has method=PUT and Session_id in the query string
-        if (chunkData == null)
-            chunkData = [];
-        
-        this.atTaskPut2(url, updates, function (results) {
-            if (!(typeof results.data.error === 'undefined')) {
-                if (results.data.error != null) {
-                    if (results.data.error.message == 'category cannot be null' || results.data.error.message.indexOf('Invalid Parameter') != -1) {
-                        chunkData.push({type:objType,updates: results.config.url,comments:'ERROR. Bulk update failed. One or more records are missing a required custom form attachment. Re-running update one record at a time...'});
+        if (results == null)
+            results = [];
+
+        var success = function (r) {
+            if (!(typeof r.data.error === 'undefined')) {
+                if (r.data.error != null) {
+                    if (r.data.error.message == 'category cannot be null' || r.data.error.message.indexOf('Invalid Parameter') != -1) {
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. Bulk update failed. One or more records are missing a required custom form attachment. Re-running update one record at a time...' });
                     }
                     else {
-                        chunkData.push({type:objType,updates:results.config.url, comments: 'ERROR. Bulk update failed. Stepping each item one at a time. Message:' + results.data.error.message});
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. Bulk update failed. Stepping each item one at a time. Message:' + r.data.error.message });
                     }
-                    
+
                     // switch to update one row at a time mode
-                    atTaskErrorStepBulkUpdate2(objType,url, updates, callback, error, chunkData);    
+                    atTaskErrorStepBulkUpdate(objType, url, updates, callback, error, results);
                 }
+                // hmmm - recursive call chain is broken here when r.data.error is null
             }
             else {
-                chunkData.push({type:objType,comments:'UPDATES',updates:results.config.url}); 
-                callback(chunkData);   
+                results.push({ type: objType, comments: 'UPDATES', updates: r.config.url });
+                callback(results);
             }
-            
-        }, error);
+        }
+        
+        this.atTaskPut(url, updates, success, error);
     }
 
 

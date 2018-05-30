@@ -1877,7 +1877,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     }
 
     $scope.runPostExample = function (){
-        var url="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=cc70c5f40b654713b8b2b22aeec38373";
+        var url ="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=243a07a6bcae47d5838be658ac9a9830";
         var data =  [   {name : 'RM BULKTEST1', ID : '58ee774300b51b98b89d7294c23f6cfa'},
                         {name : 'RM BULKTEST2', ID : '5aff4c18035818afcc81dd4ab90cd45a'}
                     ];
@@ -1891,7 +1891,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
 
 
-        atTaskWebService.atTaskBulkUpdate2('project', url, data, successFn, errorFn )
+        atTaskWebService.atTaskBulkUpdate('project', url, data, successFn, errorFn )
         // atTaskWebService.atTaskPutWithBodyExample();
     }
 
