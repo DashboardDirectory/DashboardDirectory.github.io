@@ -395,13 +395,13 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         );
     }
 
-    this.atTaskErrorStepBulkUpdate = function (objType, url, updatesRemaining, callback, error, results)
+    this.atTaskErrorStepBulkUpdate = function (objType, url, updates, callback, error, results)
     {
         var context = this;
         if (results == null)
             results = [];
 
-        if (updatesRemaining.length == 0) {
+        if (updates.length == 0) {
             callback(results);
             return;
         }
@@ -414,20 +414,18 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                     else
                         results.push({ type: objType, updates: r.config.url, comments: 'ERROR. ' + r.data.error.message });
 
-                    context.atTaskErrorStepBulkUpdate(objType, url, updatesRemaining, callback, error, results);
+                    context.atTaskErrorStepBulkUpdate(objType, url, updates, callback, error, results);
                 }
                 // hmmm - won't the recursive call chain be broken if r.data.error is null?
             }
             else {
                 results.push({ type: objType, comments: 'UPDATES', updates: r.config.url });
-                context.atTaskErrorStepBulkUpdate(objType, url, updatesRemaining, callback, error, results);
+                context.atTaskErrorStepBulkUpdate(objType, url, updates, callback, error, results);
             }
 
         };
 
-        var update = updatesRemaining.shift();
-        this.atTaskPut(url, update, success, error);
-
+        this.atTaskPut(url, updates.shift(), success, error);
     }
 
 
@@ -582,10 +580,25 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     this.atTaskBulkUpdate = function (objType, url, updates, callback, error, results) {
         // TODO: (Ryan) This code assumes the url already has method=PUT and Session_id in the query string
+        var context = this;
         if (results == null)
             results = [];
 
+        if (updates.length == 0) {
+            callback(results);
+            return;
+        }
+
+        var MAX_BATCH_SIZE = 100;
+        var batch = [];
+        while (updates.length > 0 && batch.length < MAX_BATCH_SIZE) {
+            batch.push(updates.shift());
+        }
+
         var success = function (r) {
+            var recurseFn = function () {
+                context.atTaskBulkUpdate(objType, url, updates, callback, error, results);
+            }
             if (!(typeof r.data.error === 'undefined')) {
                 if (r.data.error != null) {
                     if (r.data.error.message == 'category cannot be null' || r.data.error.message.indexOf('Invalid Parameter') != -1) {
@@ -596,17 +609,17 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                     }
 
                     // switch to update one row at a time mode
-                    atTaskErrorStepBulkUpdate(objType, url, updates, callback, error, results);
+                    context.atTaskErrorStepBulkUpdate(objType, url, batch, recurseFn, error, results);
                 }
                 // hmmm - recursive call chain is broken here when r.data.error is null
             }
             else {
                 results.push({ type: objType, comments: 'UPDATES', updates: r.config.url });
-                callback(results);
+                recurseFn();
             }
         }
         
-        this.atTaskPut(url, updates, success, error);
+        this.atTaskPut(url, batch, success, error);
     }
 
 
