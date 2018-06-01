@@ -182,7 +182,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     this.recalculateCustomValuesForProject = function (server, sessionID, projectID, callback, errorCallback) {
 
-        var URL = 'https://' + server + '/attask/api/v7.0/proj/search?method=GET&sessionID=' + sessionID + '&ID=' + projectID + '&fields=tasks:ID&jsonp=JSON_CALLBACK';
+        var URL = 'https://' + server + '/attask/api/v7.0/proj/search?method=GET&sessionID=' + sessionID + '&ID=' + projectID + '&fields=tasks:ID';
         var cCount = 0;
 
         batchedLoad(URL, 1000,
@@ -269,8 +269,8 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
         if (typeof errorCallBack === 'undefined') errorCallBack = finalCallBack;
 
+        // TODO: (Ryan) Remove need for this.
         url  = url.replace('&jsonp=JSON_CALLBACK','');
-       //if (url.indexOf("&jsonp") == -1) url += "&jsonp=JSON_CALLBACK"
 
         if (url.indexOf("search?") == -1)
         {
@@ -326,7 +326,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     };
 
-    this.atTaskPutOrig = function (url, callback, error) {
+    this.atTaskPutJsonp = function (url, callback, error) {
         if (url.indexOf("&jsonp") == -1) url += "&jsonp=JSON_CALLBACK";
         $http.jsonp(url).then(callback, error);
     }
@@ -338,62 +338,16 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     this.atTaskPutWithBodyExample = function () {
         //var $allUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&updates={ name :'MM TEST2' }&ID=58ee774300b51b98b89d7294c23f6cfa";
-        var $mostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&ID=58ee774300b51b98b89d7294c23f6cfa";
         var $lesserMostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929";
-        var $url = "https://mbiinc.preview.workfront.com/attask/api/v7.0/project";
         
         var $data = "{name : 'RM TESTY', ID : '58ee774300b51b98b89d7294c23f6cfa'}";
-        // $data = JSON.stringify($data);
-        var $params = {params: {  ID : "58ee774300b51b98b89d7294c23f6cfa",  sessionID: "c72d0eb145ff4fc89d282dc46ffe9929", method: "PUT" }}
         $http.put($lesserMostUrl, $data).then( function(response){
             alert('put finished successfully');
         }, function(response) {
             alert('put request failed!');
         });     
-        // $http.jsonp(url).then(callback, error);
     }
 
-
-    this.atTaskErrorStepBulkUpdateOrig = function (objType,url,updateBlock,updatesRemaining,callback,error,chunkData)
-    {
-        var context = this;
-        if (chunkData == null)
-            chunkData = [];
-
-        if (updateBlock.length == 0)  
-        {
-            //Have finished single-updating the block that threw an error code, resume processing the rest of the bulk updates.
-            context.atTaskBulkUpdateOrig(objType,url, updatesRemaining, callback, error, chunkData); 
-            return;        
-        }
-        
-        upd = JSON.stringify(updateBlock.shift(),null,'');
-        upd = upd.replace(/%/g,'%25').replace(/&/g,'%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
-
-        var tmpURL = url + '&updates=[' + upd + ']';
-        this.atTaskPutOrig(tmpURL, function (results) {
-            if (!(typeof results.data.error === 'undefined')   )
-            {    
-                if (results.data.error != null)
-                {
-                    if (results.data.error.message == 'category cannot be null' || results.data.error.message.indexOf('Invalid Parameter') != -1)                        
-                        chunkData.push({type:objType,updates:results.config.url, comments:'ERROR. This record is missing a required custom form assigment.' });                        
-                    else
-                        chunkData.push({type:objType,updates:results.config.url, comments: 'ERROR. ' + results.data.error.message });
-
-                    context.atTaskErrorStepBulkUpdateOrig(objType,url, updateBlock, updatesRemaining, callback, error, chunkData);
-                }
-            }
-            else
-            {
-                // chunkData.push({type:objType,comments:'UPDATES',updates:'[{"ID":"' + results.data.data.map(function(i){return i.ID}).join('"}, {"ID":"') + '"}'});
-                chunkData.push({type:objType,comments:'UPDATES',updates:results.config.url});
-                context.atTaskErrorStepBulkUpdateOrig(objType,url, updateBlock,updatesRemaining,callback, error,chunkData);        
-            }
-        }
-        // hmmm, should the error callback be passed into atTaskPut here?
-        );
-    }
 
     this.atTaskErrorStepBulkUpdate = function (objType, url, updates, callback, error, results)
     {
@@ -429,155 +383,6 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
     }
 
 
-
-    this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chunkData,callback,error)
-    {
-        var id = obj.ID;
-        var baseFields = {};
-        var custFields = [{}];
-        var maxSize = 3000;
-        var i = 0;
-        var totSize = 0;
-        var context = this;
-
-
-        for (var fld in obj)
-        {
-            if (fld.indexOf("DE:") > -1 && fld != "ID")
-            { 
-        
-                if (totSize + JSON.stringify(obj[fld]).length + 1 > maxSize || singleFieldMode)
-                { 
-                    i++;
-                    custFields[i] = {};
-                    totSize = 0;
-                }
-
-                totSize += JSON.stringify(obj[fld]).length + 1;
-
-                custFields[i][fld] = obj[fld];
-            } 
-            else if (fld != "ID")
-            {
-                baseFields[fld] = obj[fld];
-            }
-
-        }
-
-        putCustomFields = function (url, ID, custFields,chunkData,callback,error)
-        {
-            if (custFields.length > 0)
-            {
-                var custField = custFields.shift();
-                custField['ID'] = ID;
-
-                var tmpURL = url + '&updates=[' + JSON.stringify(custField).replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B') + ']';
-
-                context.atTaskPut(tmpURL , function (results) {
-                    chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});              
-                    putCustomFields(url,ID,custFields,chunkData,callback,error);  
-                }, error);
-
-
-            }
-            else
-            {
-                callback(chunkData);
-            }
-        }
-
-        var tmpURL = JSON.stringify(baseFields);
-        if ( tmpURL != "{}")
-        {
-            baseFields[ID] = ID;
-
-            tmpURL = tmpURL.replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
-
-            tmpURL = url + '&updates=[' + tmpURL + ']';
-
-            context.atTaskPutOrig(tmpURL, function (results) { 
-                chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});             
-                putCustomFields(url,ID,custFields,chunkData,callback,error);                          
-            }, error);
-
-        }
-        else
-        {
-            putCustomFields(url,id,custFields,chunkData,callback,error); 
-        }
-
-    }
-    
-    this.atTaskBulkUpdateOrig = function (objType, url, updates, callback, error, chunkData) {
-        var maxURL = 3500;
-        var context = this;
-        var postSet = [];
-        var tmpURL = url + '&updates=[';
-        var updatesRemaining = updates;
-        if (chunkData == null)
-            chunkData = [];
-            
-        if (updates.length == 0){
-            callback(chunkData);
-            return;
-        }
-    
-        var updateBlock = [];
-        var strJSON = JSON.stringify(updatesRemaining[0], null, ' ');
-        strJSON = strJSON.replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
-
-        if (strJSON.length + tmpURL.length > maxURL)
-        {
-            context.atTaskStepUpdateCustomFields(objType,url,updatesRemaining.shift(),false,chunkData,
-                function() {context.atTaskBulkUpdate(objType,url, updatesRemaining, callback, error,chunkData )}
-            ,error);
-        }
-        else
-        {          
-            while (tmpURL.length + strJSON.length <= maxURL && updatesRemaining.length > 0) {
-                updateBlock.push (updatesRemaining.shift());
-                tmpURL += strJSON;
-                strJSON = ',' + JSON.stringify(updatesRemaining[0], null, ' ');
-                strJSON = strJSON.replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
-            }
-
-            //     console.log(updates.length + ' query sent:');
-            //    console.log(tmpURL + ']');
-
-                
-            this.atTaskPutOrig(tmpURL + ']', function (results) {
-                
-
-                if (!(typeof results.data.error === 'undefined')   )
-                {
-                    if (results.data.error != null)
-                    {
-
-                        if (results.data.error.message == 'category cannot be null' || results.data.error.message.indexOf('Invalid Parameter') != -1)
-                            chunkData.push({type:objType,updates: results.config.url,comments:'ERROR. Bulk update failed. One or more records are missing a required custom form attachment. Re-running update one record at a time...'});
-                        else
-                            chunkData.push({type:objType,updates:results.config.url, comments: 'ERROR. Bulk update failed. Stepping each item one at a time. Message:' + results.data.error.message});
-                
-                    
-                        context.atTaskErrorStepBulkUpdateOrig(objType,url, updateBlock,updatesRemaining,callback, error,chunkData);                 
-                    }
-                }
-                else
-                {
-                    //chunkData.push({type:objType,comments:'UPDATES',updates:'[{"ID":"' + results.data.data.map(function(i){return i.ID}).join('"}, {"ID":"') + '"}]'});             
-                    chunkData.push({type:objType,comments:'UPDATES',updates:results.config.url});             
-                                        
-
-                    context.atTaskBulkUpdate(objType,url, updatesRemaining, callback, error,chunkData );
-                        
-                }
-                
-            }, error);
-        }
-
-
-    }
-
     this.atTaskBulkUpdate = function (objType, url, updates, callback, error, results) {
         // TODO: (Ryan) This code assumes the url already has method=PUT and Session_id in the query string
         var context = this;
@@ -596,7 +401,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         }
 
         var success = function (r) {
-            var recurseFn = function () {
+            var incrementalCallback = function () {
                 context.atTaskBulkUpdate(objType, url, updates, callback, error, results);
             }
             if (!(typeof r.data.error === 'undefined')) {
@@ -609,13 +414,13 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                     }
 
                     // switch to update one row at a time mode
-                    context.atTaskErrorStepBulkUpdate(objType, url, batch, recurseFn, error, results);
+                    context.atTaskErrorStepBulkUpdate(objType, url, batch, incrementalCallback, error, results);
                 }
                 // hmmm - recursive call chain is broken here when r.data.error is null
             }
             else {
                 results.push({ type: objType, comments: 'UPDATES', updates: r.config.url });
-                recurseFn();
+                incrementalCallback();
             }
         }
         
@@ -640,7 +445,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
     }
 
     this.atTaskBatchGet = function (atTaskInstance, atTaskObject, sessionId, filter, fields, finalCallBack, errorCallBack, incrementalCallBack) {
-        var url = 'https://' + atTaskInstance + '/attask/api-internal/' + atTaskObject + '/search?method=GET' + filter + '&sessionID=' + sessionId + '&fields= ' + fields + '&jsonp=JSON_CALLBACK';
+        var url = 'https://' + atTaskInstance + '/attask/api-internal/' + atTaskObject + '/search?method=GET' + filter + '&sessionID=' + sessionId + '&fields= ' + fields;
         batchedLoad(url, 1000, finalCallBack, errorCallBack, incrementalCallBack);
     }
 
