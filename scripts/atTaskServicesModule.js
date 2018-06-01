@@ -397,7 +397,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         var MAX_BATCH_SIZE = 100;
         var batch = [];
         while (updates.length > 0 && batch.length < MAX_BATCH_SIZE) {
-            batch.push(JSON.stringify(updates.shift(), null, ' '));
+            batch.push(updates.shift());
         }
 
         var success = function (r) {
