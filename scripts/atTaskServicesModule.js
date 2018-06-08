@@ -339,7 +339,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         }
 
 
-        $http.put(url, $bodyParams).then(callback, errorWraper);
+        $http.put(url, $bodyParams).then(callback, errorWrapper);
     }
 
 
