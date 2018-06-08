@@ -332,7 +332,14 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
     }
 
     this.atTaskPut = function (url, $bodyParams, callback, error) {     
-        $http.put(url, $bodyParams).then(callback, error);
+
+        var errorWrapper = function(r) {
+           console.log("In errorWrapper");
+           error(r);
+        }
+
+
+        $http.put(url, $bodyParams).then(callback, errorWraper);
     }
 
 
