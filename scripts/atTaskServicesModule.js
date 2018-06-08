@@ -425,6 +425,9 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         }
 
         var fail = function(r){
+            var incrementalCallback = function () {
+                context.atTaskBulkUpdate(objType, url, updates, callback, error, results);
+            }
              // switch to update one row at a time mode
              context.atTaskErrorStepBulkUpdate(objType, url, batch, incrementalCallback, error, results);
         }
