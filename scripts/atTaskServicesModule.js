@@ -332,14 +332,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
     }
 
     this.atTaskPut = function (url, $bodyParams, callback, error) {     
-
-        var errorWrapper = function(r) {
-           console.log("In errorWrapper");
-           error(r);
-        }
-
-
-        $http.put(url, $bodyParams).then(callback, errorWrapper);
+        $http.put(url, $bodyParams).then(callback, error);
     }
 
 
@@ -386,7 +379,26 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
         };
 
-        this.atTaskPut(url, updates.shift(), success, error);
+        var fail = function(r){
+            if (!(typeof r.data.error === 'undefined')) {
+                if (r.data.error != null) {
+                    if (r.data.error.message == 'category cannot be null' || r.data.error.message.indexOf('Invalid Parameter') != -1)
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. This record is missing a required custom form assigment.' });
+                    else
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. ' + r.data.error.message });
+
+                    context.atTaskErrorStepBulkUpdate(objType, url, updates, callback, error, results);
+                }
+                // hmmm - won't the recursive call chain be broken if r.data.error is null?
+            }
+            else {
+                error(r);
+            }
+        }
+
+
+
+        this.atTaskPut(url, updates.shift(), success, fail);
     }
 
 
