@@ -423,8 +423,13 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                 incrementalCallback();
             }
         }
+
+        var fail = function(r){
+             // switch to update one row at a time mode
+             context.atTaskErrorStepBulkUpdate(objType, url, batch, incrementalCallback, error, results);
+        }
         
-        this.atTaskPut(url, batch, success, error);
+        this.atTaskPut(url, batch, success, fail);
     }
 
 
