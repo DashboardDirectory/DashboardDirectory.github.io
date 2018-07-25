@@ -5,7 +5,7 @@ function openApp(url, window_params){
 
 window.onload = function () {
 
-    var url = "https://dashboard.directory/stopwatch/index.html"+location.search;
+    var url = "https://dashboard.directory/stopwatch/launch.html"+location.search;
     var window_params = 'height=600,width=450,left=100,top=100,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,directories=no, status=no';
     var link = "javascript: (function(){window.open('"+url+"','popUpWindow','"+window_params+"')})();";
     jQuery('.bookmark').each(function() {

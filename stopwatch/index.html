@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head><title>Stopwatch</title>
+    <link rel="stylesheet" type="text/css" href="core/css/metro-bootstrap.css">
+    <link rel="shortcut icon" type="image/png" href="icons/timer32x32.png">
+    <style> .instr {
+        display: none;
+    } </style>
+    <script type="text/javascript" src="lib/ATBookmarkApp.js"></script>
+    <script type="text/javascript" src="core/docs/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="launch.js"></script>
+</head>
+<body>
+<div style="width: 550px; max-width: 550px; margin-left:auto; margin-right:auto;">
+    <div class="well-large chrome instr" style="text-align:center;"></div>
+    <div class="well-large ie6 instr"><h2>Sorry, This browser is not supported.</h2></div>
+    <div class="well-large" id="message"><h1 style="color:#2e63cc;">Stopwatch Launched!</h1>
+
+        <div class="well-small"><h3>If you don't see the new window, make sure popup blocker is disabled, or perhaps it
+            is behind this window, Then try launching again</h3>
+
+            <p> <a class='btn btn-primary bookmark' href="">Launch Stopwatch</a></p>
+
+            <div class="well-small chrome instr"><p>For how to manage pop-up settings in Chrome, have a look at <a
+                    href="http://www.google.com/support/chrome/bin/answer.py?hl=en&amp;answer=95472"
+                    title="disable pop-ups in Chrome" target="_blank">Google's support documentation</a>.</p></div>
+            <div class="well-small firefox instr"><p>Mozilla's support pages show you how to <a
+                    href="http://support.mozilla.com/en-US/kb/Pop-up+blocker" title="disable pop-ups in Firefox"
+                    rel="external" target="_blank">manage pop-up blocker settings in Firefox</a>.</p></div>
+            <div class="well-small ie instr"><p><a
+                    href="http://windows.microsoft.com/en-us/Windows-vista/Internet-Explorer-Pop-up-Blocker-frequently-asked-questions"
+                    rel="external" title="pop ups in IE" target="_blank">Microsoft's FAQ</a> shows you how to turn
+                Internet Explorer's pop-up blocker on and off.</p></div>
+            <div class="well-small safari instr"><p>Safari's pop-up blocker doesn't block pop-ups from opening if you've
+                clicked on a button, so please <a href="#" title="Launch Stopwatch" onclick="open();">launch stopwatch
+                    manually.</a></p></div>
+        </div>
+        <h1 style="color:#2e63cc;">How to bookmark<br>
+            <small>to easily launch stopwatch</small>
+        </h1>
+        <h3>make bookmark bar viewable:</h3>
+
+            <div class="well-small">
+                <div class="well-large chrome instr"><p><strong>CTRL + SHIFT + B</strong></p></div>
+                <div class="well-large firefox instr"><img src="icons/ffbookmark.png"/></div>
+                <div class="well-large ie instr"><p><strong>ALT + V</strong></p> <img src="icons/iebookmark.png"/></div>
+                <div class="well-large safari instr"><p><strong>COMMAND + SHIFT + B</strong></p></div>
+            </div>
+            <h3>Click and drag Stopwatch link to bar:</h3>
+
+            <div class="well-large chrome instr"><img src="icons/chdrag.png"/></div>
+            <div class="well-large firefox instr"><img src="icons/ffdrag.png"/></div>
+            <div class="well-large ie instr"><img src="icons/iedrag.png"/></div>
+            <div class="well-large safari instr"><img src="icons/sfdrag.png"/></div>
+            <h3>Now try:</h3>
+
+            <h1><a class='btn btn-primary bookmark'
+                   href="">Stopwatch</a>
+                <small> << Drag to Bookmark Bar</small>
+            </h1>
+    </div>
+</div>
+</body>
+</html>
