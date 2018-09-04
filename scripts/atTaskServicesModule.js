@@ -335,7 +335,13 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
         if (url.indexOf("DELETE") > 0 )
         {
-            $http.put(url,{},$bodyParams).then(callback, error);
+              var config = {
+               headers : {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                }
+                }
+
+            $http.post(url,$bodyParams.join(""),config).then(callback, error);
         } 
         else
         {
