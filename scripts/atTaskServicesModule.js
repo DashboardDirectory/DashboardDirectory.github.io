@@ -331,8 +331,16 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         $http.jsonp(url).then(callback, error);
     }
 
-    this.atTaskPut = function (url, $bodyParams, callback, error) {     
-        $http.put(url, $bodyParams).then(callback, error);
+    this.atTaskPut = function (url, $bodyParams, callback, error) {    
+
+        if (url.indexOf("DELETE") > 0 )
+        {
+            $http.put(url,{},$bodyParams).then(callback, error);
+        } 
+        else
+        {
+            $http.put(url, $bodyParams).then(callback, error);
+        }
     }
 
 
