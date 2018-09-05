@@ -331,8 +331,22 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         $http.jsonp(url).then(callback, error);
     }
 
-    this.atTaskPut = function (url, $bodyParams, callback, error) {     
-        $http.put(url, $bodyParams).then(callback, error);
+    this.atTaskPut = function (url, $bodyParams, callback, error) {    
+
+        if (url.indexOf("DELETE") > 0 )
+        {
+              var config = {
+               headers : {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                }
+                }
+
+            $http.post(url,$bodyParams.join(""),config).then(callback, error);
+        } 
+        else
+        {
+            $http.put(url, $bodyParams).then(callback, error);
+        }
     }
 
 
