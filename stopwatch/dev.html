@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html style="background: whitesmoke; overflow: hidden">
+<head>
+    <title>Stopwatch</title>
+    <meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" type="image/png" href="icons/timer32x32.png"/>
+    <link rel="stylesheet" type="text/css" href="core/css/metro-bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="core/css/style.min.css?ver=2017v426"/>
+    <link rel="stylesheet" type="text/css" href="lib/jquery.qtip.min.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/offline-language-english.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/offline-theme-slide.css"/>
+    <meta name="viewport" content="height=device-height,width=device-width, initial-scale=0.5"/>
+</head>
+<body>
+<div id="drop">
+
+    <div id="window" class="window"></div>
+    <div id="cover"></div>
+</div>
+<div id="holder" style="display: none; min-width: 413px;">
+    <div align="center" id="bar">
+        <a href="#" id="create" class="create button"><span class="icon"></span> New task</a>
+        <a href="#" id="remove-all" class="remove-all button"><span class="icon"></span> Delete all</a>
+    </div>
+
+    <div align="center" id="top-bar">
+        <div class="spinner">
+            <div id="blockG_1" class="metro_blockG"></div>
+            <div id="blockG_2" class="metro_blockG"></div>
+            <div id="blockG_3" class="metro_blockG"></div>
+        </div>
+        <span id="search-bar">
+            <input id="searchfor" type="text" name="search" placeholder="Search" value="">
+        </span>
+        <span id="sort-bar">
+            <div id="role-filter" class="btn-info btn-group open" style="vertical-align: top; display: none;">
+                <button type="button" class="btn btn-info btn-medium dropdown-toggle"  style="padding: 4px;" data-toggle="dropdown"></button>
+                <ul class="dropdown-menu" role="menu">
+                </ul>
+            </div>
+        </span>
+        <span id="button-bar">
+            <div id="sort-menu" class="btn-group" style="vertical-align: top;">
+                <button type="button" class="btn btn-medium dropdown-toggle" style="padding: 4px; font-weight: 600; color: #9d9d9d; background-color: #f5f5f5;" data-toggle="dropdown">sort</button>
+                <ul class="dropdown-menu" style="right:0; left: initial;" role="menu">
+                    <li><a href="#" id="sort-date" title="Sort by Due Date" class="">date</a></li>
+                    <li><a href="#" id="sort-task" title="Sort by Task Name" class="">task</a></li>
+                    <li><a href="#" id="sort-project" title="Sort by Project Name" class="">project</a></li>
+                    <li><a href="#" id="sort-priority" title="Sort by Priority" class="">priority</a></li>
+                </ul>
+            </div>
+            <span id="popout" title="Pop out"><img src="core/img/popout.gif"></span>
+            <span id="search" title="Search"><img src="core/img/search.gif"></span>
+        </span>
+    </div>
+    <div id="content">
+        <div id="loading">Loading...</div>
+        <div id="form-list" class="form"></div>
+
+        <div id="form-create" class="form" style="display: none">
+            <p>
+                <label for="task-nameC">Task name</label>
+                <input type="text" name="task-name" id="task-nameC" class="text"/>
+            </p>
+
+            <p class="buttons">
+                <input type="button" id="button-create" value="Save"/>
+                <input type="button" id="form-create.cancel-button" class="cancel" rel="form-create" value="Cancel"/>
+            </p>
+
+            <p style="display: none" id="create-status"></p>
+        </div>
+
+        <div id="form-update" class="well form" style="display: none">
+            <input type="hidden" name="task-id" id="task-id" value=""/>
+
+            <p>
+                <label for="task-nameU">Task name</label>
+                <input type="text" name="task-name" id="task-nameU" class="text"/>
+            </p>
+
+            <p>
+                <label for="task-time">Task time (sec)</label>
+                <input type="text" name="task-time" id="task-time" class="text"/>
+            </p>
+
+            <p class="buttons">
+                <input type="submit" id="button-update" class="btn btn-primary" value="Update"/>
+                <input type="button" id="form-update.cancel-button" class="btn cancel" rel="form-update"
+                       value="Cancel"/>
+            </p>
+
+            <p style="display: none" id="update-status"></p>
+        </div>
+
+        <div id="form-remove" class="well form" style="display: none">
+            <p id="remove-confirm" class="remove-confirm"></p>
+
+            <p class="buttons">
+                <input type="button" id="button-remove" class="btn btn-primary" value="Delete"/>
+                <input type="button" id="form-remove.cancel-button" class="btn cancel" rel="form-remove"
+                       value="Cancel"/>
+            </p>
+        </div>
+
+        <div id="form-remove-all" class="form" style="display: none">
+            <p id="remove-all-confirm" class="remove-confirm">Are you sure you want to <strong>delete all tasks</strong>?
+            </p>
+
+            <p class="buttons">
+                <input type="button" id="button-remove-all" class="btn btn-primary" value="Yes"/>
+                <input type="button" id="form-remove-all.cancel-button" class="btn cancel" rel="form-remove-all"
+                       value="Cancel"/>
+            </p>
+        </div>
+    </div>
+
+    <div id="store" style="background-color: whitesmoke; text-align:center; border-top: 1px solid #e0e0e0;">
+        <a id="running" href="#" title="Stop Task" class="btn timer btn-primary" style="display: none;"></a>
+        <a id="storelink" target="_blank" href="http://store.atappstore.com/product/stopwatch/">AtAppStore</a>
+        <span style="color: silver; position: fixed; right: 10px;">v4.3.4</span>
+    </div>
+</div>
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+<script type="text/javascript" src="core/docs/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="core/docs/bootstrap-dropdown.js"></script>
+<script src="lib/liquidmetal.js" type="text/javascript"></script>
+<script src="lib/jquery.domsearch.js" type="text/javascript"></script>
+<script src="lib/offline.min.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="dev.min.js?ver=2017v434"></script>
+</body>
+</html>
