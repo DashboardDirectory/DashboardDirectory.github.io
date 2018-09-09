@@ -333,6 +333,13 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     this.atTaskPut = function (url, $bodyParams, callback, error) {    
 
+        if (typeof $bodyParams === 'function')
+        {
+            error = callback;
+            callback = $bodyParams;
+            $bodyParams = null;
+        }
+
         if (url.indexOf("DELETE") > 0 )
         {
               var config = {
@@ -350,17 +357,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
     }
 
 
-    this.atTaskPutWithBodyExample = function () {
-        //var $allUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&updates={ name :'MM TEST2' }&ID=58ee774300b51b98b89d7294c23f6cfa";
-        var $lesserMostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929";
-        
-        var $data = "{name : 'RM TESTY', ID : '58ee774300b51b98b89d7294c23f6cfa'}";
-        $http.put($lesserMostUrl, $data).then( function(response){
-            alert('put finished successfully');
-        }, function(response) {
-            alert('put request failed!');
-        });     
-    }
+    
 
 
     this.atTaskErrorStepBulkUpdate = function (objType, url, updates, callback, error, results)
