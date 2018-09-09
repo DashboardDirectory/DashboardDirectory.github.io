@@ -338,9 +338,9 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
             error = callback;
             callback = $bodyParams;
             $bodyParams = null;
+            $http.get(url).then(callback,error);
         }
-
-        if (url.indexOf("DELETE") > 0 )
+        else if (url.indexOf("DELETE") > 0 )
         {
               var config = {
                headers : {
