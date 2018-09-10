@@ -227,6 +227,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
     this.atTaskErrorStepBulkUpdate = function (objType, url, updates, callback, error, results)
     {
         var context = this;
+        var item = {};
         if (results == null)
             results = [];
 
@@ -239,9 +240,9 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
             if (!(typeof r.data.error === 'undefined')) {
                 if (r.data.error != null) {
                     if (r.data.error.message == 'category cannot be null' || r.data.error.message.indexOf('Invalid Parameter') != -1)
-                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. This record is missing a required custom form assigment.' });
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. This record is missing a required custom form assigment.', batch: itm});
                     else
-                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. ' + r.data.error.message });
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. ' + r.data.error.message , batch: itm});
 
                     context.atTaskErrorStepBulkUpdate(objType, url, updates, callback, error, results);
                 }
@@ -258,9 +259,9 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
             if (!(typeof r.data.error === 'undefined')) {
                 if (r.data.error != null) {
                     if (r.data.error.message == 'category cannot be null' || r.data.error.message.indexOf('Invalid Parameter') != -1)
-                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. This record is missing a required custom form assigment.' });
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. This record is missing a required custom form assigment.' , batch: itm});
                     else
-                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. ' + r.data.error.message });
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. ' + r.data.error.message, batch: itm });
 
                     context.atTaskErrorStepBulkUpdate(objType, url, updates, callback, error, results);
                 }
@@ -272,8 +273,8 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         }
 
 
-
-        this.atTaskPut(url, updates.shift(), success, fail);
+        itm = updates.shift();
+        this.atTaskPut(url, itm, success, fail);
     }
 
 
@@ -301,7 +302,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
             if (!(typeof r.data.error === 'undefined')) {
                 if (r.data.error != null) {
                     if (r.data.error.message == 'category cannot be null' || r.data.error.message.indexOf('Invalid Parameter') != -1) {
-                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. Bulk update failed. One or more records are missing a required custom form attachment. Re-running update one record at a time...' });
+                        results.push({ type: objType, updates: r.config.url, comments: 'ERROR. Bulk update failed. One or more records are missing a required custom form attachment. Re-running update one record at a time...', batch:batch });
                     }
                     else {
                         results.push({ type: objType, updates: r.config.url, comments: 'ERROR. Bulk update failed. Stepping each item one at a time. Message:' + r.data.error.message });
