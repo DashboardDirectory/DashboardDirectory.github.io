@@ -313,7 +313,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                 // hmmm - recursive call chain is broken here when r.data.error is null
             }
             else {
-                results.push({ type: objType, comments: 'UPDATES', updates: r.config.url });
+                results.push({ type: objType, comments: 'UPDATES', updates: r.config.url, batch:batch });
                 incrementalCallback();
             }
         }
