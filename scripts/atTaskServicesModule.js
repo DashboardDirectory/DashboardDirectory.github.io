@@ -249,7 +249,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                 // hmmm - won't the recursive call chain be broken if r.data.error is null?
             }
             else {
-                results.push({ type: objType, comments: 'UPDATES', updates: r.config.url });
+                results.push({ type: objType, comments: 'UPDATES', updates: r.config.url , batch: itm });
                 context.atTaskErrorStepBulkUpdate(objType, url, updates, callback, error, results);
             }
 
