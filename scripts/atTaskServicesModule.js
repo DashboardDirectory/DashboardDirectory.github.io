@@ -38,143 +38,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
         return theBlob;
     }
 
-  
-    ngUploadToWorkfrontTemp = function(server,file,sessionID,objType,objId,successCallBack,errorCallBack)
-    {
-        var tmpUrl = "https://" + server + "/documents/uploadTemp";
-
-
-        Upload.upload({
-            url: tmpUrl,
-            headers: {sessionID:sessionID},
-            data: {objID:objId, docObjCode: objType,
-                file: file
-            },
-        }).then(function (response) {            
-            successCallBack(response.data.handle);
-        }, function (response) {
-            errorCallBack(response);
-        }) ;
-
-    }
-
- 
-
-
-    createDirectory = function (id, objectType, dirName, server, session, parentId, callback, errorCallback) {
-
-
-        var URL = 'https://' + server + '/attask/api/v7.0/docfdr?method=POST&sessionID=' + session +
-                               '&updates=[{ID:"",name:"' + dirName + '",' + objectType + 'ID:"' + id + '"';
-
-        if (!(typeof parentId === 'undefined')) {
-            URL += ',parentID:"' + parentId + '"';
-        }
-        URL += '}]';
-
-        $http.jsonp(URL + '&jsonp=JSON_CALLBACK').success(
-    function (data) {
-
-        callback(data.data[0].ID);
-
-    }).error(
-    errorCallback
-    );
-
-    }
-
-
-
-    //Given a folder path, and an AtTask objectType, server, session, and optional document parent:
-    //    1) identify whether full path exists 2) create any subdirectories needed to build out path
-    //    3) Return ID of the end folder of the full path
-
-    createOrGetFolderPath = function (id, objectType, path, server, session, parentId, callback, errorCallback) {
-        var paths = path.split('\\');
-
-        if (paths.length > 1) {
-            // If path has subdirs, get the ID of the head element and recurse on tail, passing the head element
-            // id along to the recursion.  Pass along incoming callback function to return bottom level Id when found/made
-
-            var head = paths[0]; paths.shift();
-            var tail = paths.join('\\');
-
-            createOrGetFolderPath(id, objectType, head, server, session, parentId,
-              function (dirId) {
-                  createOrGetFolderPath(id, objectType, tail, server, session, dirId, callback, errorCallback);
-              }
-
-    );
-        }
-        else {      // Dealing with single folder level.  See if it exists
-
-            var URL = 'https://' + server + '/attask/api/v7.0/docfdr/search?method=GET&sessionID=' + session +
-                       '&name=' + path + '&securityRootID=' + id;
-
-            if (!(typeof parentId === 'undefined')) {
-                URL += '&parentID=' + parentId;
-            }
-
-            $http.jsonp(URL + '&jsonp=JSON_CALLBACK').success(
-                 function (data) {
-                     if (data.data.length > 0) {
-                         // Base return case for existing folder
-
-                         callback(data.data[0].ID);
-                     }
-                     else {
-                         // Base create case for non-existant folder.
-
-                         createDirectory(id, objectType, path, server, session, parentId, callback, errorCallback);
-                     }
-                 }
-             ).error(errorCallback);
-        }
-    };
- 
-    attachHandle = function (server, session, filename, handle, objID, objectType, folderID, callback, errorCallback) 
-    {
-        var URL = 'https://' + server + '/attask/api/v7.0/document?method=POST&sessionID=' + session +
-                    '&updates ={{name:"' + filename + '",handle:"' + handle +
-                     '",docObjCode:"' + objectType +
-                     '",objID:"' + objID + '", ' +
-                     (folderID == null ? '' : 'folders=[{ID:"' + folderID +'"}],') +
-                 'currentVersion:{{version:"v1.0",filename:"' + filename + '"}} }}';
-
-        $http.jsonp(URL + '&jsonp=JSON_CALLBACK').success(callback).error(errorCallback);
-
-
-    };
-
- 
-    this.uploadFile = function (file, filename, id, objectType, path, server, session, callback, errorCallback) {
-
-        if (path != '')
-        {
-
-            createOrGetFolderPath(id, objectType, path, server, session, null,
-                function (parentID) {
-                    ngUploadToWorkfrontTemp(server,file,session,objectType,id, 
-                        function (handle) {
-                            attachHandle(server, session, filename, handle, id, objectType,parentID,callback, errorCallback);
-                        },
-                        errorCallback);
-                }
-
-            , errorCallback);
-        }
-        else
-        {
-            ngUploadToWorkfrontTemp(server,file,session,objectType,id, 
-                            function (handle) {
-                                attachHandle(server, session, filename, handle, id, objectType,null,callback, errorCallback);
-                            },
-                            errorCallback);
-
-        }
-
-    }
-
+   
 
 
 
@@ -333,7 +197,14 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     this.atTaskPut = function (url, $bodyParams, callback, error) {    
 
-        if (url.indexOf("DELETE") > 0 )
+        if (typeof $bodyParams === 'function')
+        {
+            error = callback;
+            callback = $bodyParams;
+            $bodyParams = null;
+            $http.get(url).then(callback,error);
+        }
+        else if (url.indexOf("DELETE") > 0 )
         {
               var config = {
                headers : {
@@ -350,17 +221,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
     }
 
 
-    this.atTaskPutWithBodyExample = function () {
-        //var $allUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929&updates={ name :'MM TEST2' }&ID=58ee774300b51b98b89d7294c23f6cfa";
-        var $lesserMostUrl="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=c72d0eb145ff4fc89d282dc46ffe9929";
-        
-        var $data = "{name : 'RM TESTY', ID : '58ee774300b51b98b89d7294c23f6cfa'}";
-        $http.put($lesserMostUrl, $data).then( function(response){
-            alert('put finished successfully');
-        }, function(response) {
-            alert('put request failed!');
-        });     
-    }
+    
 
 
     this.atTaskErrorStepBulkUpdate = function (objType, url, updates, callback, error, results)
