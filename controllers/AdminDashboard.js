@@ -157,8 +157,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     {
         var url = atTaskHost + "/attask/" + api + "/cmpy/search?method=GET&" + 
            "&sessionID=" + sessionID +
-           "&fields=name,ID" +
-           "&jsonp=JSON_CALLBACK";
+           "&fields=name,ID";
         
         atTaskWebService.atTaskGet(url, 
 
@@ -645,14 +644,18 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         var path = 'api-unsupported/uift/filtersForObjCode';
         var filter = 'sessionID=' + sessionID + '&objCode=' + objCode.toUpperCase() + '&filterType=STANDARD';
         var fields = [ 'name', 'definition'];
-        var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',') + '&jsonp=JSON_CALLBACK';
+        var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',') ;
 
-        $http.jsonp(filterURL).success(function (data) {
-            newFilter = newFilter.concat(data.data.map(function (tFilter) {
-                tFilter['filter'] = $scope.createFilterFromDefinition(tFilter.definition, ''); return tFilter;
-            }));
-            callback(newFilter);
-        });
+        
+         atTaskWebService.atTaskGet(filterURL, 
+         		function (data) 
+         			{
+            			newFilter = newFilter.concat(data.data.map(function (tFilter) 
+            						{
+                						tFilter['filter'] = $scope.createFilterFromDefinition(tFilter.definition, ''); return tFilter;
+            						}));
+            			callback(newFilter);
+        			});
              
         
 
@@ -667,19 +670,17 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         var path = 'api-internal/uift/filtersForObjCode';
         var filter = 'sessionID=' + sessionID + '&objCode=PROJ&filterType=STANDARD';
         var fields = [ 'name', 'definition'];
-        var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',') + '&jsonp=JSON_CALLBACK';
+        var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',');
 
-        $http.jsonp(filterURL).success(function (data) {
-                      
-            $scope.projectFilters = $scope.projectFilters.concat(data.data.map(function (pFilter) {
-                pFilter['filter'] = $scope.createFilterFromDefinition(pFilter.definition,prefix); return pFilter;
-            }));
-
-
-
-            $scope.setDefaultProjectFilter();
-
-        });
+        atTaskWebService.atTaskGet(filterURL, 
+        		function (data) {                      
+            					$scope.projectFilters = $scope.projectFilters.concat(
+            							data.data.map(function (pFilter) {
+                							pFilter['filter'] = $scope.createFilterFromDefinition(pFilter.definition,prefix); return pFilter;
+            							}));
+            					$scope.setDefaultProjectFilter();
+            					});
+        
     }
 
 
@@ -713,9 +714,9 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         var path = 'api-internal/uift/filtersForObjCode';
         var filter = 'sessionID=' + sessionID + '&objCode=TASK&filterType=STANDARD';
         var fields = [ 'name', 'definition'];
-        var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',') + '&jsonp=JSON_CALLBACK';
+        var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',') ;
 
-        $http.jsonp(filterURL).success(function (data) {
+        atTaskWebService.atTaskGet(filterURL, function (data) {
                       
             $scope.taskFilters = $scope.taskFilters.concat(data.data.map(function (tFilter) {
                 tFilter['filter'] = $scope.createFilterFromDefinition(tFilter.definition,prefix); return tFilter;
@@ -800,8 +801,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             var url = atTaskHost + "/attask/" + api + "/" + configObjType + '/search?method=GET&name=' + configObjName + 
             "&sessionID=" + sessionID +
             "&fields=documents:downloadURL,documents:currentVersion:ext,documents:parameterValues:*,parameterValues:*" +
-            (configObjType.toUpperCase() == "PROJ" ? ",tasks:parameterValues:*" : "" ) +
-            "&jsonp=JSON_CALLBACK";
+            (configObjType.toUpperCase() == "PROJ" ? ",tasks:parameterValues:*" : "" );
         
             atTaskWebService.atTaskGet(url, 
 
@@ -1109,7 +1109,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     {   
         if (typeof $scope.currentProjectFilter === 'undefined') return false;
 
-        var url = atTaskHost  + '/attask/' + api + '/proj/count?method=GET' +   $scope.currentProjectFilter.filter + '&sessionID=' + sessionID + '&jsonp=JSON_CALLBACK';
+        var url = atTaskHost  + '/attask/' + api + '/proj/count?method=GET' +   $scope.currentProjectFilter.filter + '&sessionID=' + sessionID ;
         atTaskWebService.atTaskGet(url, 
              function (data)
              {
@@ -1126,7 +1126,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         }
         else
         {
-            var url = atTaskHost  + '/attask/' + api + '/proj/search?method=GET' +   $scope.currentProjectFilter.filter + '&sessionID=' + sessionID + '&jsonp=JSON_CALLBACK';
+            var url = atTaskHost  + '/attask/' + api + '/proj/search?method=GET' +   $scope.currentProjectFilter.filter + '&sessionID=' + sessionID ;
             atTaskWebService.atTaskGet(url, 
                  function (data)
                  {
@@ -1197,7 +1197,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
     $scope.applyTaskFilterToJSONObj = function(obj, otherObjs, callback)
     {
-        var url = atTaskHost  + '/attask/' + api + '/task/search?method=GET' +   $scope.currentTaskFilter.definition + '&jsonp=JSON_CALLBACK';
+        var url = atTaskHost  + '/attask/' + api + '/task/search?method=GET' +   $scope.currentTaskFilter.definition ;
         atTaskWebService.atTaskGet(url, 
              function (data)
              {
@@ -1304,7 +1304,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     var query = q.query;
                     query  =  query.replace(/{SESSIONID}/g,sessionID);
                     query =  query.replace(/{ID}/g,objID);
-                    query = atTaskHost + '/attask/' + api + '/' +  query  + '&jsonp=JSON_CALLBACK';
+                    query = atTaskHost + '/attask/' + api + '/' +  query  ;
                     oQuery.push({dataSetName:q.dataSetName, query:query});
                 };
             });
@@ -1371,7 +1371,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         url = url.replace(/{SESSIONID}/g,sessionID);
         url = url.replace(/{ID}/g,objID);
         url = $scope.appendFilters(url);
-        url = atTaskHost + '/attask/' + api + '/' + url  + '&jsonp=JSON_CALLBACK';
+        url = atTaskHost + '/attask/' + api + '/' + url  ;
 
         var rptSMTP = adminReport.rptSMTP;
           
@@ -1876,24 +1876,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         }
     }
 
-    $scope.runPostExample = function (){
-        var url ="https://mbiinc.preview.workfront.com/attask/api/v7.0/project?method=PUT&sessionID=243a07a6bcae47d5838be658ac9a9830";
-        var data =  [   {name : 'RM BULKTEST1', ID : '58ee774300b51b98b89d7294c23f6cfa'},
-                        {name : 'RM BULKTEST2', ID : '5aff4c18035818afcc81dd4ab90cd45a'}
-                    ];
-        var successFn = function(result){
-            alert('success callback' + result);
-        }
-
-        var errorFn = function(result){
-            alert('error callback' + result);
-        }
-
-
-
-        atTaskWebService.atTaskBulkUpdate('project', url, data, successFn, errorFn )
-        // atTaskWebService.atTaskPutWithBodyExample();
-    }
+ 
 
     $scope.runTool = function ()
     {
@@ -1967,8 +1950,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
         var url = atTaskHost + "/attask/" + api + "/cmpy/search?method=GET&" + 
                  "&sessionID=" + sessionID +
-                 "&fields=customer:name,customer:ID&$$LIMIT=1" +
-                 "&jsonp=JSON_CALLBACK";
+                 "&fields=customer:name,customer:ID&$$LIMIT=1";
         
         atTaskWebService.atTaskGet(url, 
 

@@ -20,9 +20,9 @@ function getParameterByName(name) {
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-var atTaskServiceModule = angular.module('atTaskServiceModule', ['ngFileUpload']);
+var atTaskServiceModule = angular.module('atTaskServiceModule', []);
 
-atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
+atTaskServiceModule.service('atTaskWebService', function ($http) {
 
     this.textToFile = function(txtContents,mimeType,fileName)
     {
@@ -57,7 +57,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
                 var tUrl = 'https://' + server + '/attask/api/v7.0/task/' + t.ID + '/calculateDataExtension?method=PUT&sessionID=' + sessionID;
                 cCount++;
 
-                $http.jsonp(tUrl + '&jsonp=JSON_CALLBACK').success(
+                $http.get(tUrl).then(                
                     function (data) {
                         cCount--;
                         // envoke callback function when last refresh completes
@@ -335,9 +335,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http,Upload) {
 
     this.atTaskInternalObjectGet = function (url, success, error) {
 
-        if(url.indexOf("jsonp") == -1) url += "&jsonp=JSON_CALLBACK";
-
-        $http.jsonp(url).then(success,error);
+            $http.get(url).then(success,error);
 
     }
 
