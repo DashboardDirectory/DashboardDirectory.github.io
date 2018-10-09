@@ -641,7 +641,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
     $scope.loadCustomUserFilter = function (objCode,callback) {
         var  newFilter = [{'name':'-ALL-',definition:'',filter:''}];
-        var path = 'api-unsupported/uift/filtersForObjCode';
+        var path = 'api-internal/uift/filtersForObjCode';
         var filter = 'sessionID=' + sessionID + '&objCode=' + objCode.toUpperCase() + '&filterType=STANDARD';
         var fields = [ 'name', 'definition'];
         var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',') ;
