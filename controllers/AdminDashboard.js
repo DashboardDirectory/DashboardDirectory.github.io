@@ -641,7 +641,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
     $scope.loadCustomUserFilter = function (objCode,callback) {
         var  newFilter = [{'name':'-ALL-',definition:'',filter:''}];
-        var path = 'api-unsupported/uift/filtersForObjCode';
+        var path = 'api-internal/uift/filtersForObjCode';
         var filter = 'sessionID=' + sessionID + '&objCode=' + objCode.toUpperCase() + '&filterType=STANDARD';
         var fields = [ 'name', 'definition'];
         var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',') ;
@@ -650,7 +650,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
          atTaskWebService.atTaskGet(filterURL, 
          		function (data) 
          			{
-            			newFilter = newFilter.concat(data.data.map(function (tFilter) 
+            			newFilter = newFilter.concat(data.map(function (tFilter) 
             						{
                 						tFilter['filter'] = $scope.createFilterFromDefinition(tFilter.definition, ''); return tFilter;
             						}));
@@ -675,7 +675,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         atTaskWebService.atTaskGet(filterURL, 
         		function (data) {                      
             					$scope.projectFilters = $scope.projectFilters.concat(
-            							data.data.map(function (pFilter) {
+            							data.map(function (pFilter) {
                 							pFilter['filter'] = $scope.createFilterFromDefinition(pFilter.definition,prefix); return pFilter;
             							}));
             					$scope.setDefaultProjectFilter();
@@ -718,7 +718,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
         atTaskWebService.atTaskGet(filterURL, function (data) {
                       
-            $scope.taskFilters = $scope.taskFilters.concat(data.data.map(function (tFilter) {
+            $scope.taskFilters = $scope.taskFilters.concat(data.map(function (tFilter) {
                 tFilter['filter'] = $scope.createFilterFromDefinition(tFilter.definition,prefix); return tFilter;
             }));
 
