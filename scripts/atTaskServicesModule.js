@@ -426,5 +426,87 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
             })
     }
 
+
+
+this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chunkData,callback,error)
+{
+    var id = obj.ID;
+    var baseFields = {};
+    var custFields = [{}];
+    var maxSize = 3000;
+    var i = 0;
+    var totSize = 0;
+    var context = this;
+
+
+    for (var fld in obj)
+    {
+        if (fld.indexOf("DE:") > -1 && fld != "ID")
+        { 
+    
+            if (totSize + JSON.stringify(obj[fld]).length + 1 > maxSize || singleFieldMode)
+            { 
+                i++;
+                custFields[i] = {};
+                totSize = 0;
+            }
+
+            totSize += JSON.stringify(obj[fld]).length + 1;
+
+            custFields[i][fld] = obj[fld];
+        } 
+        else if (fld != "ID")
+        {
+            baseFields[fld] = obj[fld];
+        }
+
+    }
+
+    putCustomFields = function (url, ID, custFields,chunkData,callback,error)
+    {
+        if (custFields.length > 0)
+        {
+            var custField = custFields.shift();
+            custField['ID'] = ID;
+
+            var tmpURL = url + '&updates=[' + JSON.stringify(custField).replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B') + ']';
+
+            context.atTaskPut(tmpURL , function (results) {
+                chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});              
+                putCustomFields(url,ID,custFields,chunkData,callback,error);  
+            }, error);
+
+
+        }
+        else
+        {
+            callback(chunkData);
+        }
+    }
+
+    var tmpURL = JSON.stringify(baseFields);
+    if ( tmpURL != "{}")
+    {
+        baseFields[ID] = ID;
+
+        tmpURL = tmpURL.replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
+
+        tmpURL = url + '&updates=[' + tmpURL + ']';
+
+        context.atTaskPut(tmpURL, function (results) { 
+            chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});             
+            putCustomFields(url,ID,custFields,chunkData,callback,error);                          
+        }, error);
+
+    }
+    else
+    {
+        putCustomFields(url,id,custFields,chunkData,callback,error); 
+    }
+
+}
+
+    
+
 })  
 // JavaScript source code
