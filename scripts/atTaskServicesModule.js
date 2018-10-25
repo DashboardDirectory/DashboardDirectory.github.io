@@ -474,7 +474,10 @@ this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chu
             context.atTaskPut(tmpURL , function (results) {
                 chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});              
                 putCustomFields(url,ID,custFields,chunkData,callback,error);  
-            }, error);
+            }, function (error) {
+                chunkData.push({type:objType,comments:'Error',updates:error});
+                putCustomFields(url,ID,custFields,chunkData,callback,error);
+            });
 
 
         }
