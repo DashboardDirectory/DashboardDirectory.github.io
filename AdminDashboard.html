@@ -229,12 +229,12 @@
 
                             <ul class="tab-links">
                                 <li class="active"><a href="#tab0">Select Report</a></li>
-                                <li><a href="#tab1">Project Filter</a></li>
+                                <li><a href="#tab1" id="projectTab">Project Filter</a></li>
                                 <li><a href="#tab2" id="taskTab" style="display:none">Task Filter</a></li>
                                 <li><a href="#tab3" id="dateTab" style="display:none">Dates</a></li>
                                 <li><a href="#tab4" id="otherTab" style="display:none">Other</a></li>
                                 <li><a href="#tab5" id="customValuesTab" style="display:none">{{customValueFilterName}}</a></li>
-
+                                <li><a href="#tab6" id="userFilterTab" style="display:none">{{userFilterName}}</a></li>
                             </ul>
 
                             <div class="tab-content">
@@ -291,6 +291,11 @@
 
                                 <div id="tab5" class="tab">
                                     <select id="customFilter" size="1" ng-model="selectedCustomValueFilter" ng-options="cf.key for cf in customFilterValues"></select>
+                                </div>
+                                <div id="tab6" class="tab">
+                                    <select id="customUserFilter" size="1" ng-model="selectedUserFilter"
+                                           ng-options ="filter.name for filter in userFilters | orderBy:'name' ">                                        
+                                    </select>
                                 </div>
                             </div>
                             <span style="float:right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentReportStep}}</span>
