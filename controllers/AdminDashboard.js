@@ -1,5 +1,6 @@
 ﻿
  
+
 var ATTASK_INSTANCE = 'www.attasksandbox.com';   
 var isLoaded = false; 
 var host = getParameterByName("host");
@@ -27,9 +28,14 @@ var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 var timer = getParameterByName("timer");
 var scheduledReport = getParameterByName("scheduledReport");
 var ATAPP_HOST = document.location.protocol + '//' + document.location.host;
-var LICENSE_HOST = 'https://secure.atappstore.com'; 
+var LICENSE_HOST = 'https://secure.atappstore.com';
 var logTo = getParameterByName("logTo");
 var logLevel = getParameterByName("logLevel");
+var userFilterType = getParameterByName("otherFilterObj");
+var defaultUserFilter = getParameterByName("otherFilterDefault");
+var userFilterName = getParameterByName("otherFilterLabel");
+var showProjectFilter = getParameterByName("showProjectFilter");
+var showDateFilter = getParameterByName("showDateFilter");
 var api = "api/v7.0";
 
 if (showToolbox == "true")
@@ -2089,7 +2095,14 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             function ()
             {
  
-                $scope.loadProjectFilters('');
+                if (showProjectFilter == "false")
+                {
+                    document.getElementById("projectTab").style["display"] = "none";
+                }
+                else
+                {
+                    $scope.loadProjectFilters('');
+                }
 
                 if (showTaskFilter != "")
                 {
@@ -2102,9 +2115,43 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     document.getElementById("taskFilterSpan").style["display"] = "none";
                     document.getElementById("taskTab").style["display"] = "none";
                 }
+
+
+				if (userFilterType != "")
+                {   
+                    $scope.userFilterName = (userFilterName == "" ? "Other Filter" : userFilterName);
+                    $scope.loadCustomUserFilter(userFilterType,
+                    function (filterData)
+                    {
+                        $scope.userFilters = filterData;
+                        $scope.selectedUserFilter = $scope.userFilters[0];
+                        if (defaultUserFilter != "")
+                        {
+                             var dFilt = $scope.userFilters.map(function (uf) {  return uf.name == defaultUserFilter});
+                             if (dFilt.length > 0)
+                                {
+                                    $scope.selectedUserFilter = dFilt[0];
+                                }
+                        }
+                        document.getElementById("userFilterTab").style["display"] = "inline";
+                    });
+                }
+                else
+                {
+                    document.getElementById("userFilterTab").style["display"] = "none";
+                }
+
      
                 $scope.getCompanyList();
+
+                 if (showDateFilter == "false")
+            {
+                 document.getElementById("dateTab").style["display"] = "none";
+            }
+            else
+            {
                 $scope.selectDateRangeForFilter(); 
+            }
 
             }
 
