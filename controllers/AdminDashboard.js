@@ -1025,20 +1025,20 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
  
 
 
-    $scope.renderPDF = function(rdlData,fileName,blobCallback,dirId, fExt, rptSMTP) 
+    $scope.renderPDF = function(rdlData,fileName,blobCallback,uploadTo, fExt, rptSMTP) 
     {
         var qryParam;
 
         
         $scope.currentReportStep = "Data Loaded.  Rendering Report...";
 
-        if (dirId == null)
+        if (uploadTo == null)
         {
             qryParam = '?s=' + sessionID + '&sn=' + ATTASK_INSTANCE ;
         } 
         else
         {
-            //   var qryParam = '?s=' + sessionID + '&sn=' + ATTASK_INSTANCE +  '&name=' + fileName +
+           qryParam = '?s=' + sessionID + '&sn=' + ATTASK_INSTANCE +  '&name=' + fileName + '&' + uploadTo;
             //      '&uploadToObjType=project&uploadToObjId=' + projId + '&uploadToDirId=' + dirId;
         }
 
@@ -1097,8 +1097,16 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             else if (ext == "gif")
                 contentType = "image/gif";
             }
-            var pdfBlob = new Blob([response], { type: contentType })
-            blobCallback(pdfBlob,fileName + "." + ext);
+
+            if (uploadTo == null)
+            {
+                var pdfBlob = new Blob([response], { type: contentType })
+                blobCallback(pdfBlob,fileName + "." + ext);
+            }
+            else
+            {
+                blobCallback( eval("[" + (new TextDecoder("utf-8")).decode(response) + "]")[0] , fileName + "." + ext) ;
+            }
             $scope.currentReportStep = "";
         }
             )
@@ -1110,6 +1118,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
              
 
     }; // $scope.renderPDF
+   
 
     $scope.getProjectFilterCount = function (callback)
     {   
@@ -1370,14 +1379,14 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                   }  // Complete Render Function
 
 
-    $scope.renderReport = function(adminReport,fileName,blobCallback,dirId,fExt) {
+  $scope.renderReport = function(adminReport,fileName,blobCallback,uploadTo,fExt) {
 
   
         var url = adminReport.query;
         url = url.replace(/{SESSIONID}/g,sessionID);
         url = url.replace(/{ID}/g,objID);
         url = $scope.appendFilters(url);
-        url = atTaskHost + '/attask/' + api + '/' + url  ;
+        url = atTaskHost + '/attask/' + api + '/' + url  + '&jsonp=JSON_CALLBACK';
 
         var rptSMTP = adminReport.rptSMTP;
           
@@ -1402,20 +1411,27 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                         if (adminReport.postProcessFunction.length < 3)
                         {
                             var finalData = adminReport.postProcessFunction(data,otherData);
-                            $scope.completeRender(finalData, adminReport,fileName,blobCallback,dirId,fExt,rptSMTP);
+                            $scope.completeRender(finalData, adminReport,fileName,blobCallback,uploadTo,fExt,rptSMTP);
                         }
                         else
                         {
                             adminReport.postProcessFunction(data,otherData, 
                                 function(finalData) 
                                 {
-                                 $scope.completeRender(finalData, adminReport,fileName,blobCallback,dirId,fExt,rptSMTP);
+                                    if (finalData == null || finalData.length == 0)
+                                    {
+                                        blobCallback(new Blob(['No data to report.'],{type : 'text/html'}),'nodata.html');
+                                    }
+                                    else
+                                    {
+                                        $scope.completeRender(finalData, adminReport,fileName,blobCallback,uploadTo,fExt,rptSMTP);
+                                    }
                                 });
                         }
                     }
                     else
                     {
-                    $scope.completeRender(data, adminReport,fileName,blobCallback,dirId,fExt,rptSMTP);
+                    $scope.completeRender(data, adminReport,fileName,blobCallback,uploadTo,fExt,rptSMTP);
                     }
                 }
                 else

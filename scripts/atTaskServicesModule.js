@@ -509,7 +509,79 @@ this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chu
 
 }
 
-    
+
+
+
+ 
+
+    //Given a folder path, and an AtTask objectType, server, session, and optional document parent:
+    //    1) identify whether full path exists 2) create any subdirectories needed to build out path
+    //    3) Return ID of the end folder of the full path
+
+    this.createOrGetFolderPath = function (id, objectType, path, server, session, parentId, callback, errorCallback) 
+    {
+        var paths = path.split('\\');
+        var context = this;
+
+
+                    createDirectory = function (id, objectType, dirName, server, session, parentId, callback, errorCallback) 
+                {
+                    var URL = 'https://' + server + '/attask/api/v7.0/docfdr?method=POST&sessionID=' + session +
+                                           '&updates=[{ID:"",name:"' + dirName + '",' + objectType + 'ID:"' + id + '"';
+
+                    if (!(typeof parentId === 'undefined')) {
+                        URL += ',parentID:"' + parentId + '"';
+                    }
+                    URL += '}]';
+
+                   context.atTaskPut(URL,
+                        function (data) 
+                        {
+                            callback(data.data.data[0].ID)
+                        },    errorCallback    );
+
+                }
+
+
+        if (paths.length > 1) {
+            // If path has subdirs, get the ID of the head element and recurse on tail, passing the head element
+            // id along to the recursion.  Pass along incoming callback function to return bottom level Id when found/made
+
+            var head = paths[0]; paths.shift();
+            var tail = paths.join('\\');
+
+            createOrGetFolderPath(id, objectType, head, server, session, parentId,
+              function (dirId) {
+                  createOrGetFolderPath(id, objectType, tail, server, session, dirId, callback, errorCallback);
+              }
+
+    );
+        }
+        else {      // Dealing with single folder level.  See if it exists
+
+            var URL = 'https://' + server + '/attask/api/v7.0/docfdr/search?method=GET&sessionID=' + session +
+                       '&name=' + path + '&securityRootID=' + id;
+
+            if (!(typeof parentId === 'undefined')) {
+                URL += '&parentID=' + parentId;
+            }
+
+            this.atTaskGet(URL,
+                 function (data) {
+                     if (data.length > 0) {
+                         // Base return case for existing folder
+
+                         callback(data[0].ID);
+                     }
+                     else {
+                         // Base create case for non-existant folder.
+
+                          createDirectory(id, objectType, path, server, session, parentId, callback, errorCallback);
+                     }
+                 }
+             ,errorCallback);
+        }
+    };
 
 })  
 // JavaScript source code
