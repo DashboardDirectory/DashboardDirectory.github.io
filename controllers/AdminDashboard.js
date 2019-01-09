@@ -1981,7 +1981,12 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     data: {dateTime: lDate, activity: json},
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }
                 }).then(licenseCallback);
-            }); 
+            },
+            function (error) 
+            {
+               $scope.checkForCredential();
+            }
+            );
 
     }
 

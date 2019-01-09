@@ -152,9 +152,9 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                                     finalCallBack(response.data.data)
                                 }
                             }
-                          , function (response) {
+                          ,  
                               errorCallBack
-                          }
+                           
                       );
 
         }
@@ -182,9 +182,9 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                          }
                       }                  
             
-            , function (response) {
+            ,  
             errorCallBack
-            }
+             
                 );
         }
 
