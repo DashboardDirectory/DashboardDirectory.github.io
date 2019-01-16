@@ -70,7 +70,7 @@
             checkDomain: function () {
                 if (this.resourceMatch) {
                     var request = new XMLHttpRequest();
-                    var domain = 'https://' + this.resourceMatch + '.my.workfront.com';
+                    var domain = 'https://' + this.resourceMatch + '.my.workfront.com/attask/api/v9.0/';
                     request.open('GET', domain, true);
                     request.onreadystatechange = function () {
                         if (request.readyState === 4) {
