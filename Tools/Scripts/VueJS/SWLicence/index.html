@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title></title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+<div id="license" style="text-align:left;">
+    <div>
+        <h3>Stopwatch License Maker</h3>
+
+        <p>License Name</p><input type="text" v-model="licenseName"/>
+
+        <p>Domain</p><input type="text" v-model="resourceMatch"/>
+
+        <p>Expiry Date</p><input type="date" v-model="expiryDate"/>
+
+        <p>Expiry Message</p><textarea v-model="expiryMessage" style="width:300px; height: 200px;"></textarea>
+
+        <p>Start Date</p><input type="date" v-model="startDate"/>
+
+        <p>API Key</p><input type="text" v-model="apiKey"/>
+
+        <p>maxTaskTime - before it auto stops task</p><input type="text" v-model="maxTaskTime"/>
+
+        <p>updateAtInterval - track time every 5sec</p>
+        <input type="checkbox" v-model="updateAtInterval"/>
+
+        <p>stopOnClose - if browser closed stop time (chrome extension not supported)</p><input type="checkbox"
+                                                                                                v-model="stopOnClose"/>
+
+        <p>forceHourTypeID - force hour type for stopwatch tasks</p><input type="checkbox" v-model="forceHourTypeID"/>
+
+        <p>hideTaskButtons - so only tracking time supported </p><input type="checkbox" v-model="hideTaskButtons"/>
+
+        <p>projectFilter - show projects user owns and is a part of</p><input type="checkbox" v-model="projectFilter"/>
+
+        <p>personalTasks - show personal tasks</p><input type="checkbox" v-model="personalTasks"/>
+
+        <p>forceLogin - force login when using login through query string</p>
+
+        <p>?u=user_id&d=domain&s=apiKey</p><input type="checkbox" v-model="forceLogin"/>
+        <hr>
+        <p>export</p><textarea v-model="jsonExport" style="width:300px; height: 200px;"></textarea>
+    </div>
+</div>
+<script type="text/javascript">
+    var vue_det = new Vue({
+        el: '#license',
+        data: {
+            licenseName: 'AtAppStore Software Products',
+            resourceMatch: '',
+            expiryDate: '',
+            expiryMessage: '<h3>Please note, license for product has expired. Contact AtAppStore for information on renewing.</h3>',
+            startDate: '',
+            apiKey: '',
+            updateAtInterval: false,
+            stopOnClose: false,
+            forceHourTypeID: null,
+            maxTaskTime: 8.5,
+            hideTaskButtons: false,
+            projectFilter: true,
+            personalTasks: true,
+            forceLogin: true
+        },
+        computed: {
+            jsonExport: function () {
+                var licence = {
+                    licenseName: this.licenseName,
+                    resourceMatch: [  this.resourceMatch ],
+                    expiryCommunication: [
+
+                        {
+                            date: this.expiryDate,
+                            message: this.message,
+                            isValid: false,
+                            isWarn: true
+                        },
+                        {
+                            date: this.startDate,
+                            message: this.settingsExport,
+                            isValid: true,
+                            isWarn: false
+                        }
+
+                    ]
+                };
+                return JSON.stringify(licence);
+            },
+            settingsExport: function () {
+                var settings = {
+                    apiKey: this.apiKey,
+                    maxTaskTime: this.maxTaskTime,
+                    updateAtInterval: this.updateAtInterval,
+                    stopOnClose: this.stopOnClose,
+                    forceHourTypeID: this.forceHourTypeID,
+                    projectFilter: this.projectFilter,
+                    personalTasks: this.personalTasks,
+                    forceLogin: this.forceLogin
+                };
+
+                return JSON.stringify(settings);
+            }
+        }
+    });
+</script>
+</body>
+</html>
