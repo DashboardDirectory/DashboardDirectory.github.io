@@ -12,6 +12,8 @@
         <p>License Name</p><input type="text" v-model="licenseName"/>
 
         <p>Domain</p><input type="text" v-model="resourceMatch"/>
+        <button v-on:click="checkDomain()">Check</button>
+        <strong>{{domainExists}}</strong>
 
         <p>Expiry Date</p><input type="date" v-model="expiryDate"/>
 
@@ -48,6 +50,7 @@
     var vue_det = new Vue({
         el: '#license',
         data: {
+            domainExists: '',
             licenseName: 'AtAppStore Software Products',
             resourceMatch: '',
             expiryDate: '',
@@ -62,6 +65,26 @@
             projectFilter: true,
             personalTasks: true,
             forceLogin: true
+        },
+        methods: {
+            checkDomain: function () {
+                if (this.resourceMatch) {
+                    var request = new XMLHttpRequest();
+                    var domain = 'https://' + this.resourceMatch + '.my.workfront.com';
+                    request.open('GET', domain, true);
+                    request.onreadystatechange = function () {
+                        if (request.readyState === 4) {
+                            if (request.status !== 404) {
+                                return this.domainExists = "Exists";
+                            } else {
+                                return this.domainExists = "Nope";
+                            }
+                        }
+                    };
+                    request.send();
+                }
+                return '';
+            }
         },
         computed: {
             jsonExport: function () {
