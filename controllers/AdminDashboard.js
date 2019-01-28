@@ -800,9 +800,12 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     }
 
 
-    $scope.loadAdminDashboardAtApp = function(callback)
+    $scope.loadAdminDashboardAtApp = function(callback, reloadReportsOnly)
     {
         isloaded=false;
+
+        if (typeof reloadReports === 'undefined') reloadReportsOnly = false;
+
         try {
             var url = atTaskHost + "/attask/" + api + "/" + configObjType + '/search?method=GET&name=' + configObjName + 
             "&sessionID=" + sessionID +
@@ -813,56 +816,51 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
                 function (data)
                 {
-                    $scope.configObjID = data[0].ID;
-                    $scope.configDocuments = data[0].documents;
 
-                    if (configObjType.toUpperCase() == "PROJ") 
+                    if (!reloadReportsOnly)
                     {
-                       $scope.configTasks = data[0].tasks;
-                    }
-                    else
-                    {
-                       $scope.configTasks = [];
-                    }
+                        $scope.configObjID = data[0].ID;
+                        $scope.configDocuments = data[0].documents;
 
-
-                    $scope.configDocuments.filter(function (d) {return(d.name !='AdminDashboard' && d.currentVersion.ext == 'atapp')}).map 
-                                      (
-                
-                    // Load supporting .atapp configuration files.  Attach as script and execute code. 
-                
-                                      function (file) 
-                                      {                             
-                                          var js = document.createElement('script');                
-                                          js.src = atTaskHost + file.downloadURL + "&sessionID=" + sessionID;          
-                                          document.head.appendChild(js);
-                                      }
-                    )
-                
-                    // Load AdminDashboard.atapp configuration file.  Attach as script and execute code. 
-                    $scope.configDocuments.filter(function (d) {return(d.name =='AdminDashboard' && d.currentVersion.ext == 'atapp')}).map 
-                      (
-                        function (file) 
-                        {                             
-                            var js = document.createElement('script');                
-                            js.src = atTaskHost + file.downloadURL + "&sessionID=" + sessionID;          
-                            document.head.appendChild(js);
-                           
+                        if (configObjType.toUpperCase() == "PROJ") 
+                        {
+                           $scope.configTasks = data[0].tasks;
                         }
-                      );
+                        else
+                        {
+                           $scope.configTasks = [];
+                        }
+
+
+                        $scope.configDocuments.filter(function (d) {return(d.name !='AdminDashboard' && d.currentVersion.ext == 'atapp')}).map 
+                                          (
+                    
+                        // Load supporting .atapp configuration files.  Attach as script and execute code. 
+                    
+                                          function (file) 
+                                          {                             
+                                              var js = document.createElement('script');                
+                                              js.src = atTaskHost + file.downloadURL + "&sessionID=" + sessionID;          
+                                              document.head.appendChild(js);
+                                          }
+                        )
+                    
+                        // Load AdminDashboard.atapp configuration file.  Attach as script and execute code. 
+                        $scope.configDocuments.filter(function (d) {return(d.name =='AdminDashboard' && d.currentVersion.ext == 'atapp')}).map 
+                          (
+                            function (file) 
+                            {                             
+                                var js = document.createElement('script');                
+                                js.src = atTaskHost + file.downloadURL + "&sessionID=" + sessionID;          
+                                document.head.appendChild(js);
+                               
+                            }
+                          );
+                    }
 
                     $scope.scheduledReports = [];
 
-                    /* Load Scheduled Parameter Files  - USING TASKS NOW
-                                        $scope.configDocuments.filter(function (d) {return(d.currentVersion.ext == 'sched')}).map 
-                                           (
-                                             function (file) 
-                                             { 
-                                                 file.parameterValues.ID = file.ID;   
-                                                 $scope.scheduledReports.push(file.parameterValues);
-                                             }
-                                             );
-                    */
+                    
 
                     $scope.configTasks.filter(function (t) { return (!(typeof t.parameterValues["DE:Report Schedule Active"] === 'undefined'));}).map
                        (
@@ -884,10 +882,8 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 },
                 function ()
                 {
-                    if (timer == null)
-                        alert('An error occured trying to load admin dashboard configuration.');
-                    else
-                        setTimeout($scope.reloadPage,60000);
+                    if (timer == null) alert('An error occured trying to load admin dashboard configuration.');
+                    else setTimeout($scope.reloadPage,60000);
                 }
                 )
         }
@@ -1113,7 +1109,10 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     .error(
         function(data,status)
         {
+            if (timer == null)
+            {
             alert('Failed to generate ' + fileName + '.  Error Status = ' + status);
+            } else setTimeout($scope.reloadPage,60000);
         });
              
 
@@ -1203,7 +1202,9 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
                  },
          function ()
-         {alert ('Error Retrieving project filter');
+         {
+            if (timer == null) alert ('Error Retrieving project filter');
+            else setTimeout($scope.reloadPage,60000);
          });
 
         }
@@ -1253,7 +1254,9 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
              },
      function ()
-     {alert ('Error Retrieving task filter');
+     {
+        if (timer == null) alert ('Error Retrieving task filter');
+        else setTimeout($scope.reloadPage,60000);
      });
 
  
@@ -1401,7 +1404,8 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             {          
             if (!(typeof data.error === 'undefined'))
                 {
-                    alert('Error With Workfront Query. msg:' + JSON.stringify(data.error));
+                    if (timer == null) alert('Error With Workfront Query. msg:' + JSON.stringify(data.error));
+                    else setTimeout($scope.reloadPage,60000);
                 }
                 else if (data.length > 0)
                 {
@@ -1442,7 +1446,8 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
      ,
     function (error)
     {   
-        alert('Error With Workfront Query. msg:' + JSON.stringify(error)  );     
+        if (timer == null) alert('Error With Workfront Query. msg:' + JSON.stringify(error)  );     
+        else setTimeout($scope.reloadPage,60000);
 
     }  );
 }
@@ -1597,129 +1602,56 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
    
         
         if (typeof rpt["DE:Report Schedule Active"] === 'undefined' || 
-            typeof rpt["DE:Report Schedule Start Date"] === 'undefined' || 
+            typeof rpt["DE:Report Schedule Next Run Date"] === 'undefined' || 
             typeof rpt["DE:Period"] === 'undefined' || 
             typeof rpt["DE:Repeat Every"] === 'undefined' || 
             typeof rpt["DE:Scheduled Report Name"] === 'undefined' ||
             typeof rpt["DE:Email Subject"] === 'undefined' ||
-            typeof rpt["DE:Report Email Options"]  === 'undefined'
+            typeof rpt["DE:Report Email Options"]  === 'undefined' ||
+            typeof rpt["DE:Permitted Execution Lag"]  === 'undefined'
            )
-        {
- 
+        { 
              
             callback();
             return;
         }
 
-        var now = (new Date()).getTime();
-        var lastRun = typeof rpt["DE:Last Run On"] === 'undefined'  ? new Date(rpt["DE:Report Schedule Start Date"].replace(/:\d\d\d/g,''))  :
-                                                                      new Date(rpt["DE:Last Run On"].replace(/:\d\d\d/g,'')) ;
-        var startDate = new Date(rpt["DE:Report Schedule Start Date"].replace(':000',''));
+        var now = (new Date()).getTime();        
+        var nextRun = new Date(rpt["DE:Report Schedule Next Run Date"].replace(/:\d\d\d/g,'')).getTime();
+        var subsequentRun
+        var lastRun =  (typeof rpt["DE:Last Run On"] === 'undefined' ? new Date().getTime() - 310000 : new Date(rpt["DE:Last Run On"].replace(/:\d\d\d/g,'')).getTime());
+        var lag =  parseInt(rpt["DE:Permitted Execution Lag"]);
+       
 
-        if (lastRun < startDate) lastRun = startDate;
 
-
-        if (rpt["DE:Report Schedule Active"] != 'Yes')
+        if (rpt["DE:Report Schedule Active"] == 'No' || 
+            ( rpt["DE:Report Schedule Active"] == 'Pending' && (now - lastRun) < (20 * 60 * 1000) ) )  // Don't run if inactive or recently pending.
         {
              
             callback();
             return;
         }
-        else
-            if (typeof rpt.nextRunOn === 'undefined' || ( (now - rpt.nextRunOn) < 1000 * 60 * 10 && rpt.nextRunOn < now) )
-            {
-  
-                freq = ((rpt["DE:Period"] == "Hours" ? 60 : rpt["DE:Period"] == "Days" ? 60 * 24 : rpt["DE:Period"] == "Weeks" ? 7 * 60 * 24:1) * 60000) * rpt["DE:Repeat Every"];
+        else            
+            {            
 
-                if (rpt["DE:Period"] == "Months")
-                {
-                    var yrs = Math.floor(rpt["DE:Repeat Every"]/12);
-                    var mnths = rpt["DE:Repeat Every"] % 12; 
-             
-                    nextRunOn = lastRun.getTime();
- 
-                    while ((now - nextRunOn) > 60 * 1000 *60)
-                    {
-             
-                        lastRun.setYear(lastRun.getFullYear() + yrs); 
- 
-   
-                        var mNo = lastRun.getMonth();
-   
-                        if (mNo + mnths > 11)
-                        {
-                            lastRun.setYear(lastRun.getYear() + 1);
-                            lastRun.setMonth((mNo + mnths - 11) - 1);
-                        }
-                        else if (mnths != 0)
-                        {
-                            lastRun.setMonth(lastRun.getMonth() + mnths);
- 
-                        }
-                        nextRunOn = lastRun.getTime();
-                    }
+                lag = (lag == -1 ? now - nextRun : 60000 * lag);  // -1 => unlimited lag allowed.     
+                if (now <= nextRun + lag && now > nextRun)             
+                {     
+                                   
+                   $scope.logExecution([rpt],"Attempting to Run Report " + rpt.name, false);   
+                    rpt["DE:Report Schedule Active"] = "Pending";                      
+                    var fSafeDate = new Date();                    
+                    rpt["DE:Last Run On"] = fSafeDate.toJSON();      
 
-                }
-                else
-                {
- 
-                    nextRunOn = lastRun.getTime() + (startDate - lastRun == 0 ? 0 : freq);
- 
-                    while ((now - nextRunOn) > (60 * 1000 * 10) )
-                    { 
-                        nextRunOn += freq; 
-                    }
- 
-                }
- 
- 
+                  rSelect = $scope.adminReports.filter(function(r){ return (r.name == rpt["DE:Scheduled Report Name"]);});
 
-                if ((now - nextRunOn) > 0 && (now - nextRunOn) < 1000 * 60 * 10)
-                {      
-
-                    rSelect = $scope.adminReports.filter(function(r){ return (r.name == rpt["DE:Scheduled Report Name"]);});
                     if (rSelect.length == 1)
                     {
                         $scope.selectedReport = rSelect[0];
                         $scope.reportSelectionChanged(); 
                         $scope.$apply();
 
-                        /*
-                            if (rpt["DE:Report Filter JSON"] != null && (!(typeof rpt["DE:Report Filter JSON"] === 'undefined')))
-                            {
-                                var rptFilter = JSON.parse(rpt["DE:Report Filter JSON"]);
-                                
-                                rptFilter.map(function(f) {  
-        
-                                    if (f.filter == 'projectFilter')
-                                    {
-                                        var search = $scope.projectFilters.filter(function(pf){ return (pf.name == f.value)});
-                                        if (search.length == 1)
-                                        {
-                                            $scope.currentProjectFilter = search[0];
-                                        }
-                                    }
-                                    else
-                                        if (f.filter == 'taskFilter')
-                                        {
-                                            var search = $scope.taskFilters.filter(function(tf){ return (tf.name == f.value)});
-                                            if (search.length == 1)
-                                            {
-                                                $scope.currentTaskFilter = search[0];
-                                            }
-                                        }
-                                        else
-                                            if (f.filter == 'dateFilter')
-                                            {
-                                                $scope.fromDate = new Date(f.value.fromDate);
-                                                $scope.toDate = new Date(f.value.toDate);
-                                            }
-        
-                                });
-        
-        
-                            } */
-
+                        
                         if (rpt["DE:Scheduled Report Project Filter"] != null && (!(typeof rpt["DE:Scheduled Report Project Filter"] === 'undefined')))
                         {
                             var search = $scope.projectFilters.filter(function(pf){ return (pf.name == rpt["DE:Scheduled Report Project Filter"])});
@@ -1752,60 +1684,112 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                             rptSMTP +=   "&emailCredential=" + $scope.smtpSettings.credential;
                         }
 
-                        if (rpt["DE:Report Email Options"].filter(function(o) { return o == "Include Thumbnail"}).length > 0)
-                        {
-                            rptSMTP +=   "&emailPreviewExt=png";
-                        } 
+                        if ( Array.isArray(rpt["DE:Report Email Options"]))
+                            { 
+                                if (rpt["DE:Report Email Options"].filter(function(o) { return o == "Include Thumbnail"}).length > 0)
+                                {
+                                    rptSMTP +=   "&emailPreviewExt=png";
+                                }
+                            }
+                            else if  (rpt["DE:Report Email Options"] == 'Include Thumbnail')
+                                {
+                                    rptSMTP +=   "&emailPreviewExt=png";
+                                }
+            
+                         
 
                         rptSMTP += "&emailAttachExt=" + (rpt["DE:Attachment Type"] == "PDF" ? "pdf" : rpt["DE:Attachment Type"] == "Excel" ? "xls" : "doc");
 
                         $scope.currentBatchStep = "Running Report " + rpt.name;
 
-                        nextRunOn += freq;
-                        rpt.nextRunOn = nextRunOn;
-
+                       
                         $scope.selectedReport.rptSMTP = rptSMTP;
 
-                        $scope.renderReport($scope.selectedReport,'Report',function () 
-
-                        {
-                  
-                            var nRun = new Date(now);
-                            //nRun.setHours(nRun.getHours()+(nRun.getTimezoneOffset()/-60) );
-
-                            rpt["DE:Last Run On"] = nRun.toJSON();
-
-                            var update = {ID:rpt.ID,"DE:Last Run On": nRun.toJSON()};
-                            atTaskWebService.atTaskBulkUpdate("TASK",atTaskHost + "/attask/" + api + '/task?method=PUT&sessionID=' + sessionID,[update],
+                       
+                      
+                        var  failSafeUpdate = {ID:rpt.ID,"DE:Last Run On": fSafeDate.toJSON(),"DE:Last Run Status" : -1, "DE:Report Schedule Active":"Pending" };
+                            atTaskWebService.atTaskBulkUpdate("TASK",atTaskHost + "/attask/" + api + '/task?method=PUT&sessionID=' + sessionID,[failSafeUpdate],
                              function (results)
-                             {
+                             { 
+                                 $scope.renderReport($scope.selectedReport,'Report', function () 
+                                        {
+
+                                            var freq = ((rpt["DE:Period"] == "Hours" ? 60 : rpt["DE:Period"] == "Days" ? 60 * 24 : rpt["DE:Period"] == "Weeks" ? 7 * 60 * 24:1) * 60000) * rpt["DE:Repeat Every"];
+                                            var subsequentRun = new Date(nextRun);
+
+                                            if (rpt["DE:Period"] == "Months")
+                                                {
+                                                    var yrs = Math.floor(rpt["DE:Repeat Every"]/12);
+                                                    var mnths = rpt["DE:Repeat Every"] % 12;                                              
+                                                  
+                                 
+                                                    while (now >= subsequentRun.getTime())
+                                                    {
+                                             
+                                                        subsequentRun.setYear(subsequentRun.getFullYear() + yrs);                  
+                                   
+                                                        var mNo = subsequentRun.getMonth();
+                                   
+                                                        if (mNo + mnths > 11)
+                                                        {
+                                                            subsequentRun.setYear(subsequentRun.getYear() + 1);
+                                                            subsequentRun.setMonth((mNo + mnths - 11) - 1);
+                                                        }
+                                                        else if (mnths != 0)
+                                                        {
+                                                            subsequentRun.setMonth(subsequentRun.getMonth() + mnths);
+                                 
+                                                        }
+                                                        
+                                                    }
+
+
+                                                }
+                                                else
+                                                {
+                                                                                    
+                                                    subsequentRun = subsequentRun.getTime();
+                                 
+                                                    while (subsequentRun <= now)
+                                                    { 
+                                                        subsequentRun += freq; 
+                                                    }
+
+                                                    subsequentRun = new Date(subsequentRun);
+                                 
+                                                }
+
                                   
-                                 $scope.logExecution([rpt],"Email Report " + rpt.name, false);                               
-                                 $scope.currentBatchStep = "Report " + rpt.name + " set to run next on " + nRun.toJSON();
-                                 callback();
-                             });
- 
+                                            var lRun = new Date(now);
 
-                        },null,ext);
+                                            //nRun.setHours(nRun.getHours()+(nRun.getTimezoneOffset()/-60) );
 
-                    
-                    }
-             
-                } 
+                                            rpt["DE:Last Run On"] = lRun.toJSON();
+                                            rpt["DE:Report Schedule Active"] = "Yes";
+                                            rpt["DE:Report Schedule Next Run Date"] = subsequentRun.toJSON();
+                                            
+                                            var update = {ID:rpt.ID,"DE:Last Run On": lRun.toJSON(),"DE:Report Schedule Next Run Date": subsequentRun.toJSON(),"DE:Last Run Status" : 1, "DE:Report Schedule Active":"Yes" };
+                                            atTaskWebService.atTaskBulkUpdate("TASK",atTaskHost + "/attask/" + api + '/task?method=PUT&sessionID=' + sessionID,[update],
+                                             function (results)
+                                             {
+                                                  
+                                                 $scope.logExecution([rpt],"Email Report " + rpt.name, false);                               
+                                                 $scope.currentBatchStep = "Report " + rpt.name + " set to run next on " + subsequentRun.toJSON();
+                                                 callback();
+                                             });               
+
+                                        },null,ext); // Render Report                                 
+                                 
+                             });   // Update to assume failure first.
+                    } // Report Select Length == 1                                  
+                             
+                }  // IF now > next run + lag (render report)
                 else
                 {
-
-                    
-
-                    rpt.nextRunOn = nextRunOn;          
                     callback();
-                } 
-            }
-            else
-            { 
-                   
-                callback();
-            }
+                }   // not time to render report.
+
+            } // Report is active
 
 
 
@@ -1815,6 +1799,8 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     $scope.runTimerTools = function()
     {
 
+    try
+    {
         if ($scope.minuteCount > 480)
         {
             $scope.startup();
@@ -1878,10 +1864,30 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 }
             }
             seqRun(rpts);
+
+            if (($scope.minuteCount % 5) == 0 && $scope.minuteCount > 0)
+            {
+                $scope.loadAdminDashboardAtApp(
+                    function ()
+                {
+
+                },true)
+                
+            }
+
         }
                     
         $scope.minuteCount++;
-   
+   }
+   catch (err)
+   {
+     setTimeout($scope.reloadPage,60000);
+
+   }
+   finally
+        {    
+            setTimeout($scope.runTimerTools,60000);
+        }
     }
 
    
@@ -1894,7 +1900,8 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         {
             $scope.minuteCount = 0;
             $scope.runTimerTools();
-            setInterval($scope.runTimerTools,60000);
+            //setInterval($scope.runTimerTools,60000);
+           //setTimeout($scope.runTimerTools,60000);
         }
     }
 
@@ -2196,7 +2203,8 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 sessionID = response.data.sessionID;
                 callback();                     
             }, function errorCallback(response) {
-                alert ('Credential argument or host argument invalid, or password changed in Workfront'); 
+                 if (timer == null) alert ('Credential argument or host argument invalid, or password changed in Workfront'); 
+                 else setTimeout($scope.reloadPage,60000);
             });
 
         }
