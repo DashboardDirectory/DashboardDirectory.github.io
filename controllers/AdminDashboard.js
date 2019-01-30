@@ -127,6 +127,8 @@ loadAdminDashboardConfig = function () {};
 
 function adminDashboardCallback (getAdminDashboardOptions)
 {
+    if (isLoaded) return;
+
     isLoaded = true;       
     getAdminDashboardOptions ( loadAdminDashboardConfig  );
 
@@ -456,7 +458,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     $scope.reportSelectionChanged = function ()
     {
 
-        if (typeof $scope.selectedReport === 'undefined') {
+        if (typeof $scope.selectedReport === 'undefined' || $scope.selectedReport == null) {
             return;
         }
         else if (!(typeof $scope.selectedReport.filters === 'undefined'))
@@ -1803,6 +1805,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     {
         if ($scope.minuteCount > 480)
         {
+            isLoaded = false;
             $scope.startup();
             return;
         }
