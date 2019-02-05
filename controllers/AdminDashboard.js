@@ -619,7 +619,17 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
   
                }
                 
-               if (dashboardReport == "true") $scope.viewReport();
+               if (dashboardReport == "true")
+               {
+                 document.getElementById('adminReports').style['display'] = 'inline';
+                 if (showReports != 'true')
+                 {
+                    document.getElementById('reportParams').style['display'] = 'none';
+                    document.getElementById('viewReportButton').style['display'] = 'none';
+
+                 }
+                 $scope.viewReport();
+               }
  
                $scope.initTimer();
                 
@@ -1688,19 +1698,32 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
                         if ( Array.isArray(rpt["DE:Report Email Options"]))
                             { 
-                                if (rpt["DE:Report Email Options"].filter(function(o) { return o == "Include Thumbnail"}).length > 0)
+                                if (rpt["DE:Report Email Options"].filter(function(o) { return o == "Include Thumbnail Image"}).length > 0)
                                 {
                                     rptSMTP +=   "&emailPreviewExt=png";
                                 }
+                                if (rpt["DE:Report Email Options"].filter(function(o) { return o == "Include Attachment"}).length > 0)
+                                {
+                                    rptSMTP += "&emailAttachExt=" + (rpt["DE:Attachment Type"] == "PDF" ? "pdf" : rpt["DE:Attachment Type"] == "Excel" ? "xls" : "doc");
+                                }
+
                             }
-                            else if  (rpt["DE:Report Email Options"] == 'Include Thumbnail')
-                                {
-                                    rptSMTP +=   "&emailPreviewExt=png";
-                                }
+                            else 
+                            {
+                                    if  (rpt["DE:Report Email Options"] == 'Include Thumbnail Image')
+                                    {
+                                        rptSMTP +=   "&emailPreviewExt=png";
+                                    }
+
+                                    if  (rpt["DE:Report Email Options"] == 'Include Attachment')
+                                    {
+                                     rptSMTP += "&emailAttachExt=" + (rpt["DE:Attachment Type"] == "PDF" ? "pdf" : rpt["DE:Attachment Type"] == "Excel" ? "xls" : "doc");
+                                    }
+                            }
             
                          
 
-                        rptSMTP += "&emailAttachExt=" + (rpt["DE:Attachment Type"] == "PDF" ? "pdf" : rpt["DE:Attachment Type"] == "Excel" ? "xls" : "doc");
+                       
 
                         $scope.currentBatchStep = "Running Report " + rpt.name;
 
