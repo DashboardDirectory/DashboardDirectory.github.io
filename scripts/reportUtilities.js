@@ -264,7 +264,7 @@ for (i = 0; i < jsonArr.length; i++) {
             }
         } else 
 
-          if ( (!result.hasOwnProperty(x) || obj[x] > result[x] || result[x] == null) && sortType(obj[x],result[x]) < 1)
+          if ( !result.hasOwnProperty(x) ||  result[x] == null || (obj[x] > result[x] && sortType(obj[x],result[x]) < 1))
             {
                 result[x] = obj[x];
             }
