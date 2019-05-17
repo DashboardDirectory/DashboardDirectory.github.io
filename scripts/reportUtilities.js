@@ -139,8 +139,8 @@ function evaluateRDLType (type0, type1)
    if (type1 == "String") return 1;
    if (type0 == "Boolean") return 1;
    if (type1 == "Boolean") return 0;
-   if (type0) == "Decimal" return 1;
-   if (type1) == "Decimal" return 0;
+   if (type0 == "Decimal") return 1;
+   if (type1 == "Decimal") return 0;
    return 0;
 }
 
