@@ -127,6 +127,24 @@ function pickRDLType(fld) {
     return retType;
 }
 
+function sortType (val0, val1)
+{
+    return evaluateRDLType (pickRDLType(val0),pickRDLType(val1));
+}
+
+function evaluateRDLType (type0, type1)
+{
+   if (type0 == type1) return 0;
+   if (type0 == "String") return 0;
+   if (type1 == "String") return 1;
+   if (type0 == "Boolean") return 1;
+   if (type1 == "Boolean") return 0;
+   if (type0) == "Decimal" return 1;
+   if (type1) == "Decimal" return 0;
+   return 0;
+}
+
+
 function convertJsonObjectToRdlData(jsonObj, prefix, childDataSets, moveSubObjectsToRoot) {
     var rdl = "";
 
@@ -235,7 +253,7 @@ for (i = 0; i < jsonArr.length; i++) {
                             {
                                 result[x][y] = obj[x][y];
                             }
-                        else if (obj[x][y] > result[x][y])
+                        else if (obj[x][y] > result[x][y] && sortType(obj[x][y],result[x][y]) < 1 )
                         {
                             result[x][y] = obj[x][y];
                         }
@@ -246,7 +264,7 @@ for (i = 0; i < jsonArr.length; i++) {
             }
         } else 
 
-          if (!result.hasOwnProperty(x) || obj[x] > result[x] || result[x] == null)
+          if ( (!result.hasOwnProperty(x) || obj[x] > result[x] || result[x] == null) && sortType(obj[x],result[x]) < 1)
             {
                 result[x] = obj[x];
             }
