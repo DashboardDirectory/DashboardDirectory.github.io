@@ -133,7 +133,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
         }
      }
 
-     diagnoseCustomDataError = function (url,errorCallback)
+     diagnoseCustomDataError = function (url,callback)
      {
       
             var baseRegex = /(.+method=GET)/g;
