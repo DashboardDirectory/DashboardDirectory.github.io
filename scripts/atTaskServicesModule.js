@@ -149,7 +149,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
                 while (match != null)
                 {
-                    var term = match[1].trim;                
+                    var term = match[1].trim();                
 
                     if (deTerms.filter(function(t){return t == term}).length == 0)
                     {
