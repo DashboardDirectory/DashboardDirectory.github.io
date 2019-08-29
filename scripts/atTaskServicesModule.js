@@ -101,7 +101,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
         else
         {
             var term = deTerms.shift();
-            var url = baseUrl + '&fields=' + term + '&$$FIRST=1&$$LIMIT=1';
+            var url = baseURL + '&fields=' + term + '&$$FIRST=1&$$LIMIT=1';
 
             try
             {
@@ -120,7 +120,12 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
                         }
                            
-                      );
+                      ).error(
+                      function(response)
+                      {
+                        errorTerms.push(term);
+                        crawlCustomErrors(deTerms,baseURL,errorTerms,callback);
+                      });
 
             }
             catch
