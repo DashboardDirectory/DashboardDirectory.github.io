@@ -222,7 +222,19 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
                     loadCascade(url, first + batchSize, count, batchSize, cumulativeData.concat(response.data.data), finalCallBack, errorCallBack, incrementalCallBack);
                 } 
-            }, errorCallBack
+            }, 
+
+            function (error)
+            {
+                if (error.message.indexOf("JSON") >= 0)
+                {
+                    diagnoseCustomDataError(url, typeof errorCallBack === 'undefined' ? finalCallBack : errorCallBack);
+                }             
+                else
+                {
+                    errorCallback(error);
+                }
+            }
 
              );
 
