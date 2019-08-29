@@ -92,8 +92,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
      crawlCustomErrors = function (deTerms,baseURL,errorTerms,callback)
      {
-        var context = this;
-
+        
         if (deTerms.length == 0)
         {
             callback(errorTerms);
@@ -142,11 +141,18 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
      {
       
             var baseRegex = /(.+method=GET)/g;
+            var baseSecurity = /(apikey=\w+|sessionID=\w+)/g;            
             var queryMatch = baseRegex.exec(url);
+            var securityMatch = baseSecurity.exec(url);
             
             if (queryMatch != null)
             {
                 var query = queryMatch[1];
+
+                if (securityMatch != null)
+                {
+                    query = query + "&" + securityMatch;
+                }
 
                 var regex = /(DE:[\w| |:]+)/g;
                 var deTerms = [];
