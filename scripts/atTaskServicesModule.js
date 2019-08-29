@@ -137,7 +137,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
      {
       
             var baseRegex = /(.+method=GET)/g;
-            var queryMatch = regex.exec(url);
+            var queryMatch = baseRegex.exec(url);
             
             if (queryMatch != null)
             {
