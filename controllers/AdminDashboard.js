@@ -1467,13 +1467,13 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 }
             })}) } // success
      ,
-    function (error)
+    function (response)
     {   
         if (timer == null || timer == "") 
             {
                
 
-                 document.getElementById("pdfFrame").src = URL.createObjectURL(new Blob(['<h1>REPORT COULD NOT BE GENERATED</h1><br><br>Error Message:' + error.message],{type : 'text/html'}));
+                 document.getElementById("pdfFrame").src = URL.createObjectURL(new Blob(['<h1>An issue was encountered generating report</h1><br><br>Message: ' + response.error.message],{type : 'text/html'}));
             }
         else setTimeout($scope.reloadPage,60000);
 
