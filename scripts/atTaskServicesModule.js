@@ -141,7 +141,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
      {
       
             var baseRegex = /(.+method=GET)/g;
-            var baseSecurity = /(apikey=\w+|sessionID=\w+)/g;            
+            var baseSecurity = /(apiKey=\w+|sessionID=\w+)/g;            
             var queryMatch = baseRegex.exec(url);
             var securityMatch = baseSecurity.exec(url);
             
