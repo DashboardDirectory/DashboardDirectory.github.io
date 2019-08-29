@@ -172,7 +172,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                         {
                             if (errorTerms.length > 0)
                             {
-                                var errorList = error.terms.join(",").replace(/DE:/g,'');
+                                var errorList = errorTerms.join(",").replace(/DE:/g,'');
                                 callback({ error: { message: "Workfront API returned an error trying to retrieve the following custom fields: " + errorTerms}});
                             }
                             else
