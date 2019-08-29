@@ -1,5 +1,4 @@
-﻿
- 
+﻿ 
 
 var ATTASK_INSTANCE = 'www.attasksandbox.com';   
 var isLoaded = false; 
@@ -37,6 +36,7 @@ var userFilterName = getParameterByName("otherFilterLabel");
 var showProjectFilter = getParameterByName("showProjectFilter");
 var showDateFilter = getParameterByName("showDateFilter");
 var api = "api/v7.0";
+var useViewer = (getParameterByName("useViewer") == "true");
 
 if (showToolbox == "true")
 {
@@ -666,14 +666,14 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
         
          atTaskWebService.atTaskGet(filterURL, 
-         		function (data) 
-         			{
-            			newFilter = newFilter.concat(data.map(function (tFilter) 
-            						{
-                						tFilter['filter'] = $scope.createFilterFromDefinition(tFilter.definition, ''); return tFilter;
-            						}));
-            			callback(newFilter);
-        			});
+                function (data) 
+                    {
+                        newFilter = newFilter.concat(data.map(function (tFilter) 
+                                    {
+                                        tFilter['filter'] = $scope.createFilterFromDefinition(tFilter.definition, ''); return tFilter;
+                                    }));
+                        callback(newFilter);
+                    });
              
         
 
@@ -691,13 +691,13 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',');
 
         atTaskWebService.atTaskGet(filterURL, 
-        		function (data) {                      
-            					$scope.projectFilters = $scope.projectFilters.concat(
-            							data.map(function (pFilter) {
-                							pFilter['filter'] = $scope.createFilterFromDefinition(pFilter.definition,prefix); return pFilter;
-            							}));
-            					$scope.setDefaultProjectFilter();
-            					});
+                function (data) {                      
+                                $scope.projectFilters = $scope.projectFilters.concat(
+                                        data.map(function (pFilter) {
+                                            pFilter['filter'] = $scope.createFilterFromDefinition(pFilter.definition,prefix); return pFilter;
+                                        }));
+                                $scope.setDefaultProjectFilter();
+                                });
         
     }
 
@@ -894,14 +894,14 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 },
                 function ()
                 {
-                    if (timer == null) alert('An error occured trying to load admin dashboard configuration.');
+                    if (timer == null || timer == "") alert('An error occured trying to load admin dashboard configuration.');
                     else setTimeout($scope.reloadPage,60000);
                 }
                 )
         }
         catch (err)
         {
-            if (timer == null)
+            if (timer == null || timer == "")
                 alert('An error occured trying to load admin dashboard configuration.');
             else
                 setTimeout($scope.reloadPage,60000);
@@ -996,8 +996,19 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             var newRL = URL.createObjectURL(blob);
             var frm = document.getElementById('pdfFrame');
             
-            if(window.navigator.msSaveOrOpenBlob)
-                frm.src ="/Reports/web/viewer.html?file=" + newRL;
+            if(window.navigator.msSaveOrOpenBlob || useViewer)
+            {
+                if (blob.type == 'text/html') 
+                {
+                  frm.src = newRL;
+                }
+                else
+                {
+                    frm.src ="/Reports/web/viewer.html?file=" + newRL;
+                }
+                
+                
+            }
             else frm.src = newRL;
         
 
@@ -1121,7 +1132,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     .error(
         function(data,status)
         {
-            if (timer == null)
+            if (timer == null || timer == "")
             {
             alert('Failed to generate ' + fileName + '.  Error Status = ' + status);
             } else setTimeout($scope.reloadPage,60000);
@@ -1215,7 +1226,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                  },
          function ()
          {
-            if (timer == null) alert ('Error Retrieving project filter');
+            if (timer == null || timer == "" ) alert ('Error Retrieving project filter');
             else setTimeout($scope.reloadPage,60000);
          });
 
@@ -1267,7 +1278,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
              },
      function ()
      {
-        if (timer == null) alert ('Error Retrieving task filter');
+        if (timer == null || timer == "") alert ('Error Retrieving task filter');
         else setTimeout($scope.reloadPage,60000);
      });
 
@@ -1416,7 +1427,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             {          
             if (!(typeof data.error === 'undefined'))
                 {
-                    if (timer == null) alert('Error With Workfront Query. msg:' + JSON.stringify(data.error));
+                    if (timer == null || timer == "") alert('Error With Workfront Query. msg:' + JSON.stringify(data.error));
                     else setTimeout($scope.reloadPage,60000);
                 }
                 else if (data.length > 0)
@@ -1436,7 +1447,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                                 {
                                     if (finalData == null || finalData.length == 0)
                                     {
-                                        blobCallback(new Blob(['No data to report.'],{type : 'text/html'}),'nodata.html');
+                                       blobCallback(new Blob(['No data to report.'],{type : 'text/html'}),'nodata.html');
                                     }
                                     else
                                     {
@@ -1458,7 +1469,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
      ,
     function (error)
     {   
-        if (timer == null) alert('Error With Workfront Query. msg:' + JSON.stringify(error)  );     
+        if (timer == null || timer == "") alert('Error With Workfront Query. msg:' + JSON.stringify(error)  );     
         else setTimeout($scope.reloadPage,60000);
 
     }  );
@@ -2171,7 +2182,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 }
 
 
-				if (userFilterType != "")
+                if (userFilterType != "")
                 {   
                     $scope.userFilterName = (userFilterName == "" ? "Other Filter" : userFilterName);
                     $scope.loadCustomUserFilter(userFilterType,
@@ -2229,7 +2240,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 sessionID = response.data.sessionID;
                 callback();                     
             }, function errorCallback(response) {
-                 if (timer == null) alert ('Credential argument or host argument invalid, or password changed in Workfront'); 
+                 if (timer == null || timer == "") alert ('Credential argument or host argument invalid, or password changed in Workfront'); 
                  else setTimeout($scope.reloadPage,60000);
             });
 
@@ -2247,5 +2258,3 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 } // controller function code
  
 ); // controller object
-
-  
