@@ -1469,7 +1469,10 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
      ,
     function (error)
     {   
-        if (timer == null || timer == "") alert('Error With Workfront Query. msg:' + JSON.stringify(error)  );     
+        if (timer == null || timer == "") 
+            {
+                 document.getElementById("pdfFrame").src = (new Blob(['<h1>REPORT COULD NOT BE GENERATED</h1><br><br>Error Message:' + error.message],{type : 'text/html'}));
+            }
         else setTimeout($scope.reloadPage,60000);
 
     }  );
