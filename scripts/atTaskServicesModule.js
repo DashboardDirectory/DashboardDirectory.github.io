@@ -65,7 +65,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
                             callback();
                         }
-                    }).error(errorCallback);
+                    }, errorCallback);
 
             })
         }
