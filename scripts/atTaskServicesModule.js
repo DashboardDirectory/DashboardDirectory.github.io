@@ -153,7 +153,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                     query = query + "&" + securityMatch[1].trim();   
                 }
 
-                var regex = /(DE:[\w| |:]+)/g;
+                var regex = /(DE[:|%3AC][^,&]+)/g;
                 var deTerms = [];
                 var  match = regex.exec(url);
 
