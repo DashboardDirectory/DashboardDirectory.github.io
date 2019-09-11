@@ -127,7 +127,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                       });
 
             }
-            catch
+            catch (err)
             {
                 errorTerms.push(term);
                 crawlCustomErrors(deTerms,baseURL,errorTerms,callback);
