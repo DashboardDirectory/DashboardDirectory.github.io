@@ -65,7 +65,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
                             callback();
                         }
-                    }).error(errorCallback);
+                    }, errorCallback);
 
             })
         }
@@ -90,14 +90,130 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
     }
 
-     
+     crawlCustomErrors = function (deTerms,baseURL,errorTerms,callback)
+     {
+        
+        if (deTerms.length == 0)
+        {
+            callback(errorTerms);
+        }
+        else
+        {
+            var term = deTerms.shift();
+            var url = baseURL + '&fields=' + term + '&$$FIRST=1&$$LIMIT=1';
 
+            try
+            {
+
+              $http.get(url).then(
+                    function (response) {
+
+                        if (!(typeof response.data.error === 'undefined')   )
+                        { if (response.data.error != null)
+                            {
+                               errorTerms.push(term);
+                            }
+                        }
+
+                        crawlCustomErrors(deTerms,baseURL,errorTerms,callback);
+
+                        },
+                      function(response)
+                      {
+                        errorTerms.push(term);
+                        crawlCustomErrors(deTerms,baseURL,errorTerms,callback);
+                      });
+
+            }
+            catch (err)
+            {
+               var tmp = err;
+               errorTerms.push(term);
+               crawlCustomErrors(deTerms,baseURL,errorTerms,callback);
+
+            }
+
+        }
+     }
+
+     diagnoseCustomDataError = function (url,callback)
+     {
+      
+            var baseRegex = /(.+method=GET)/g;
+            var baseSecurity = /(apiKey=\w+|sessionID=\w+)/g;            
+            var queryMatch = baseRegex.exec(url);
+            var securityMatch = baseSecurity.exec(url);
+            
+            if (queryMatch != null)
+            {
+                var query = queryMatch[1];
+
+                if (securityMatch != null)
+                {
+                    query = query + "&" + securityMatch[1].trim();   
+                }
+
+                var regex = /(DE[:|%3AC][^,&]+)/g;
+                var deTerms = [];
+                var  match = regex.exec(url);
+
+                while (match != null)
+                {
+                    var term = match[1].trim();                
+
+                    if (deTerms.filter(function(t){return t == term}).length == 0)
+                    {
+                        deTerms.push(term);
+                    }
+
+                    match = regex.exec(url);
+                }
+
+                if (deTerms.length > 0)
+                {
+
+                    crawlCustomErrors(deTerms,query,[],
+                        function (errorTerms)
+                        {
+                            if (errorTerms.length > 0)
+                            {
+                                var errorList = decodeURIComponent(errorTerms.join(",").replace(/DE\:/g,''));
+                                callback({ error: { message: "Workfront could not find one or more custom fields required for this report.  The following fields may have been deleted or renamed: " + errorList}});
+                            }
+                            else
+                            {
+
+                             callback({ error: { message: "Workfront API returned an incomplete result.  No issues found with custom fields."}});   
+
+                            }
+                        })
+
+
+                }
+                else
+                {
+                    callback({ error: { message: "Workfront API returned an incomplete result.  No custom fields located."}});
+                }
+            }
+            else
+            {
+                callback({ error: { message: "Workfront API returned an incomplete result."}});
+            }
+      }
+    
+    
+
+ 
 
     // Recursive call-back function to batch load data from AtTask    
     loadCascade = function (url, first, count, batchSize, cumulativeData, finalCallBack, errorCallBack, incrementalCallBack) {
 
         if (first < count) {
             var batchURL = url + '&$$FIRST=' + first + '&$$LIMIT=' + batchSize;
+
+            
+            try
+            {
 
             $http.get(batchURL).then(function (response) {
 
@@ -116,9 +232,31 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
                     loadCascade(url, first + batchSize, count, batchSize, cumulativeData.concat(response.data.data), finalCallBack, errorCallBack, incrementalCallBack);
                 } 
-            }, errorCallBack
+            }, 
+
+            function (error)
+            {
+                if (error.message.indexOf("JSON") >= 0)
+                {
+                    diagnoseCustomDataError(url, typeof errorCallBack === 'undefined' ? finalCallBack : errorCallBack);
+                }             
+                else
+                {
+                    errorCallback(error);
+                }
+            }
 
              );
+
+        }
+
+        catch
+
+        {
+              diagnoseCustomDataError(url, typeof errorCallBack === 'undefined' ? finalCallBack : errorCallBack);
+        }
+
+
 
         }
         else {
@@ -550,9 +688,9 @@ this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chu
             var head = paths[0]; paths.shift();
             var tail = paths.join('\\');
 
-            createOrGetFolderPath(id, objectType, head, server, session, parentId,
+            this.createOrGetFolderPath(id, objectType, head, server, session, parentId,
               function (dirId) {
-                  createOrGetFolderPath(id, objectType, tail, server, session, dirId, callback, errorCallback);
+                  context.createOrGetFolderPath(id, objectType, tail, server, session, dirId, callback, errorCallback);
               }
 
     );
@@ -584,4 +722,4 @@ this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chu
     };
 
 })  
-// JavaScript source code
+
