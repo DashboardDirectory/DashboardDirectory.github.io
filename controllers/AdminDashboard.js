@@ -37,6 +37,7 @@ var showProjectFilter = getParameterByName("showProjectFilter");
 var showDateFilter = getParameterByName("showDateFilter");
 var api = "api/v7.0";
 var useViewer = (getParameterByName("useViewer") == "true");
+var customerID;
 
 if (showToolbox == "true")
 {
