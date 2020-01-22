@@ -2009,7 +2009,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     
  
 
-    $scope.getS3DocumentURL(customerID,documentID,versionID,callback)
+    $scope.getS3DocumentURL = function(customerID,documentID,versionID,callback)
     {
         var url = atTaskHost + '/attask/api-internal/docu/' + documentID +'/getS3DocumentURL?method=PUT&' + securityToken +
                  '&externalStorageID=/' + customerID + '/' + documentID + '_' + versionID;
