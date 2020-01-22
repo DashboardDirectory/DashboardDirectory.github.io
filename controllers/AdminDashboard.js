@@ -1,10 +1,10 @@
-﻿ 
-
+﻿
 var ATTASK_INSTANCE = 'www.attasksandbox.com';   
 var isLoaded = false; 
 var host = getParameterByName("host");
 var credential = getParameterByName("credential");
 var sessionID = getParameterByName("s");
+var apiKey = getParameterByName("a");
 var objID = getParameterByName("objID");
 var userSessionID = sessionID;            
 var showDownload = false ;
@@ -44,7 +44,8 @@ if (showToolbox == "true")
 
 }
 
-
+var securityToken = (apiKey != "" ? "apiKey=" + apiKey : "sessionID=" + sessionID);
+ 
 
 var renderer = getParameterByName("renderer");
 
@@ -164,7 +165,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     $scope.getCompanyList = function()
     {
         var url = atTaskHost + "/attask/" + api + "/cmpy/search?method=GET&" + 
-           "&sessionID=" + sessionID +
+           securityToken +
            "&fields=name,ID";
         
         atTaskWebService.atTaskGet(url, 
@@ -308,7 +309,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
     if (yearFilter != "")
     {
-        $scope.selectedYear = yearFilter;
+        $scope.selectedYear = parseInt(yearFilter);
     }
     else
     {
@@ -686,7 +687,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         $scope.projectFilters =  [{'name':'-ALL-',definition:'ID_Mod=notnull',filter:'&ID_Mod=notnull'}]; 
 
         var path = 'api-internal/uift/filtersForObjCode';
-        var filter = 'sessionID=' + sessionID + '&objCode=PROJ&filterType=STANDARD';
+        var filter = securityToken + '&objCode=PROJ&filterType=STANDARD';
         var fields = [ 'name', 'definition'];
         var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',');
 
@@ -820,7 +821,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
         try {
             var url = atTaskHost + "/attask/" + api + "/" + configObjType + '/search?method=GET&name=' + configObjName + 
-            "&sessionID=" + sessionID +
+            "&" + securityToken + 
             "&fields=documents:downloadURL,documents:currentVersion:ext,documents:parameterValues:*,parameterValues:*" +
             (configObjType.toUpperCase() == "PROJ" ? ",tasks:parameterValues:*" : "" );
         
@@ -848,26 +849,23 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                                           (
                     
                         // Load supporting .atapp configuration files.  Attach as script and execute code. 
-                    
-                                          function (file) 
-                                          {                             
-                                              var js = document.createElement('script');                
-                                              js.src = atTaskHost + file.downloadURL + "&sessionID=" + sessionID;          
-                                              document.head.appendChild(js);
-                                          }
+
                         )
                     
                         // Load AdminDashboard.atapp configuration file.  Attach as script and execute code. 
                         $scope.configDocuments.filter(function (d) {return(d.name =='AdminDashboard' && d.currentVersion.ext == 'atapp')}).map 
                           (
-                            function (file) 
-                            {                             
-                                var js = document.createElement('script');                
-                                js.src = atTaskHost + file.downloadURL + "&sessionID=" + sessionID;          
-                                document.head.appendChild(js);
-                               
-                            }
-                          );
+                             function (d)
+                                {
+                                 $scope.getS3DocumentURL(customerID,d.currentVersion.ID,d.ID,
+                                  function (docURL) 
+                                      {                             
+                                          var js = document.createElement('script');                
+                                          js.src = docURL;          
+                                          document.head.appendChild(js);
+                                          });
+                                    }
+                           );
                     }
 
                     $scope.scheduledReports = [];
@@ -894,14 +892,14 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 },
                 function ()
                 {
-                    if (timer == null || timer == "") alert('An error occured trying to load admin dashboard configuration.');
+                    if (timer == null) alert('An error occured trying to load admin dashboard configuration.');
                     else setTimeout($scope.reloadPage,60000);
                 }
                 )
         }
         catch (err)
         {
-            if (timer == null || timer == "")
+            if (timer == null)
                 alert('An error occured trying to load admin dashboard configuration.');
             else
                 setTimeout($scope.reloadPage,60000);
@@ -1132,7 +1130,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     .error(
         function(data,status)
         {
-            if (timer == null || timer == "")
+            if (timer == null)
             {
             alert('Failed to generate ' + fileName + '.  Error Status = ' + status);
             } else setTimeout($scope.reloadPage,60000);
@@ -1226,7 +1224,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                  },
          function ()
          {
-            if (timer == null || timer == "" ) alert ('Error Retrieving project filter');
+            if (timer == null) alert ('Error Retrieving project filter');
             else setTimeout($scope.reloadPage,60000);
          });
 
@@ -1278,7 +1276,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
              },
      function ()
      {
-        if (timer == null || timer == "") alert ('Error Retrieving task filter');
+        if (timer == null) alert ('Error Retrieving task filter');
         else setTimeout($scope.reloadPage,60000);
      });
 
@@ -1427,7 +1425,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             {          
             if (!(typeof data.error === 'undefined'))
                 {
-                    if (timer == null || timer == "") alert('Error With Workfront Query. msg:' + JSON.stringify(data.error));
+                    if (timer == null) alert('Error With Workfront Query. msg:' + JSON.stringify(data.error));
                     else setTimeout($scope.reloadPage,60000);
                 }
                 else if (data.length > 0)
@@ -1438,6 +1436,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                         if (adminReport.postProcessFunction.length < 3)
                         {
                             var finalData = adminReport.postProcessFunction(data,otherData);
+                rptSMTP = adminReport.rptSMTP;
                             $scope.completeRender(finalData, adminReport,fileName,blobCallback,uploadTo,fExt,rptSMTP);
                         }
                         else
@@ -1451,6 +1450,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                                     }
                                     else
                                     {
+                    rptSMTP = adminReport.rptSMTP;
                                         $scope.completeRender(finalData, adminReport,fileName,blobCallback,uploadTo,fExt,rptSMTP);
                                     }
                                 });
@@ -1467,14 +1467,9 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 }
             })}) } // success
      ,
-    function (response)
+    function (error)
     {   
-        if (timer == null || timer == "") 
-            {
-               
-
-                 document.getElementById("pdfFrame").src = URL.createObjectURL(new Blob(['<h1>An issue was encountered generating report</h1><br><br>Message: ' + response.error.message],{type : 'text/html'}));
-            }
+        if (timer == null) alert('Error With Workfront Query. msg:' + JSON.stringify(error)  );     
         else setTimeout($scope.reloadPage,60000);
 
     }  );
@@ -2013,14 +2008,26 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     
  
 
+    $scope.getS3DocumentURL(customerID,documentID,versionID,callback)
+    {
+        var url = atTaskHost + "/attask/api-internal/docu/' + documentID +'/getS3DocumentURL?method=PUT&' + securityToken +
+                 "&externalStorageID=/" + customerID + '/' + documentID + '_' + versionID;
+        
+        atTaskWebService.atTaskGet(url, 
 
+            function (data)
+            {
+                callback(data.result);
+            }
+            );
+    }
 
 
     $scope.logUse = function(licenseCallback)
     {
 
         var url = atTaskHost + "/attask/" + api + "/cmpy/search?method=GET&" + 
-                 "&sessionID=" + sessionID +
+                 securityToken +
                  "&fields=customer:name,customer:ID&$$LIMIT=1";
         
         atTaskWebService.atTaskGet(url, 
@@ -2032,6 +2039,8 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     location.reload();
                     return;
                 }
+
+                customerID = data[0].customer.ID;
                 var json = {page:'AdminDashboard.aspx',request:location.search,custID:data[0].customer.ID,company:data[0].customer.name};
                 var lDate = new Date();
                 lDate.setHours(lDate.getHours() - lDate.getTimezoneOffset() / 60);
@@ -2243,9 +2252,10 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             }).then(function successCallback(response) {
                 userSessionID = sessionID;
                 sessionID = response.data.sessionID;
+        securityToken = (apiKey != "" ? "apiKey=" + apiKey : "sessionID=" + sessionID);
                 callback();                     
             }, function errorCallback(response) {
-                 if (timer == null || timer == "") alert ('Credential argument or host argument invalid, or password changed in Workfront'); 
+                 if (timer == null) alert ('Credential argument or host argument invalid, or password changed in Workfront'); 
                  else setTimeout($scope.reloadPage,60000);
             });
 
