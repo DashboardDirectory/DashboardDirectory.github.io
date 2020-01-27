@@ -161,7 +161,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
     if (styleOverride != "")
     {
-        $scope.workfrontStyleOverride = eval(styleOverride);
+        $scope.workfrontStyleOverride = JSON.parse(styleOverride);
     }    
 
 
