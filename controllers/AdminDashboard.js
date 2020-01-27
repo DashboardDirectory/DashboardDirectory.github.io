@@ -872,7 +872,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                           (
                              function (d)
                                 {
-                                 $scope.getS3DocumentURL(customerID,d.currentVersion.ID,d.ID,
+                                 $scope.getS3DocumentURL(customerID,d.ID,d.currentVersion.ID,
                                   function (docURL) 
                                       {                             
                                           var js = document.createElement('script');                
