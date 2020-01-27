@@ -2184,7 +2184,12 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             }
 
             launchReportIfLoaded = $scope.launchReportIfLoaded;
-            document.getElementById("pdfFrame").style["display"] = "inline";         
+            
+            if (showReports == "true" || dashboardReport == "true")
+            {
+                document.getElementById("pdfFrame").style["display"] = "inline";         
+            }
+
             $scope.loadAdminDashboardAtApp(
             function ()
             {
