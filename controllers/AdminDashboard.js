@@ -850,7 +850,12 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                                           (
                     
                         // Load supporting .atapp configuration files.  Attach as script and execute code. 
-
+                                          function (file) 
+                                          {                             
+                                              var js = document.createElement('script');                
+                                              js.src = atTaskHost + file.downloadURL + "&" + securityToken;          
+                                              document.head.appendChild(js);
+                                          }
                         )
                     
                         // Load AdminDashboard.atapp configuration file.  Attach as script and execute code. 
