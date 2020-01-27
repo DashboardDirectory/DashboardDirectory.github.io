@@ -37,6 +37,7 @@ var showProjectFilter = getParameterByName("showProjectFilter");
 var showDateFilter = getParameterByName("showDateFilter");
 var api = "api/v7.0";
 var useViewer = (getParameterByName("useViewer") == "true");
+var styleOverride = getParameterByName("style");
 var customerID;
 
 if (showToolbox == "true")
@@ -44,6 +45,8 @@ if (showToolbox == "true")
     document.getElementById("adminToolbox").style["display"] = "inline";
 
 }
+
+
 
 var securityToken = (apiKey != "" ? "apiKey=" + apiKey : "sessionID=" + sessionID);
  
@@ -155,6 +158,12 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     {
         $scope.showLabels = true;
     }
+
+    if (styleOverride != "")
+    {
+        $scope.workfrontStyleOverride = eval(styleOverride);
+    }    
+
 
     var thisYear = new Date().getFullYear();
     $scope.filterYears = []
