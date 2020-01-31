@@ -37,7 +37,12 @@
     js.id =  "uberAPIControllerScript";            
     js.src = "controllers/uberAPIController.js?ver=" + (new Date()).getTime();          
     document.body.appendChild(js);
+
+    js = document.createElement('script');   
+    js.id =  "clientDowloadScript";
+    js.src = "controllers/clientDownload.js?ver=" + (new Date()).getTime();          
+    document.body.appendChild(js);
+
 </script> 
-<script src="scripts/clientDownload.js"></script>
 
 </html>
