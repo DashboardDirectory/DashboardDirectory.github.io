@@ -8,6 +8,7 @@ app.controller('uberAPIController',   function ($scope, $http, $sce, $location, 
 
 var mainDiv = document.getElementById("uberAPImain");
 
+alert ('?');
 mainDiv.innerHTML = "<b>Hello verld!</b>";
 
 });
