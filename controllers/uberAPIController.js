@@ -3,7 +3,7 @@
 var app=angular.module('app', ['atTaskServiceModule']);
 
 
-app.controller('uberAPIController',   function ($scope, $http, $sce, $location, $compile,  atTaskWebService)     
+app.controller('uberAPIController',   function ($scope, $http, $sce, $location, $compile)     
 {
 
 var mainDiv = document.getElementById("uberAPImain");
