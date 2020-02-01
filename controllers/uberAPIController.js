@@ -1,14 +1,15 @@
 
   
-var app=angular.module('app');
+var app = angular.module('app', ['atTaskServiceModule']);
 
+uberAPIController
+app.controller('uberAPIController', 
+	function ($scope, $http, $sce, $location, $compile)     
+	{
 
-app.controller('uberAPIController',   function ($scope)     
-{
+		var mainDiv = document.getElementById("uberAPImain");
 
-var mainDiv = document.getElementById("uberAPImain");
+		alert ('?');
+		mainDiv.innerHTML = "<b>Hello verld!</b>";
 
-alert ('?');
-mainDiv.innerHTML = "<b>Hello verld!</b>";
-
-});
+	});
