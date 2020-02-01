@@ -1,6 +1,6 @@
 
   
-var app=angular.module('app', ['atTaskServiceModule']);
+var app=angular.module('app');
 
 
 app.controller('uberAPIController',   function ($scope)     
