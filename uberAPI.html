@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<meta http-equiv="Cache-control" content="No-Cache">
 <html lang="en" data-ng-app="app">
 <head>
     <title></title>
@@ -21,9 +23,145 @@
     </script>
 
 
-    <script src="scripts/reportUtilities.js"></script>
-    <script src="scripts/atTaskServicesModule.js"></script>
-  </head>
+    <script src="scripts/reportUtilities.js?ver=2"></script>
+    <script src="scripts/atTaskServicesModule.js?ver=3"></script>
+
+    <style>
+        button {
+            font-size: 12px;
+            border: none;
+            background-color:#f1ab11;
+            color:black;
+            cursor:pointer;
+            padding:1px;
+
+        }
+
+        select {
+            font-size: 10px;
+        }
+        input {
+            font-size: 10px;
+        }
+
+        .workfront {
+            background-color: #34373d;
+            color:white;
+            font-size:x-small;
+            font-family: Arial;
+        }
+        span {
+            font-size:10px;
+        }
+
+        /*----- Tabs -----*/
+.tabs {
+    width:100%;
+    display:inline-block;
+
+
+}
+
+    /*----- Tab Links -----*/
+    /* Clearfix */
+    .tab-links:after {
+        display:block;
+        clear:both;
+        content:'';
+    }
+
+ .tab-links {
+    margin-left: 1px;
+    margin-right: 0px;
+    padding-left: 1px;
+    padding-right: 0px;
+ }
+
+    .tab-links li {
+        margin:0px 1px;
+        float:left;
+        list-style:none;
+    }
+
+        .tab-links a {
+            padding:2px 2px;
+            border-radius:3px 3px 0px 0px;
+            background-color:lightgray;
+            font-size:12px;
+            font-weight:500;
+            color:#4c4c4c;
+            transition:all linear 0.15s;
+            text-decoration:none;
+            float:left;
+        }
+
+        .tab-links a:hover {
+            background:#f1ab11;
+            text-decoration:none;
+
+        }
+
+    li.active a, li.active a:hover {
+        background:#e1f2ff;
+        color:#4c4c4c;
+    }
+
+    /*----- Content of Tabs -----*/
+    .tab-content {
+        padding-left:5px;
+        border-radius:1px;
+
+
+    }
+
+    table
+    {
+        width:100%;
+    }
+
+    select{
+        font-size: 12px;
+    }
+
+    thead
+    {
+        text-align:left;
+        color:lightblue;
+    }
+
+    td
+    {
+        background-color:white;
+        color:black;
+    }
+
+        .tab {
+            display:none;
+
+        }
+
+        .tab.active {
+            display:block;
+        }
+
+    </style>
+
+    <script>
+        jQuery(document).ready(function () {
+            jQuery('.tabs .tab-links a').on('click', function (e) {
+                var currentAttrValue = jQuery(this).attr('href');
+
+                // Show/Hide Tabs
+                jQuery('.tabs ' + currentAttrValue).show().siblings().hide();
+
+                // Change/remove current tab to active
+                jQuery(this).parent('li').addClass('active').siblings().removeClass('active');
+
+                e.preventDefault();
+            });
+        });
+    </script>
+</head>
     <body>
         <form id="myForm" runat="server" >        
             <div data-ng-controller="uberAPIController">
