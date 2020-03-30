@@ -982,8 +982,8 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
 
                 if (apiKey == "")
-                    {                       
-                      var js = document.createElement('script');                
+                    {                      
+                                 
                       js.src = atTaskHost + doc.downloadURL + "&" + securityToken;          
                       document.head.appendChild(js);
                     }
@@ -993,7 +993,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     $scope.getS3DocumentURL(customerID,doc.ID,doc.currentVersion.ID,
                     function (docURL) 
                     {                             
-                          var js = document.createElement('script');                
+                     
                           js.src = docURL;          
                           document.head.appendChild(js);
                     });
