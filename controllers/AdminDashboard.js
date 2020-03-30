@@ -979,8 +979,26 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 $scope.sequentialLoadRDLDocumentList(docs,callback);
             }
 
-            js.src = atTaskHost + doc.downloadURL + "&sessionID=" + sessionID;      
-            document.head.appendChild(js);
+
+                if (apiKey == "")
+                    {                       
+                      var js = document.createElement('script');                
+                      js.src = atTaskHost + doc.downloadURL + "&" + securityToken;          
+                      document.head.appendChild(js);
+                    }
+                    else
+                    {   
+
+                    $scope.getS3DocumentURL(customerID,doc.ID,doc.currentVersion.ID,
+                    function (docURL) 
+                    {                             
+                          var js = document.createElement('script');                
+                          js.src = docURL;          
+                          document.head.appendChild(js);
+                    });
+                    }
+
+
         }
         else
         {
