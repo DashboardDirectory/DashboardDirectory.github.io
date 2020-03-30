@@ -812,6 +812,20 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
     }
 
+        $scope.getS3DocumentURL = function(customerID,documentID,versionID,callback)
+    {
+        var url = atTaskHost + '/attask/api-internal/docu/' + documentID +'/getS3DocumentURL?method=PUT&' + securityToken +
+                 '&externalStorageID=/' + customerID + '/' + documentID + '_' + versionID;
+        
+        atTaskWebService.atTaskGet(url, 
+
+            function (data)
+            {
+                callback(data.result);
+            }
+            );
+    }
+
 
     $scope.loadAdminDashboardAtApp = function(callback, reloadReportsOnly)
     {
