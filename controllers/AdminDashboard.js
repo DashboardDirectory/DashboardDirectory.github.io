@@ -37,6 +37,7 @@ var showProjectFilter = getParameterByName("showProjectFilter");
 var showDateFilter = getParameterByName("showDateFilter");
 var api = "api/v10.0";
 var useViewer = (getParameterByName("useViewer") == "true");
+var customerID;
 
 if (showToolbox == "true")
 {
@@ -843,7 +844,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
                 function (data)
                 {
-                    var customerID = data[0].customerID;
+                     customerID = data[0].customerID;
 
                     if (!reloadReportsOnly)
                     {
