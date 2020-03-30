@@ -35,18 +35,14 @@ var defaultUserFilter = getParameterByName("otherFilterDefault");
 var userFilterName = getParameterByName("otherFilterLabel");
 var showProjectFilter = getParameterByName("showProjectFilter");
 var showDateFilter = getParameterByName("showDateFilter");
-var api = "api/v7.0";
+var api = "api/v10.0";
 var useViewer = (getParameterByName("useViewer") == "true");
-var styleOverride = getParameterByName("style");
-var customerID;
 
 if (showToolbox == "true")
 {
     document.getElementById("adminToolbox").style["display"] = "inline";
 
 }
-
-
 
 var securityToken = (apiKey != "" ? "apiKey=" + apiKey : "sessionID=" + sessionID);
  
@@ -158,12 +154,6 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     {
         $scope.showLabels = true;
     }
-
-    if (styleOverride != "")
-    {
-        $scope.workfrontStyleOverride = JSON.parse(styleOverride);
-    }    
-
 
     var thisYear = new Date().getFullYear();
     $scope.filterYears = []
@@ -859,6 +849,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                                           (
                     
                         // Load supporting .atapp configuration files.  Attach as script and execute code. 
+                    
                                           function (file) 
                                           {                             
                                               var js = document.createElement('script');                
@@ -867,20 +858,35 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                                           }
                         )
                     
+
+
+
                         // Load AdminDashboard.atapp configuration file.  Attach as script and execute code. 
                         $scope.configDocuments.filter(function (d) {return(d.name =='AdminDashboard' && d.currentVersion.ext == 'atapp')}).map 
                           (
-                             function (d)
+                            function (file) 
+                            {                        
+
+                                if (apiKey != "")
                                 {
-                                 $scope.getS3DocumentURL(customerID,d.ID,d.currentVersion.ID,
+                                var js = document.createElement('script');                
+                                js.src = atTaskHost + file.downloadURL + "&" + securityToken;          
+                                document.head.appendChild(js);
+                                }
+                                else
+                                {   
+
+                                $scope.getS3DocumentURL(customerID,file.ID,file.currentVersion.ID,
                                   function (docURL) 
                                       {                             
                                           var js = document.createElement('script');                
                                           js.src = docURL;          
                                           document.head.appendChild(js);
                                           });
-                                    }
-                           );
+                                }
+                               
+                            }
+                          );
                     }
 
                     $scope.scheduledReports = [];
@@ -2023,19 +2029,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     
  
 
-    $scope.getS3DocumentURL = function(customerID,documentID,versionID,callback)
-    {
-        var url = atTaskHost + '/attask/api-internal/docu/' + documentID +'/getS3DocumentURL?method=PUT&' + securityToken +
-                 '&externalStorageID=/' + customerID + '/' + documentID + '_' + versionID;
-        
-        atTaskWebService.atTaskGet(url, 
 
-            function (data)
-            {
-                callback(data.result);
-            }
-            );
-    }
 
 
     $scope.logUse = function(licenseCallback)
@@ -2054,8 +2048,6 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     location.reload();
                     return;
                 }
-
-                customerID = data[0].customer.ID;
                 var json = {page:'AdminDashboard.aspx',request:location.search,custID:data[0].customer.ID,company:data[0].customer.name};
                 var lDate = new Date();
                 lDate.setHours(lDate.getHours() - lDate.getTimezoneOffset() / 60);
@@ -2073,7 +2065,22 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             },
             function (error) 
             {
-               $scope.checkForCredential();
+        var fname = "ERROR";
+                var lDate = new Date();
+                lDate.setHours(lDate.getHours() - lDate.getTimezoneOffset() / 60);
+                lDate = lDate.toJSON();
+
+        var json = {page:'AdminDashboard.aspx',request:location.search,error,host:atTaskHost};
+
+        $http({
+                    url:   LICENSE_HOST + '/Tools/Subform/UsageTracker.aspx?f=' + fname,
+                    method: "POST",
+                    data: {dateTime: lDate, activity: json},
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }
+                });
+
+              document.body.innerHTML = JSON.stringify(error.data);
+          //$scope.checkForCredential();
             }
             );
 
@@ -2184,12 +2191,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             }
 
             launchReportIfLoaded = $scope.launchReportIfLoaded;
-            
-            if (showReports == "true" || dashboardReport == "true")
-            {
-                document.getElementById("pdfFrame").style["display"] = "inline";         
-            }
-
+            document.getElementById("pdfFrame").style["display"] = "inline";         
             $scope.loadAdminDashboardAtApp(
             function ()
             {
