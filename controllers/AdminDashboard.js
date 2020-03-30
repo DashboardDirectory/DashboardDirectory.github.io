@@ -822,13 +822,14 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         try {
             var url = atTaskHost + "/attask/" + api + "/" + configObjType + '/search?method=GET&name=' + configObjName + 
             "&" + securityToken + 
-            "&fields=documents:downloadURL,documents:currentVersion:ext,documents:parameterValues:*,parameterValues:*" +
+            "&fields=customerID,documents:downloadURL,documents:currentVersion:ext,documents:parameterValues:*,parameterValues:*" +
             (configObjType.toUpperCase() == "PROJ" ? ",tasks:parameterValues:*" : "" );
         
             atTaskWebService.atTaskGet(url, 
 
                 function (data)
                 {
+                    var customerID = data[0].customerID;
 
                     if (!reloadReportsOnly)
                     {
