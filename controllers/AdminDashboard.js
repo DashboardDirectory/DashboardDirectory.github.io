@@ -866,12 +866,28 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                         // Load supporting .atapp configuration files.  Attach as script and execute code. 
                     
                                           function (file) 
-                                          {                             
+                                          {     
+
+                                            if (apiKey == "")
+                                            {                       
                                               var js = document.createElement('script');                
                                               js.src = atTaskHost + file.downloadURL + "&" + securityToken;          
                                               document.head.appendChild(js);
+                                            }
+                                            else
+                                            {   
+
+                                            $scope.getS3DocumentURL(customerID,file.ID,file.currentVersion.ID,
+                                            function (docURL) 
+                                            {                             
+                                                  var js = document.createElement('script');                
+                                                  js.src = docURL;          
+                                                  document.head.appendChild(js);
+                                            });
+                                            }
+
                                           }
-                        )
+                        );
                     
 
 
