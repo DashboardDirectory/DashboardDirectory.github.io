@@ -867,7 +867,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                             function (file) 
                             {                        
 
-                                if (apiKey != "")
+                                if (apiKey == "")
                                 {
                                 var js = document.createElement('script');                
                                 js.src = atTaskHost + file.downloadURL + "&" + securityToken;          
