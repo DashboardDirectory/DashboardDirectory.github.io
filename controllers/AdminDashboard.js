@@ -662,7 +662,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     $scope.loadCustomUserFilter = function (objCode,callback) {
         var  newFilter = [{'name':'-ALL-',definition:'',filter:''}];
         var path = 'api-internal/uift/filtersForObjCode';
-        var filter = 'sessionID=' + sessionID + '&objCode=' + objCode.toUpperCase() + '&filterType=STANDARD';
+        var filter = securityToken + '&objCode=' + objCode.toUpperCase() + '&filterType=STANDARD';
         var fields = [ 'name', 'definition'];
         var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',') ;
 
@@ -732,7 +732,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         $scope.taskFilters = [{'name':'-ALL-',definition:'ID_Mod=notnull',filter:'&ID_Mod=notnull'}];
 
         var path = 'api-internal/uift/filtersForObjCode';
-        var filter = 'sessionID=' + sessionID + '&objCode=TASK&filterType=STANDARD';
+        var filter = securityToken + '&objCode=TASK&filterType=STANDARD';
         var fields = [ 'name', 'definition'];
         var filterURL = 'https://' + ATTASK_INSTANCE + '/attask/' + path + '?method=GET&' + filter + '&fields= ' + fields.join(',') ;
 
@@ -792,7 +792,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         
 
         var fileInfo = "?fileName="+ fileName +"&objType=" + configObjType + "&id=" +  $scope.configObjID +
-         "&path=&server=" + ATTASK_INSTANCE + "&session=" + sessionID;
+         "&path=&server=" + ATTASK_INSTANCE + securityToken;
 
         $http({
             method: 'POST',
@@ -1215,7 +1215,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     {   
         if (typeof $scope.currentProjectFilter === 'undefined') return false;
 
-        var url = atTaskHost  + '/attask/' + api + '/proj/count?method=GET' +   $scope.currentProjectFilter.filter + '&sessionID=' + sessionID ;
+        var url = atTaskHost  + '/attask/' + api + '/proj/count?method=GET' +   $scope.currentProjectFilter.filter + '&' + securityToken ;
         atTaskWebService.atTaskGet(url, 
              function (data)
              {
@@ -1232,7 +1232,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         }
         else
         {
-            var url = atTaskHost  + '/attask/' + api + '/proj/search?method=GET' +   $scope.currentProjectFilter.filter + '&sessionID=' + sessionID ;
+            var url = atTaskHost  + '/attask/' + api + '/proj/search?method=GET' +   $scope.currentProjectFilter.filter + '&' + securityToken ;
             atTaskWebService.atTaskGet(url, 
                  function (data)
                  {
@@ -1412,7 +1412,9 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             adminReport.otherQueries.map(function(q){
                 if (q.query.indexOf(atTaskHost) == -1) {
                     var query = q.query;
-                    query  =  query.replace(/{SESSIONID}/g,sessionID);
+                    query  =  query.replace(/sessionID[ |=]+{{sessionid}}/gi,securityToken);
+
+
                     query =  query.replace(/{ID}/g,objID);
                     query = atTaskHost + '/attask/' + api + '/' +  query  ;
                     oQuery.push({dataSetName:q.dataSetName, query:query});
@@ -1478,7 +1480,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
   
         var url = adminReport.query;
-        url = url.replace(/{SESSIONID}/g,sessionID);
+        url = url.replace(/sessionID[ |=]+{{sessionid}}/gi,securityToken);
         url = url.replace(/{ID}/g,objID);
         url = $scope.appendFilters(url);
         url = atTaskHost + '/attask/' + api + '/' + url  + '&jsonp=JSON_CALLBACK';
@@ -1815,7 +1817,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                        
                       
                         var  failSafeUpdate = {ID:rpt.ID,"DE:Last Run On": fSafeDate.toJSON(),"DE:Last Run Status" : -1, "DE:Report Schedule Active":"Pending" };
-                            atTaskWebService.atTaskBulkUpdate("TASK",atTaskHost + "/attask/" + api + '/task?method=PUT&sessionID=' + sessionID,[failSafeUpdate],
+                            atTaskWebService.atTaskBulkUpdate("TASK",atTaskHost + "/attask/" + api + '/task?method=PUT&' + securityToken,[failSafeUpdate],
                              function (results)
                              { 
                                  $scope.renderReport($scope.selectedReport,'Report', function () 
@@ -1876,7 +1878,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                                             rpt["DE:Report Schedule Next Run Date"] = subsequentRun.toJSON();
                                             
                                             var update = {ID:rpt.ID,"DE:Last Run On": lRun.toJSON(),"DE:Report Schedule Next Run Date": subsequentRun.toJSON(),"DE:Last Run Status" : 1, "DE:Report Schedule Active":"Yes" };
-                                            atTaskWebService.atTaskBulkUpdate("TASK",atTaskHost + "/attask/" + api + '/task?method=PUT&sessionID=' + sessionID,[update],
+                                            atTaskWebService.atTaskBulkUpdate("TASK",atTaskHost + "/attask/" + api + '/task?method=PUT&' + securityToken,[update],
                                              function (results)
                                              {
                                                   
