@@ -1412,7 +1412,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             adminReport.otherQueries.map(function(q){
                 if (q.query.indexOf(atTaskHost) == -1) {
                     var query = q.query;
-                    query  =  query.replace(/sessionID[ |=]+{{sessionid}}/gi,securityToken);
+                    query  =  query.replace(/sessionID[ |=]+{sessionid}/gi,securityToken);
 
 
                     query =  query.replace(/{ID}/g,objID);
@@ -1480,7 +1480,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
   
         var url = adminReport.query;
-        url = url.replace(/sessionID[ |=]+{{sessionid}}/gi,securityToken);
+        url = url.replace(/sessionID[ |=]+{sessionid}/gi,securityToken);
         url = url.replace(/{ID}/g,objID);
         url = $scope.appendFilters(url);
         url = atTaskHost + '/attask/' + api + '/' + url  + '&jsonp=JSON_CALLBACK';
