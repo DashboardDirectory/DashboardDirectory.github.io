@@ -813,8 +813,18 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
     }
 
-        $scope.getS3DocumentURL = function(customerID,documentID,versionID,callback)
+        $scope.getS3DocumentURL = function(customerID,documentID,versionID,name,ext,callback)
     {
+
+        ext = ext.toLowerCase();
+        var imageTypes = ['png','jpg','gif','jpeg','bmp'];
+        var details = "";
+
+        if (imageTypes.filter(function(t){t==ext}).length > 0)
+        {
+           details = '?response-content-disposition=inline&filename=%22'+ name +'.' + ext + '%22&response-content-type=image%2F'+ ext;
+        }
+
         var url = atTaskHost + '/attask/api-internal/docu/' + documentID +'/getS3DocumentURL?method=PUT&' + securityToken +
                  '&externalStorageID=/' + customerID + '/' + documentID + '_' + versionID;
         
@@ -822,7 +832,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
             function (data)
             {
-                callback(data.result);
+                callback(data.result+details);
             }
             );
     }
@@ -878,7 +888,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                                             else
                                             {   
 
-                                            $scope.getS3DocumentURL(customerID,file.ID,file.currentVersion.ID,
+                                            $scope.getS3DocumentURL(customerID,file.ID,file.currentVersion.ID,file.name,file.currentVersion.ext,
                                             function (docURL) 
                                             {                             
                                                   var js = document.createElement('script');                
@@ -908,7 +918,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                                 else
                                 {   
 
-                                $scope.getS3DocumentURL(customerID,file.ID,file.currentVersion.ID,
+                                $scope.getS3DocumentURL(customerID,file.ID,file.currentVersion.ID, file.name, file.currentVersion.ext,
                                   function (docURL) 
                                       {                             
                                           var js = document.createElement('script');                
@@ -990,7 +1000,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     else
                     {   
 
-                    $scope.getS3DocumentURL(customerID,doc.ID,doc.currentVersion.ID,
+                    $scope.getS3DocumentURL(customerID,doc.ID,doc.currentVersion.ID, doc.name, doc.currentVersion.ext,
                     function (docURL) 
                     {                             
                      
