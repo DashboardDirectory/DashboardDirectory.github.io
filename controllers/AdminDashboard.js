@@ -820,7 +820,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         var imageTypes = ['png','jpg','gif','jpeg','bmp'];
         var details = "";
 
-        if (imageTypes.filter(function(t){t==ext}).length > 0)
+        if (imageTypes.filter(function(t){return (t==ext)}).length > 0)
         {
            details = '?response-content-disposition=inline&filename=%22'+ name +'.' + ext + '%22&response-content-type=image%2F'+ ext;
         }
