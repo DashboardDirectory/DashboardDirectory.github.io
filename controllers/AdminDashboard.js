@@ -822,17 +822,17 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
         if (imageTypes.filter(function(t){return (t==ext)}).length > 0)
         {
-           details = '?response-content-disposition=inline&filename=%22'+ name +'.' + ext + '%22&response-content-type=image%2F'+ ext;
+           details = encodeURIComponent('response-content-type=image%2F'+ ext);
         }
 
         var url = atTaskHost + '/attask/api-internal/docu/' + documentID +'/getS3DocumentURL?method=PUT&' + securityToken +
-                 '&externalStorageID=/' + customerID + '/' + documentID + '_' + versionID;
+                 '&externalStorageID=/' + customerID + '/' + documentID + '_' + versionID + (details != "" ? '&customerPrefs=' + details : "" );
         
         atTaskWebService.atTaskGet(url, 
 
             function (data)
             {
-                callback(data.result+details);
+                callback(data.result + details);
             }
             );
     }
