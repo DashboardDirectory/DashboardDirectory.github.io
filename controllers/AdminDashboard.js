@@ -1,4 +1,5 @@
 ﻿
+  
 var ATTASK_INSTANCE = 'www.attasksandbox.com';   
 var isLoaded = false; 
 var host = getParameterByName("host");
@@ -45,7 +46,7 @@ if (showToolbox == "true")
 
 }
 
-var securityToken = (apiKey != "" ? "apiKey=" + apiKey : "sessionID=" + sessionID);
+var securityToken = (getParameterByName("a") != "" ? "apiKey=" + apiKey : "sessionID=" + sessionID);
  
 
 var renderer = getParameterByName("renderer");
@@ -792,7 +793,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         
 
         var fileInfo = "?fileName="+ fileName +"&objType=" + configObjType + "&id=" +  $scope.configObjID +
-         "&path=&server=" + ATTASK_INSTANCE + securityToken;
+         "&path=&server=" + ATTASK_INSTANCE + "&session=" + sessionID;
 
         $http({
             method: 'POST',
@@ -2132,7 +2133,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 lDate.setHours(lDate.getHours() - lDate.getTimezoneOffset() / 60);
                 lDate = lDate.toJSON();
 
-        var json = {page:'AdminDashboard.aspx',request:location.search,error,host:atTaskHost};
+        var json = {page:'AdminDashboard.aspx',request:location.search,error:error,host:atTaskHost};
 
         $http({
                     url:   LICENSE_HOST + '/Tools/Subform/UsageTracker.aspx?f=' + fname,
@@ -2219,10 +2220,10 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     msgDiv.style["left"] = "1px";
                     msgDiv.style["color"] = "black";
                     msgDiv.style["width"] = "100%";
-                    msgDiv.style["padding-left"] = "50px";
+                    msgDiv.style["padding-left"] = "0px";
                     msgDiv.style["height"] = "100%";
                     msgDiv.style["background-color"] = "white";
-                    msgDiv.style["opacity"] = .8;
+                    msgDiv.style["opacity"] = .95;
                     msgDiv.innerHTML = response.data.message;
 
                     var timeoutMsec = 10000;
@@ -2357,3 +2358,5 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 } // controller function code
  
 ); // controller object
+
+ 
