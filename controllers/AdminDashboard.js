@@ -39,6 +39,8 @@ var showDateFilter = getParameterByName("showDateFilter");
 var api = "api/v10.0";
 var useViewer = (getParameterByName("useViewer") == "true");
 var customerID;
+var testLicenseJson = getParameterByName("testLicenseJson");
+
 
 if (showToolbox == "true")
 {
@@ -2091,6 +2093,32 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     }        
     
  
+  getUserSessionInfo = function (callback,error)
+        {
+
+            var url = urlBase + "/auth//sessionInfo?method=PUT&" + securityToken;
+
+            atTaskWebService.atTaskGet(url, 
+                function (data)
+                {
+
+                    var userUrl = urlBase + "/user/search?method=GET&ID=" + data.result.userID + "&fields=company:name,customer:name,emailAddr&" + securityToken;
+
+                    atTaskWebService.atTaskGet(userUrl,function(user)
+
+                    {
+                        data.result.userName = user[0].name;
+                        data.result.userCompany = user[0].company;
+                        data.result.customer = user[0].customer;
+                        data.result.host = ATTASK_INSTANCE;
+                        data.result.email = user[0].emailAddr;
+                        callback(data.result);
+                    },error)
+
+                },error
+                );
+            
+        }
 
 
 
@@ -2098,20 +2126,24 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     $scope.logUse = function(licenseCallback)
     {
 
-        var url = atTaskHost + "/attask/" + api + "/cmpy/search?method=GET&" + 
-                 securityToken +
-                 "&fields=customer:name,customer:ID&$$LIMIT=1";
-        
-        atTaskWebService.atTaskGet(url, 
 
+ 
+        getUserSessionInfo(
             function (data)
             {
-                if (typeof(data[0]) === 'undefined')
+                if (typeof(data) === 'undefined')
                 { 
                     location.reload();
                     return;
                 }
-                var json = {page:'AdminDashboard.aspx',request:location.search,custID:data[0].customer.ID,company:data[0].customer.name};
+                var json = {page:'AdminDashboard.aspx',request:location.search,custID:data.customer.ID,company:data.customer.name};
+
+                json.userCompany = data.userCompany == null ? "" : data.userCompany.name;
+                json.userID = data.userID;
+                json.userName = data.userName;
+                json.host = data.host;
+                json.email = data.email;
+
                 var lDate = new Date();
                 lDate.setHours(lDate.getHours() - lDate.getTimezoneOffset() / 60);
                 lDate = lDate.toJSON();
@@ -2198,13 +2230,9 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         return { "title": $scope.selectedTool.name  , "content":  tableHTML };
     }
 
-    $scope.startup = function ()
+
+processLicense = function (response)
     {
-
-        $scope.logUse(
-        function (response)
-        {
-
             if (!response.data.isValid)
             {
                 document.body.innerHTML =   response.data.message;
@@ -2320,7 +2348,14 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             }
 
             );
-        }); //log use
+         
+    }
+
+    $scope.startup = function ()
+    {
+
+        $scope.logUse(processLicense);
+        
     } // startup
 
     $scope.checkForCredential = function (callback)
@@ -2352,7 +2387,27 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         }
     }
 
+
+
+if (testLicenseJson == "")
+{
     $scope.checkForCredential($scope.startup);
+}
+else
+{
+   testLicenseJson = getParameterByName("testLicenseJson");
+   var json = JSON.parse(testLicenseJson);
+                
+
+                var fname = json.activity.company;
+
+                $http({
+                    url:   LICENSE_HOST + '/Tools/Subform/UsageTracker.aspx?f=' + fname,
+                    method: "POST",
+                    data: json,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }
+                }).then(processLicense);
+}
  
 
 } // controller function code
