@@ -864,7 +864,7 @@ $scope.loadHostedAdminDashboardAtApp = function(callback,url)
 
             $scope.configDocuments = [];
 
-            adminReports.forEach(function(r)
+            $scope.adminReports.forEach(function(r)
             {
                 var downloadURL = hostedAdminURL.replace('AdminDashboard.atapp','') + r.template + '.tpx'
                 $scope.configDocuments.push({downloadURL: downloadURL, name:r.template , currentVersion:{ext:'tpx'}});
