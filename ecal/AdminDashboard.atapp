@@ -1,0 +1,47 @@
+var scope = angular.element(document.getElementById("_main").children[0]).scope();
+
+loadAdminDashboard = function (callback) {
+
+    // Pass back configuration of Admin Tools and Reports 
+
+
+
+    var adminToolBox = [];   
+
+    var uberForms = [];
+
+    var adminReports = [];
+
+  
+
+    adminReports.push(EditorialCalendarSettings);
+
+
+
+    // Pass config back to dashboard 
+
+    callback(adminToolBox, adminReports, uberForms);
+
+}
+
+checkLoadedAll = function()
+
+{
+
+   waitingToLoad = (typeof EditorialCalendarIsLoaded === 'undefined');
+
+
+
+    if (!waitingToLoad)
+
+        {         
+
+
+
+        adminDashboardCallback(loadAdminDashboard);
+
+    }
+
+}
+
+checkLoadedAll()
