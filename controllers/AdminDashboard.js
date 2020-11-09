@@ -593,8 +593,18 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         $scope.adminTools = tools;
         $scope.adminReports =  reports ;
        
+          if (hostedAdminURL != "")
+          {
 
+            $scope.configDocuments = [];
 
+            $scope.adminReports.forEach(function(r)
+            {
+                var downloadURL = hostedAdminURL.replace('AdminDashboard.atapp','') + r.template + '.tpx'
+                $scope.configDocuments.push({downloadURL: downloadURL, name:r.template , currentVersion:{ext:'tpx'}});
+            })
+
+        }
 
          
 
@@ -862,13 +872,6 @@ $scope.loadHostedAdminDashboardAtApp = function(callback,url)
         if (hostedAdminURL != "")
         {
 
-            $scope.configDocuments = [];
-
-            $scope.adminReports.forEach(function(r)
-            {
-                var downloadURL = hostedAdminURL.replace('AdminDashboard.atapp','') + r.template + '.tpx'
-                $scope.configDocuments.push({downloadURL: downloadURL, name:r.template , currentVersion:{ext:'tpx'}});
-            })
 
             loadHostedAdminDashboardAtApp(callback,hostedAdminURL);
             return;
