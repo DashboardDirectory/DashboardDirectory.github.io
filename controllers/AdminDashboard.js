@@ -1,4 +1,16 @@
-﻿
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AdminDashboard.aspx.cs" Inherits="AtAppStore.WebApp.Tools.Subform.Dashboards.Controllers.AdminDashboard" %>
+  
+
+<% if (false) //(!(bool)Session["dash_invoice_isLicensed"]  )
+{ %>
+var LicenseCheck = 'Fail'; 
+    var LicensingMessageHTML = '<h3>This Component has not yet been licensed.  Please go to <a href="http:\\www.atappstore.com">AtAppStore</a> for information on how to license it.</h3>';
+    document.forms[0].innerHTML = LicensingMessageHTML;
+
+    <%}  else { %> 
+    
+        
+  
   
 var ATTASK_INSTANCE = 'www.attasksandbox.com';   
 var isLoaded = false; 
@@ -7,6 +19,7 @@ var credential = getParameterByName("credential");
 var sessionID = getParameterByName("s");
 var apiKey = getParameterByName("a");
 var objID = getParameterByName("objID");
+var objTerm =getParameterByName("objTerm");
 var userSessionID = sessionID;            
 var showDownload = false ;
 var ext =  getParameterByName("ext");
@@ -40,7 +53,7 @@ var api = "api/v10.0";
 var useViewer = (getParameterByName("useViewer") == "true");
 var customerID;
 var testLicenseJson = getParameterByName("testLicenseJson");
-
+var hostedAdminURL = getParameterByName("hostedAdminURL");
 
 if (showToolbox == "true")
 {
@@ -841,8 +854,36 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     }
 
 
+
+$scope.loadHostedAdminDashboardAtApp = function(callback,url)
+{
+ isloaded=false;
+ var js = document.createElement('script');                
+ js.src = url;          
+ document.head.appendChild(js);
+}
+ 
+
+
+
     $scope.loadAdminDashboardAtApp = function(callback, reloadReportsOnly)
     {
+
+        if (hostedAdminURL != "")
+        {
+
+            $scope.configDocuments = [];
+
+            adminReports.forEach(function(r)
+            {
+                var downloadURL = hostedAdminURL.replace('AdminDashboard.atapp','') + r.template + '.tpx'
+                $scope.configDocuments.push({downloadURL: downloadURL, name:r.template , currentVersion:{ext:'tpx'}});
+            })
+
+            loadHostedAdminDashboardAtApp(callback,hostedAdminURL);
+            return;
+        }
+
         isloaded=false;
 
         if (typeof reloadReports === 'undefined') reloadReportsOnly = false;
@@ -994,7 +1035,12 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             }
 
 
-                if (apiKey == "")
+                if(hostedAdminURL != "")
+                {
+                      js.src = doc.downloadURL ;          
+                      document.head.appendChild(js);
+                }
+                else if (apiKey == "")
                     {                      
                                  
                       js.src = atTaskHost + doc.downloadURL + "&" + securityToken;          
@@ -1429,6 +1475,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
 
                     query =  query.replace(/{ID}/g,objID);
+                    query =  query.replace(/{ID TERM}/g,objTerm);
                     query = atTaskHost + '/attask/' + api + '/' +  query  ;
                     oQuery.push({dataSetName:q.dataSetName, query:query});
                 };
@@ -1495,6 +1542,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         var url = adminReport.query;
         url = url.replace(/sessionID[ |=]+{sessionid}/gi,securityToken);
         url = url.replace(/{ID}/g,objID);
+        url = url.replace(/{ID TERM}/g,objTerm);
         url = $scope.appendFilters(url);
         url = atTaskHost + '/attask/' + api + '/' + url  + '&jsonp=JSON_CALLBACK';
 
@@ -2096,13 +2144,19 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
   getUserSessionInfo = function (callback,error)
         {
 
-            var url = urlBase + "/auth//sessionInfo?method=PUT&" + securityToken;
+
+            var url = atTaskHost + "/attask/api-internal/auth//sessionInfo?method=PUT&" + securityToken;
+
+            if (ATTASK_INSTANCE.indexOf("atappstore") >= 0)
+        {
+                 url = atTaskHost + "/attask/api-internal/auth/sessionInfo?method=PUT&" + securityToken;
+        }
 
             atTaskWebService.atTaskGet(url, 
                 function (data)
                 {
 
-                    var userUrl = urlBase + "/user/search?method=GET&ID=" + data.result.userID + "&fields=company:name,customer:name,emailAddr&" + securityToken;
+                    var userUrl = atTaskHost + "/attask/api-internal/user/search?method=GET&ID=" + data.result.userID + "&fields=company:name,customer:name,emailAddr&" + securityToken;
 
                     atTaskWebService.atTaskGet(userUrl,function(user)
 
@@ -2147,7 +2201,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                 var lDate = new Date();
                 lDate.setHours(lDate.getHours() - lDate.getTimezoneOffset() / 60);
                 lDate = lDate.toJSON();
-                var fname = (data[0].customer.name );
+                var fname = (data.customer.name );
                 fname = fname.replace(/[|&;$%@"<>()+,]/g, "");
  
 
@@ -2415,3 +2469,9 @@ else
 ); // controller object
 
  
+
+
+  
+  
+ 
+<% } %>
