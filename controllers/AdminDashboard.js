@@ -1,14 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AdminDashboard.aspx.cs" Inherits="AtAppStore.WebApp.Tools.Subform.Dashboards.Controllers.AdminDashboard" %>
-  
-
-<% if (false) //(!(bool)Session["dash_invoice_isLicensed"]  )
-{ %>
-var LicenseCheck = 'Fail'; 
-    var LicensingMessageHTML = '<h3>This Component has not yet been licensed.  Please go to <a href="http:\\www.atappstore.com">AtAppStore</a> for information on how to license it.</h3>';
-    document.forms[0].innerHTML = LicensingMessageHTML;
-
-    <%}  else { %> 
-    
+﻿    
         
   
   
@@ -2474,4 +2464,3 @@ else
   
   
  
-<% } %>
