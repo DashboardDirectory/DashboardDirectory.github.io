@@ -873,7 +873,7 @@ $scope.loadHostedAdminDashboardAtApp = function(callback,url)
         {
 
 
-            loadHostedAdminDashboardAtApp(callback,hostedAdminURL);
+            $scope.loadHostedAdminDashboardAtApp(callback,hostedAdminURL);
             return;
         }
 
