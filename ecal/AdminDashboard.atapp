@@ -91,7 +91,7 @@ output=data;
 
 EditorialCalendarSettings = {name: "Editorial Calendar" ,
 
-    query: "task/search?method=GET&project:portfolioID={!ID}&project:portfolioID_Mod=eq&project:status=CUR&project:status_Mod=eq&DE:Hot%20Sheet%20Milestone=Yes&DE:Hot%20Sheet%20Milestone_Mod=eq&status=NEW&status=INP&status_Mod=in&numberOfChildren=0&numberOfChildren_Mod=eq&fields=project:portfolio:name,project:program:name,DE:project:Hot%20Sheet%20Team,DE:project:Hot%20Sheet%20Client%20Team,DE:project:Hot%20Sheet%20Job%20Number,project:name,project:scheduleID,plannedCompletionDate,name,taskNumber,DE:Hot%20Sheet%20Task%20Type%20Color,percentComplete&sessionID={SESSIONID}",
+    query: "task/search?method=GET&project:portfolioID={ID}&project:portfolioID_Mod=eq&project:status=CUR&project:status_Mod=eq&DE:Hot%20Sheet%20Milestone=Yes&DE:Hot%20Sheet%20Milestone_Mod=eq&status=NEW&status=INP&status_Mod=in&numberOfChildren=0&numberOfChildren_Mod=eq&fields=project:portfolio:name,project:program:name,DE:project:Hot%20Sheet%20Team,DE:project:Hot%20Sheet%20Client%20Team,DE:project:Hot%20Sheet%20Job%20Number,project:name,project:scheduleID,plannedCompletionDate,name,taskNumber,DE:Hot%20Sheet%20Task%20Type%20Color,percentComplete&sessionID={SESSIONID}",
 
     otherQueries: [{"dataSetName":"schedule","query":"sched/search?method=GET&isDefault=true&fields=nonWorkDays:nonWorkDate,nonWorkDays:scheduleDay,*&sessionID={SESSIONID}"}],
 
