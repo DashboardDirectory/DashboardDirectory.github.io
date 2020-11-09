@@ -861,6 +861,7 @@ $scope.loadHostedAdminDashboardAtApp = function(callback,url)
  var js = document.createElement('script');                
  js.src = url;          
  document.head.appendChild(js);
+  callback();
 }
  
 
