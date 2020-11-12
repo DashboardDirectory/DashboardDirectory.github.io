@@ -874,7 +874,12 @@ $scope.loadHostedAdminDashboardAtApp = function(callback,url)
         {
 
 
-            $scope.loadHostedAdminDashboardAtApp(callback,hostedAdminURL);
+            $scope.loadHostedAdminDashboardAtApp(
+                function ()
+                {
+                    setDefaultsAfterAdminDashboardLoad();
+                    callback();
+                },hostedAdminURL);
             return;
         }
 
@@ -2266,7 +2271,67 @@ $scope.loadHostedAdminDashboardAtApp = function(callback,url)
         }
     }
 
+setDefaultsAfterAdminDashboardLoad = function ()
+{
 
+                if (showProjectFilter == "false")
+                {
+                    document.getElementById("projectTab").style["display"] = "none";
+                }
+                else
+                {
+                    $scope.loadProjectFilters('');
+                }
+
+                if (showTaskFilter != "")
+                {
+                    $scope.loadTaskFilters('');  
+                    document.getElementById("taskFilterSpan").style["display"] = "inline";
+                    document.getElementById("taskTab").style["display"] = "inline";
+                } 
+                else
+                {
+                    document.getElementById("taskFilterSpan").style["display"] = "none";
+                    document.getElementById("taskTab").style["display"] = "none";
+                }
+
+
+                if (userFilterType != "")
+                {   
+                    $scope.userFilterName = (userFilterName == "" ? "Other Filter" : userFilterName);
+                    $scope.loadCustomUserFilter(userFilterType,
+                    function (filterData)
+                    {
+                        $scope.userFilters = filterData;
+                        $scope.selectedUserFilter = $scope.userFilters[0];
+                        if (defaultUserFilter != "")
+                        {
+                             var dFilt = $scope.userFilters.map(function (uf) {  return uf.name == defaultUserFilter});
+                             if (dFilt.length > 0)
+                                {
+                                    $scope.selectedUserFilter = dFilt[0];
+                                }
+                        }
+                        document.getElementById("userFilterTab").style["display"] = "inline";
+                    });
+                }
+                else
+                {
+                    document.getElementById("userFilterTab").style["display"] = "none";
+                }
+
+     
+                $scope.getCompanyList();
+
+                 if (showDateFilter == "false")
+            {
+                 document.getElementById("dateTab").style["display"] = "none";
+            }
+            else
+            {
+                $scope.selectDateRangeForFilter(); 
+            }
+}
 
     $scope.getHTMLTableforXlsDownload = function () {
 
@@ -2334,64 +2399,7 @@ processLicense = function (response)
             $scope.loadAdminDashboardAtApp(
             function ()
             {
- 
-                if (showProjectFilter == "false")
-                {
-                    document.getElementById("projectTab").style["display"] = "none";
-                }
-                else
-                {
-                    $scope.loadProjectFilters('');
-                }
-
-                if (showTaskFilter != "")
-                {
-                    $scope.loadTaskFilters('');  
-                    document.getElementById("taskFilterSpan").style["display"] = "inline";
-                    document.getElementById("taskTab").style["display"] = "inline";
-                } 
-                else
-                {
-                    document.getElementById("taskFilterSpan").style["display"] = "none";
-                    document.getElementById("taskTab").style["display"] = "none";
-                }
-
-
-                if (userFilterType != "")
-                {   
-                    $scope.userFilterName = (userFilterName == "" ? "Other Filter" : userFilterName);
-                    $scope.loadCustomUserFilter(userFilterType,
-                    function (filterData)
-                    {
-                        $scope.userFilters = filterData;
-                        $scope.selectedUserFilter = $scope.userFilters[0];
-                        if (defaultUserFilter != "")
-                        {
-                             var dFilt = $scope.userFilters.map(function (uf) {  return uf.name == defaultUserFilter});
-                             if (dFilt.length > 0)
-                                {
-                                    $scope.selectedUserFilter = dFilt[0];
-                                }
-                        }
-                        document.getElementById("userFilterTab").style["display"] = "inline";
-                    });
-                }
-                else
-                {
-                    document.getElementById("userFilterTab").style["display"] = "none";
-                }
-
-     
-                $scope.getCompanyList();
-
-                 if (showDateFilter == "false")
-            {
-                 document.getElementById("dateTab").style["display"] = "none";
-            }
-            else
-            {
-                $scope.selectDateRangeForFilter(); 
-            }
+                setDefaultsAfterAdminDashboardLoad();
 
             }
 
