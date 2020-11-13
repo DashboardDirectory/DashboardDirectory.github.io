@@ -855,8 +855,9 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
 
 
-$scope.loadHostedAdminDashboardAtApp = function(callback,url)
+$scope.loadHostedAdminDashboardAtApp = function()
 {
+ var url = hostedAdminURL;
  isloaded=false;
  var js = document.createElement('script');                
  js.src = url;          
@@ -872,14 +873,8 @@ $scope.loadHostedAdminDashboardAtApp = function(callback,url)
 
         if (hostedAdminURL != "")
         {
-
-
-            $scope.loadHostedAdminDashboardAtApp(
-                function ()
-                {
-                    setDefaultsAfterAdminDashboardLoad();
-                    callback();
-                },hostedAdminURL);
+            setTimeout($scope.loadHostedAdminDashboardAtApp,2000); 
+            setDefaultsAfterAdminDashboardLoad();
             return;
         }
 
