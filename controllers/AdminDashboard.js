@@ -44,6 +44,7 @@ var useViewer = (getParameterByName("useViewer") == "true");
 var customerID;
 var testLicenseJson = getParameterByName("testLicenseJson");
 var hostedAdminURL = getParameterByName("hostedAdminURL");
+var pdfFrameHeight = getParameterByName("pdfFrameHeight");
 
 if (showToolbox == "true")
 {
@@ -160,6 +161,15 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     if ( getParameterByName("ShowLabels") == "true");
     {
         $scope.showLabels = true;
+    }
+
+    if (pdfFrameHeight == "")
+    {
+        $scope.pdfFrameHeight = (window.innerHeight - 200) + "px";
+    }
+    else
+    {
+        $scope.pdfFrameHeight = pdfFrameHeight;
     }
 
     var thisYear = new Date().getFullYear();
