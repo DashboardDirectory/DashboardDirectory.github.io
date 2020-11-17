@@ -165,7 +165,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
     if (pdfFrameHeight == "")
     {
-        $scope.pdfFrameHeight = (window.innerHeight - 300) + "px";
+        $scope.pdfFrameHeight = (window.innerHeight - 125) + "px";
     }
     else
     {
