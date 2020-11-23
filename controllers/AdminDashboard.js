@@ -2156,6 +2156,11 @@ $scope.loadHostedAdminDashboardAtApp = function()
                  url = atTaskHost + "/attask/api-internal/auth/sessionInfo?method=PUT&" + securityToken;
         }
 
+            if (ATTASK_INSTANCE.indexOf("sb01") >= 0)
+        {
+                 url = atTaskHost + "/attask/api-internal/auth/sessionInfo?method=PUT&" + securityToken;
+        }
+
             atTaskWebService.atTaskGet(url, 
                 function (data)
                 {
