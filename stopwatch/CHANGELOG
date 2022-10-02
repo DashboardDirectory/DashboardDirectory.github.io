@@ -1,3 +1,4 @@
+v5.5 added showParent setting to show parent task in task name; fix duplicate hour types in list; fix hour type checking
 v5.4.4 fix interval time tracking
 v5.4.3 don't check done on general tasks
 v5.4.2 support testdrive.workfront.com domain
