@@ -1,3 +1,4 @@
+v5.6.0 show max 2000 projects; fix ordering toggle for project view
 v5.5.2 stop task if error (in some situations) show nicer error on start log and record time
 v5.5.1 add projectsAll to show all projects instead of filtered by user assignment
 v5.5 added showParent setting to show parent task in task name; fix duplicate hour types in list; fix hour type checking
