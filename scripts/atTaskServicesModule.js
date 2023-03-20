@@ -14,7 +14,8 @@
 // TODO: should go into a more suitable library.
 
 function getParameterByName(name) {
-    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]").replace(" ","%20");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
@@ -46,7 +47,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
     this.recalculateCustomValuesForProject = function (server, sessionID, projectID, callback, errorCallback) {
 
-        var URL = 'https://' + server + '/attask/api/v7.0/proj/search?method=GET&sessionID=' + sessionID + '&ID=' + projectID + '&fields=tasks:ID';
+        var URL = 'https://' + server + '/attask/api/v14.0/proj/search?method=GET&sessionID=' + sessionID + '&ID=' + projectID + '&fields=tasks:ID';
         var cCount = 0;
 
         batchedLoad(URL, 1000,
@@ -54,7 +55,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
         function (data) {
 
             data[0].tasks.map(function (t) {
-                var tUrl = 'https://' + server + '/attask/api/v7.0/task/' + t.ID + '/calculateDataExtension?method=PUT&sessionID=' + sessionID;
+                var tUrl = 'https://' + server + '/attask/api/v14.0/task/' + t.ID + '/calculateDataExtension?method=PUT&sessionID=' + sessionID;
                 cCount++;
 
                 $http.get(tUrl).then(                
@@ -65,7 +66,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
                             callback();
                         }
-                    }, errorCallback);
+                    }).error(errorCallback);
 
             })
         }
@@ -90,130 +91,14 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
     }
 
-     crawlCustomErrors = function (deTerms,baseURL,errorTerms,callback)
-     {
-        
-        if (deTerms.length == 0)
-        {
-            callback(errorTerms);
-        }
-        else
-        {
-            var term = deTerms.shift();
-            var url = baseURL + '&fields=' + term + '&$$FIRST=1&$$LIMIT=1';
+     
 
-            try
-            {
-
-              $http.get(url).then(
-                    function (response) {
-
-                        if (!(typeof response.data.error === 'undefined')   )
-                        { if (response.data.error != null)
-                            {
-                               errorTerms.push(term);
-                            }
-                        }
-
-                        crawlCustomErrors(deTerms,baseURL,errorTerms,callback);
-
-                        },
-                      function(response)
-                      {
-                        errorTerms.push(term);
-                        crawlCustomErrors(deTerms,baseURL,errorTerms,callback);
-                      });
-
-            }
-            catch (err)
-            {
-               var tmp = err;
-               errorTerms.push(term);
-               crawlCustomErrors(deTerms,baseURL,errorTerms,callback);
-
-            }
-
-        }
-     }
-
-     diagnoseCustomDataError = function (url,callback)
-     {
-      
-            var baseRegex = /(.+method=GET)/g;
-            var baseSecurity = /(apiKey=\w+|sessionID=\w+)/g;            
-            var queryMatch = baseRegex.exec(url);
-            var securityMatch = baseSecurity.exec(url);
-            
-            if (queryMatch != null)
-            {
-                var query = queryMatch[1];
-
-                if (securityMatch != null)
-                {
-                    query = query + "&" + securityMatch[1].trim();   
-                }
-
-                var regex = /(DE[:|%3AC][^,&]+)/g;
-                var deTerms = [];
-                var  match = regex.exec(url);
-
-                while (match != null)
-                {
-                    var term = match[1].trim();                
-
-                    if (deTerms.filter(function(t){return t == term}).length == 0)
-                    {
-                        deTerms.push(term);
-                    }
-
-                    match = regex.exec(url);
-                }
-
-                if (deTerms.length > 0)
-                {
-
-                    crawlCustomErrors(deTerms,query,[],
-                        function (errorTerms)
-                        {
-                            if (errorTerms.length > 0)
-                            {
-                                var errorList = decodeURIComponent(errorTerms.join(",").replace(/DE\:/g,''));
-                                callback({ error: { message: "Workfront could not find one or more custom fields required for this report.  The following fields may have been deleted or renamed: " + errorList}});
-                            }
-                            else
-                            {
-
-                             callback({ error: { message: "Workfront API returned an incomplete result.  No issues found with custom fields."}});   
-
-                            }
-                        })
-
-
-                }
-                else
-                {
-                    callback({ error: { message: "Workfront API returned an incomplete result.  No custom fields located."}});
-                }
-            }
-            else
-            {
-                callback({ error: { message: "Workfront API returned an incomplete result."}});
-            }
-      }
-    
-    
-
- 
 
     // Recursive call-back function to batch load data from AtTask    
     loadCascade = function (url, first, count, batchSize, cumulativeData, finalCallBack, errorCallBack, incrementalCallBack) {
 
         if (first < count) {
             var batchURL = url + '&$$FIRST=' + first + '&$$LIMIT=' + batchSize;
-
-            
-            try
-            {
 
             $http.get(batchURL).then(function (response) {
 
@@ -232,31 +117,9 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
                     loadCascade(url, first + batchSize, count, batchSize, cumulativeData.concat(response.data.data), finalCallBack, errorCallBack, incrementalCallBack);
                 } 
-            }, 
-
-            function (error)
-            {
-                if (error.message.indexOf("JSON") >= 0)
-                {
-                    diagnoseCustomDataError(url, typeof errorCallBack === 'undefined' ? finalCallBack : errorCallBack);
-                }             
-                else
-                {
-                    errorCallback(error);
-                }
-            }
+            }, errorCallBack
 
              );
-
-        }
-
-        catch
-
-        {
-              diagnoseCustomDataError(url, typeof errorCallBack === 'undefined' ? finalCallBack : errorCallBack);
-        }
-
-
 
         }
         else {
@@ -452,7 +315,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                 // hmmm - recursive call chain is broken here when r.data.error is null
             }
             else {
-                results.push({ type: objType, comments: 'UPDATES', updates: r.config.url, batch:batch });
+                results.push({ type: objType, comments: 'UPDATES', updates: r.data, batch:batch });
                 incrementalCallback();
             }
         }
@@ -664,7 +527,7 @@ this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chu
 
                     createDirectory = function (id, objectType, dirName, server, session, parentId, callback, errorCallback) 
                 {
-                    var URL = 'https://' + server + '/attask/api/v7.0/docfdr?method=POST&sessionID=' + session +
+                    var URL = 'https://' + server + '/attask/api/v14.0/docfdr?method=POST&sessionID=' + session +
                                            '&updates=[{ID:"",name:"' + dirName + '",' + objectType + 'ID:"' + id + '"';
 
                     if (!(typeof parentId === 'undefined')) {
@@ -697,7 +560,7 @@ this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chu
         }
         else {      // Dealing with single folder level.  See if it exists
 
-            var URL = 'https://' + server + '/attask/api/v7.0/docfdr/search?method=GET&sessionID=' + session +
+            var URL = 'https://' + server + '/attask/api/v14.0/docfdr/search?method=GET&sessionID=' + session +
                        '&name=' + path + '&securityRootID=' + id;
 
             if (!(typeof parentId === 'undefined')) {
@@ -722,4 +585,4 @@ this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chu
     };
 
 })  
-
+// JavaScript source code
