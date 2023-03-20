@@ -1,14 +1,149 @@
-﻿    
-        
+﻿
+ popToScroll = function(event)
+{
+   
+ var msgDiv = document.getElementById("popupWindow");
+ 
+    if ( msgDiv.style["top"] == "1px")
+    {
+      msgDiv.style.top  = (event.pageY -40) + 'px';
+      msgDiv.style.left = (event.pageX - 250 ) + 'px';
+      }
+     
+    
+     
+}
+ 
   
-  
+ function hideAlert()
+        {
+                        document.getElementById("AlertWindow").style["display"] = "None";
+                     //   document.removeEventListener('mousemove',trackMouse);
+                     //   document.getElementById("popupWindow").style["top"] = "1px";
+        }         
+
+
+function processAtAppConfirm(bool)        
+{
+    hideAlert();
+    atAppConfirmCallback(bool);
+}
+
+function processAtAppPrompt(bool)        
+{
+    hideAlert();
+
+    if (typeof atAppPromptCallback  !== 'undefined')    
+            if (bool)
+            {
+                atAppPromptCallback(document.getElementById("atAppPrompt").value,bool);
+            }
+            else
+            {
+                    atAppPromptCallback("",bool);
+              }
+}
+
+ function createAlert() 
+ {
+                    var msgDiv = document.body.appendChild(document.createElement('div'));
+                    msgDiv["id"] = "AlertWindow";
+                    msgDiv.style["position"] = "absolute";
+                    msgDiv.style["top"] = "1px";
+                    msgDiv.style["left"] = "1px";
+                    msgDiv.style["color"] = "black";
+                    msgDiv.style["width"] = "100%";
+                    msgDiv.style["padding-left"] = "0px";
+                    msgDiv.style["height"] = "4000px";
+                    msgDiv.style["background-color"] = "rgba(0, 0, 0, .5)";   
+                    msgDiv.style["z-index"] = 100;
+
+            return msgDiv;
+ }
+
+ function alert(msg)
+ {
+
+         document.addEventListener('mousemove',trackMouse);         
+        var msgDiv = document.getElementById("AlertWindow");
+
+        if (typeof msgDiv === 'undefined' || msgDiv == null)
+        {
+
+            msgDiv = createAlert();
+        }
+        else
+        {
+        msgDiv.style["display"] = "block";      
+        }
+
+        msgDiv.innerHTML = "<div style='border:solid;border-width:thin;padding-top:20px;text-align:center;position:absolute;width:500px;height:80px;top:100px;left:200px;font-size:13px;font-family:arial;background-color:#cccccc'><span style='padding-top:30px;width:100%;text-align:center;font-size:12px'>" 
+                          + msg + "</span><BR><BR><button style='background-color:#aaaaaa;padding:8px;font-size:12px' onClick='hideAlert()'>Ok</button></div>";            
+                   
+
+ }
+
+ function atAppPrompt(msg,value,callback,event)
+ {
+    atAppPromptCallback = callback;
+
+ 
+    var msgDiv = document.getElementById("AlertWindow");
+
+        if (typeof msgDiv === 'undefined' || msgDiv == null)
+        {
+
+            msgDiv = createAlert();
+        }
+        else
+        {
+        msgDiv.style["display"] = "block";      
+        }
+
+
+        msgDiv.innerHTML = "<div ID='popupWindow' style='border:solid;border-width:thin;top:1px;padding-top:20px;text-align:center;position:absolute;width:500px;height:85px;font-size:13px;font-family:arial;background-color:#cccccc'><span style='padding-top:30px;width:100%;text-align:center;font-size:12px'>" 
+                          + msg + "</span><BR><input type='text' id='atAppPrompt' value='" + value + "' style='width:400px;margin-top:5px;margin-bottom:8px;font-size:12px;'/><BR><button onClick='processAtAppPrompt(true)' style='background-color:#aaaaaa;padding:8px;font-size:12px'>Ok</button>&nbsp;&nbsp;<button style='background-color:#aaaaaa;padding:8px;font-size:12px' onClick='processAtAppPrompt(false)'>Cancel</button></div>";            
+ 
+        if (typeof event !== 'undefined')
+        popToScroll(event);
+ }
+
+
+function atAppConfirm(msg,callback)
+ {
+    atAppConfirmCallback = callback;
+document.addEventListener('mousemove',trackMouse);       
+    var msgDiv = document.getElementById("AlertWindow");
+
+        if (typeof msgDiv === 'undefined' || msgDiv == null)
+        {
+
+            msgDiv = createAlert();
+        }
+        else
+        {
+        msgDiv.style["display"] = "block";      
+        }
+
+
+        msgDiv.innerHTML = "<div style='border:solid;border-width:thin;padding-top:20px;text-align:center;position:absolute;width:500px;height:80px;top:100px;left:200px;font-size:13px;font-family:arial;background-color:#cccccc'><span style='padding-top:30px;width:100%;text-align:center'>" 
+                          + msg + "</span><BR><BR><button style='background-color:#aaaaaa;padding:8px;font-size:12px' onClick='processAtAppConfirm(true)'>Yes</button>&nbsp;&nbsp;<button style='background-color:#aaaaaa;padding:8px;font-size:12px' onClick='processAtAppConfirm(false)'>No</button></div>";            
+ 
+
+ }
+     
+       
+          
 var ATTASK_INSTANCE = 'www.attasksandbox.com';   
+var loadingPage = "https://test.corp.gs/loading.html";
+var loadingTimeout = 0;
 var isLoaded = false; 
 var host = getParameterByName("host");
 var credential = getParameterByName("credential");
 var sessionID = getParameterByName("s");
 var apiKey = getParameterByName("a");
 var objID = getParameterByName("objID");
+var userID = getParameterByName("userID");
 var objTerm =getParameterByName("objTerm");
 var userSessionID = sessionID;            
 var showDownload = false ;
@@ -19,6 +154,7 @@ var showReports = getParameterByName("reports");
 var designerMode = false;
 var configObjType = "proj";
 var configObjName = "AtApp Control";
+var includeObjName = "";
 var reportTitle = getParameterByName("reportSectionTitle");
 var dateFilter = getParameterByName("dateFilter");
 var customFrom = getParameterByName("fromDate");
@@ -39,18 +175,23 @@ var defaultUserFilter = getParameterByName("otherFilterDefault");
 var userFilterName = getParameterByName("otherFilterLabel");
 var showProjectFilter = getParameterByName("showProjectFilter");
 var showDateFilter = getParameterByName("showDateFilter");
-var api = "api/v10.0";
+var showCustomFilter = getParameterByName("showCustomFilter");
+var api = "api/v14.0";
 var useViewer = (getParameterByName("useViewer") == "true");
 var customerID;
 var testLicenseJson = getParameterByName("testLicenseJson");
 var hostedAdminURL = getParameterByName("hostedAdminURL");
 var pdfFrameHeight = getParameterByName("pdfFrameHeight");
+var useAppliedTaskFilter = false;
+var exportClickItems = null;
 
 if (showToolbox == "true")
 {
     document.getElementById("adminToolbox").style["display"] = "inline";
 
 }
+
+
 
 var securityToken = (getParameterByName("a") != "" ? "apiKey=" + apiKey : "sessionID=" + sessionID);
  
@@ -59,8 +200,10 @@ var renderer = getParameterByName("renderer");
 
 if (renderer == "")
 {
-    renderer = "reports.corp.gs";
+    renderer = "test.corp.gs";
 }
+
+if (showCustomFilter == "" || showCustomFilter == "true") showCustomFilter = true;
 
  
 
@@ -81,10 +224,7 @@ if (reportTitle == "")
 if (dashboardReport == "true")
 {
     document.getElementById("pdfFrame").style["visibility"] = "visible";
-    document.getElementById("pdfFrame").style["display"] = "inline";
- 
-
-  
+    document.getElementById("pdfFrame").style["display"] = "inline";   
 }
 
 
@@ -111,6 +251,13 @@ if (getParameterByName("configObj") != "")
 }
 
 
+if (getParameterByName("includeName") != "")
+{
+    includeObjName =getParameterByName("includeName") ;
+}
+
+processNoData = (getParameterByName("processNoData").toLowerCase() == "true");
+ 
   
 if ( host == "")
 {      
@@ -145,7 +292,7 @@ function adminDashboardCallback (getAdminDashboardOptions)
  
            
   
-var app=angular.module('app', ['atTaskServiceModule']);
+var app=angular.module('app', ['ngSanitize', 'ui.select','atTaskServiceModule']);
 
 
 // Main render routine for page data:
@@ -473,9 +620,11 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
     }
 
 
+    cleanupReport =  false;
     $scope.reportSelectionChanged = function ()
     {
 
+        delete $scope.originalRDL
         if (typeof $scope.selectedReport === 'undefined' || $scope.selectedReport == null) {
             return;
         }
@@ -524,9 +673,86 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
             var custVal = $scope.selectedReport.filters.filter(function (f) { return f.key  == "customValuesFilter"})
             if (custVal.length > 0) 
             {        
-                document.getElementById("customValuesTab").style["display"] = "inline";
+                document.getElementById("customValuesTab").style["display"] = (showCustomFilter == true ? "inline" : "none");
                 $scope.customValueFilterName = custVal[0].value.filterName;
-                $scope.customFilterValues = custVal[0].value.filterValues;
+                $scope.customFilterValues = custVal[0].value.filterValues.filter(function(v){return (typeof v.key !== 'undefined')});
+
+                var customCheckboxValues = custVal[0].value.filterValues.filter(function(v){return (typeof v.checked !== 'undefined')});
+                var customTextValues = custVal[0].value.filterValues.filter(function(v){return (typeof v.default !== 'undefined')});
+                var customRadioButtonValues = custVal[0].value.filterValues.filter(function(v){return (typeof v.chosen !== 'undefined')});
+
+
+
+              if (customCheckboxValues.length > 0 || customTextValues.length > 0)
+                {
+
+                    var ufTab = document.getElementById("tab5")
+
+                    var tmpHTML =  $scope.customFilterValues.length == 0 ? '' : '<div style="float:left;margin-right:10px"><select id="customFilter" size="1" ng-model="selectedCustomValueFilter" ng-options="cf.key for cf in customFilterValues"></select></div><div style="float:left">';                 
+
+
+                    if (customCheckboxValues.length > 0) tmpHTML += "&nbsp;<span style='border-left:2px groove lightgrey;padding-top:5px'>"
+
+                    customCheckboxValues.forEach(function(cb)
+                    {
+                        tmpHTML += "&nbsp;&nbsp;&nbsp;" + cb.label + "<input type='checkbox' ng-model='" + cb.scopeName + "' />";
+                        $scope[cb.scopeName] = cb.checked;
+                    });
+
+                    if (customCheckboxValues.length > 0) tmpHTML += "</span>";
+
+
+                    if (customRadioButtonValues.length > 0) tmpHTML += "&nbsp;&nbsp;&nbsp;&nbsp;<span style='border-left:2px groove lightgrey;padding-top:5px'>"
+                    
+                     customRadioButtonValues.forEach(function(rb)
+                    {
+                        
+                        tmpHTML += "&nbsp;&nbsp;&nbsp;"  + (typeof rb.title !== 'undefined' ?  rb.title + '&nbsp;' : '') + "<input type='radio' value='" + rb.value + "' name='" + rb.scopeName + "' ng-model='" + rb.scopeName + "' />" + rb.label;
+                        if (rb.chosen) $scope[rb.scopeName] = rb.value;
+                    });
+
+                    if (customRadioButtonValues.length > 0) tmpHTML += "</span>&nbsp;&nbsp;&nbsp;"
+
+
+                    if (customTextValues.length > 0) tmpHTML += "&nbsp;<span style='border-left:2px groove lightgrey;padding-top:5px'>"
+
+                    customTextValues.forEach(function(tb)
+                    {
+
+                        var typ = (typeof tb.type === 'undefined' ? 'text' : tb.type);
+                        var wid = (typeof tb.width === 'undefined' ? '50px' : tb.width);
+
+                        tmpHTML += "&nbsp;&nbsp;&nbsp;" + tb.label + "&nbsp;<input style='width:" + wid + "' type='" + typ + "' ng-model='" + tb.scopeName + "' />";
+                        $scope[tb.scopeName] = tb.default;
+                    });
+
+                     if (customTextValues.length > 0) tmpHTML += "</span>";
+
+
+                        tmpHTML += "</div>";
+
+                        ufTab.innerHTML = tmpHTML;
+
+                        
+
+                    var angUF = (angular.element(ufTab));
+                    $compile(angUF)($scope);
+                    cleanupReport = true;
+
+                } 
+                else if (cleanupReport)
+                {
+
+                    var ufTab = document.getElementById("tab5")
+                    ufTab.innerHTML = '<div><select id="customFilter" size="1" ng-model="selectedCustomValueFilter" ng-options="cf.key for cf in customFilterValues"></select></div><div>';
+                    var angUF = (angular.element(ufTab));                    
+                    $compile(angUF)($scope);
+                    cleanupReport = false;
+
+
+                }
+
+                
                 if (typeof $scope.customValueFilterName === 'undefined')
                     {
                         defaultCustomFilter = ""; 
@@ -537,7 +763,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     }
                 
                 if (defaultCustomFilter != "")
-                {
+                {           
                     defFlt = custVal[0].value.filterValues.filter(function(f){return f.key == defaultCustomFilter});
                     $scope.selectedCustomValueFilter=  (defFlt.length == 1? defFlt[0] : custVal[0].value.filterValues[0]); 
                 }
@@ -565,7 +791,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         {
             $scope.uberForms = forms;
             var ufSpan =  document.getElementById("uberForm");
-            var uForm = forms.filter(function(f){return f.name == uberForm})[0];
+            var uForm = forms.filter(function(f){return f.name == uberForm || f.name == uberForm + '.atapp'})[0];
 
             if (!(typeof uForm.includes === 'undefined') && document.getElementById(uForm.name + '_src_include_0') == null)
             {
@@ -573,12 +799,24 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
                 uForm.includes.map( function(t)
                 {
+
+                    if (t.indexOf(".css") > (t.length - 5))
+                    {
+                        var fileref=document.createElement("link");
+                            fileref.setAttribute("rel", "stylesheet");
+                            fileref.setAttribute("type", "text/css");
+                            fileref.setAttribute("href", t);
+                    }
+                    else
+                    {
                     var js = document.createElement('script');   
                     js.id =  uForm.name + '_src_include_' + i;            
                     js.src = t;          
                     document.head.appendChild(js);
                     i++;
+                    }
                 });
+
 
             }
 
@@ -595,6 +833,15 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
 
 
         }
+    }
+
+       $scope.recompileUberForm = function (html)
+    {
+         var ufSpan =  document.getElementById("uberForm");
+         ufSpan.innerHTML = html;
+         ufSpan.style["display"] = "inline";
+         angUF = (angular.element(ufSpan));
+         $compile(angUF)($scope);
     }
 
        
@@ -619,7 +866,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
          
 
         $scope.sequentialLoadRDLDocumentList(
-           $scope.adminReports.map(function (r) { return $scope.configDocuments.filter(function (c) {return (c.name == r.template && c.currentVersion.ext == 'tpx')})[0]}),
+           $scope.adminReports.map(function (r) { return $scope.configDocuments.filter(function (c) {return ((c.name == r.template && c.currentVersion.ext == 'tpx') || (c.name == r.template + '.tpx' && c.currentVersion.ext == 'js'))})[0]}),
 
            function () 
            {
@@ -630,7 +877,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                }
                else
                {
-                   $scope.selectedReport = $scope.adminReports.filter(function(r){ return (r.name == reportName);})[0];
+                   $scope.selectedReport = $scope.adminReports.filter(function(r){ return (r.name == reportName || r.name  == reportName + '.tpx');})[0];
                }
 
                $scope.reportSelectionChanged();
@@ -656,7 +903,7 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
                     document.getElementById('viewReportButton').style['display'] = 'none';
 
                  }
-                 $scope.viewReport();
+                 setTimeout($scope.viewReport,200);
                }
  
                $scope.initTimer();
@@ -678,8 +925,9 @@ app.controller('AtTaskAdminDashboardCTRL',   function ($scope, $http, $sce, $loc
         for (itm in def)
 
         {
-            def[itm] = def[itm].replace(/&/g,'%26');
-            filter += '&' + def[itm].split('\t').map(function(str) { return prefix + itm + '=' + str}).join('&');
+            def[itm] = def[itm].replace(/&/g,'%26').replace(/#/g,'%23');
+            var eItm = itm.replace(/&/g,'%26').replace(/#/g,'%23');
+            filter += '&' + def[itm].split('\t').map(function(str) { return prefix + eItm + '=' + str}).join('&');
         }
         return filter;
   
@@ -883,7 +1131,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
 
         if (hostedAdminURL != "")
         {
-            setTimeout($scope.loadHostedAdminDashboardAtApp,2000); 
+            setTimeout($scope.loadHostedAdminDashboardAtApp,3000); 
             setDefaultsAfterAdminDashboardLoad();
             return;
         }
@@ -893,21 +1141,51 @@ $scope.loadHostedAdminDashboardAtApp = function()
         if (typeof reloadReports === 'undefined') reloadReportsOnly = false;
 
         try {
-            var url = atTaskHost + "/attask/" + api + "/" + configObjType + '/search?method=GET&name=' + configObjName + 
+            var url;
+
+            if (includeObjName == "")
+            {
+
+            url = atTaskHost + "/attask/" + api + "/" + configObjType + '/search?method=GET&name=' + configObjName + 
             "&" + securityToken + 
             "&fields=customerID,documents:downloadURL,documents:currentVersion:ext,documents:parameterValues:*,parameterValues:*" +
             (configObjType.toUpperCase() == "PROJ" ? ",tasks:parameterValues:*" : "" );
+             }
+             else
+             {
+
+             url = atTaskHost + "/attask/" + api + "/" + configObjType + '/search?method=GET&name=' + configObjName + '&name=' + includeObjName + '&name_Mod=in' +
+            "&" + securityToken + 
+            "&fields=customerID,documents:downloadURL,documents:currentVersion:ext,documents:parameterValues:*,parameterValues:*" +
+            (configObjType.toUpperCase() == "PROJ" ? ",tasks:parameterValues:*" : "" );
+
+             }
+
         
             atTaskWebService.atTaskGet(url, 
 
                 function (data)
                 {
-                     customerID = data[0].customerID;
+                    
+
+                    customerID = data[0].customerID;
 
                     if (!reloadReportsOnly)
                     {
+
+                        if (includeObjName != "" && data.length > 1)
+                        {
+                            // Make sure master file is first and include is second
+                            data = data.sort(function(a,b){ return (a.name == includeObjName ? 1 : -1);});
+                            $scope.configDocuments = data[0].documents.concat(data[1].documents);
+                        }
+                        else
+                        {
+                            $scope.configDocuments = data[0].documents;    
+                        }
+
                         $scope.configObjID = data[0].ID;
-                        $scope.configDocuments = data[0].documents;
+                        
 
                         if (configObjType.toUpperCase() == "PROJ") 
                         {
@@ -919,7 +1197,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
                         }
 
 
-                        $scope.configDocuments.filter(function (d) {return(d.name !='AdminDashboard' && d.currentVersion.ext == 'atapp')}).map 
+                        $scope.configDocuments.filter(function (d) {return( (d.name !='AdminDashboard' && d.currentVersion.ext == 'atapp') || (d.name != 'AdminDashboard.atapp' && d.name.indexOf(".atapp") > 0 && d.currentVersion.ext == 'js'))}).map 
                                           (
                     
                         // Load supporting .atapp configuration files.  Attach as script and execute code. 
@@ -952,7 +1230,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
 
 
                         // Load AdminDashboard.atapp configuration file.  Attach as script and execute code. 
-                        $scope.configDocuments.filter(function (d) {return(d.name =='AdminDashboard' && d.currentVersion.ext == 'atapp')}).map 
+                        $scope.configDocuments.filter(function (d) {return( (d.name =='AdminDashboard' && d.currentVersion.ext == 'atapp') || (d.name == 'AdminDashboard.atapp' && d.currentVersion.ext == 'js'))}).map 
                           (
                             function (file) 
                             {                        
@@ -1033,7 +1311,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
                 var str = rdlContents.toString();
                 rdlContents = null;
                 js = null;
-                $scope.adminReports.filter(function(r) { return (r.template == doc.name)}).map(function(d) {
+                $scope.adminReports.filter(function(r) { return (r.template == doc.name || r.template + '.tpx' == doc.name)}).map(function(d) {
                     d.rdl = str.substring(str.lastIndexOf("/*") + 2, str.lastIndexOf("*/")).trim()});
                 $scope.sequentialLoadRDLDocumentList(docs,callback);
             }
@@ -1106,18 +1384,53 @@ $scope.loadHostedAdminDashboardAtApp = function()
         }
     }
 
-    $scope.downloadFile = function ()
+    $scope.downloadFile = function (event)
     {
   
         btn = document.getElementById('downloadFile');
-        btn.disabled = true;
-        btn.innerHTML = '<img src="https://reports.corp.gs/img/395.gif" width="15px" height="15px"/> please wait... ';
-        btn.style["background-color"] = "white";
-        btn.style["color"] = "#4a4a4a";
-        //$scope.createDashboard(projectID,taskID,programID,rptDocName,$scope.downloadBlob,null,null,ext);
 
-        $scope.renderReport($scope.selectedReport,'Report',$scope.downloadBlob,null,ext);
+        if (event.button == 2)
+        {
+            var eventCarosel
+            
+            if (exportClickItems == null)
+            {
+             eventCarosel = {pdf:"pptx",pptx:"doc",doc:"tiff",tiff:"xls",xls:"pdf"};
+            }
+            else
+            {
+            eventCarosel = exportClickItems;
+            }
+
+            ext = eventCarosel[ext];
+            setDownloadButton();            
+        }
+        else
+        {
+            btn.disabled = true;
+            btn.innerHTML = '<img src="https://test.corp.gs/img/395.gif" width="15px" height="15px"/> please wait... ';
+            btn.style["background-color"] = "white";
+            btn.style["color"] = "#4a4a4a";
+            //$scope.createDashboard(projectID,taskID,programID,rptDocName,$scope.downloadBlob,null,null,ext);
+
+            $scope.renderReport($scope.selectedReport,'Report',$scope.downloadBlob,null,ext);
+        }
     }
+
+      
+
+    timeoutShowBlob = function (blob,fileName)
+    {
+         timeoutBlob = blob;
+         timeoutFileName = fileName;
+
+         setTimeout(function () 
+         {
+                  $scope.showBlob(timeoutBlob,timeoutFileName)
+         },loadingTimeout);
+
+    }
+
 
     $scope.showBlob = function (blob,fileName)
     {
@@ -1166,7 +1479,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
 
             btn.style["background-color"] = "#4a4a4a";
         }
-        btn.innerHTML = "➨ ." + ext ;   
+        btn.innerHTML = "> ." + ext ;   
 
         btn.disabled = false;
         btn.style["color"] = "white";
@@ -1206,7 +1519,8 @@ $scope.loadHostedAdminDashboardAtApp = function()
         }
 
 
-
+       // var tmpRenderer = renderer.indexOf("secure") > -1 && (fExt == null || fExt == "" || fExt == "pdf") ? "test.corp.gs" : renderer;
+       //var tmpRenderer = (renderer == "reports.corp.gs") ?  "secure.atappstore.com/renderer" : renderer;
 
         $http({
             method: 'POST',
@@ -1291,7 +1605,18 @@ $scope.loadHostedAdminDashboardAtApp = function()
 
         if (document.getElementById("adminReports").style["display"] != "inline" || $scope.currentProjectFilter.name == '-ALL-') 
         {
-            callback(obj,otherObjs);
+             if (typeof $scope.currentTaskFilter === 'undefined' || !useAppliedTaskFilter || $scope.currentTaskFilter.name == '-ALL-') 
+             {
+
+
+                         callback(obj,otherObjs);
+                     }
+
+                     else
+                     {
+                         $scope.applyTaskFilterToJSONObj(obj, otherObjs, callback);
+                          
+                     }
         }
         else
         {
@@ -1343,7 +1668,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
                                     );
                          }}                      
 
-                     if (typeof $scope.currentTaskFilter === 'undefined') {
+                     if (typeof $scope.currentTaskFilter === 'undefined' || !useAppliedTaskFilter) {
 
 
                          callback(obj,otherObjs);
@@ -1351,8 +1676,8 @@ $scope.loadHostedAdminDashboardAtApp = function()
 
                      else
                      {
-                         // $scope.applyTaskFilterToJSONObj(obj, otherObjs, callback);
-                         callback(obj,otherObjs);
+                         $scope.applyTaskFilterToJSONObj(obj, otherObjs, callback);
+                          
                      }
 
                  },
@@ -1368,7 +1693,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
 
     $scope.applyTaskFilterToJSONObj = function(obj, otherObjs, callback)
     {
-        var url = atTaskHost  + '/attask/' + api + '/task/search?method=GET' +   $scope.currentTaskFilter.definition ;
+        var url = atTaskHost  + '/attask/' + api + '/task/search?method=GET' +   $scope.currentTaskFilter.filter + '&' + securityToken  ;
         atTaskWebService.atTaskGet(url, 
              function (data)
              {
@@ -1387,7 +1712,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
                      }                            }
                                  );
 
-                 for (var oo in otherObjs)
+             /*    for (var oo in otherObjs)
                  {
                      otherObjs[oo] = otherObjs[oo].filter(function (o) 
                      {
@@ -1403,7 +1728,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
                          }
                      }
                                 );
-                 };
+                 }; */
 
                  callback(obj,otherObjs);
 
@@ -1453,7 +1778,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
 
         $scope.filterDescription = $scope.filterDescription.replace(/({companyFilter})|({yearFilter})|({dateFilter})|({projectFilter})|({tFilter})/g,"").trim();
 
-        if (showTaskFilter == "true")
+        if (showTaskFilter == "true" && !useAppliedTaskFilter)
         {
             url +=     $scope.currentTaskFilter.filter;
         }
@@ -1480,6 +1805,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
 
                     query =  query.replace(/{ID}/g,objID);
                     query =  query.replace(/{ID TERM}/g,objTerm);
+                    query = query.replace(/&=&/,'&');
                     query = atTaskHost + '/attask/' + api + '/' +  query  ;
                     oQuery.push({dataSetName:q.dataSetName, query:query});
                 };
@@ -1547,8 +1873,9 @@ $scope.loadHostedAdminDashboardAtApp = function()
         url = url.replace(/sessionID[ |=]+{sessionid}/gi,securityToken);
         url = url.replace(/{ID}/g,objID);
         url = url.replace(/{ID TERM}/g,objTerm);
+        url = url.replace(/&=&/,'&');
         url = $scope.appendFilters(url);
-        url = atTaskHost + '/attask/' + api + '/' + url  + '&jsonp=JSON_CALLBACK';
+        url = atTaskHost + '/attask/' + api + '/' + url   ;
 
         var rptSMTP = adminReport.rptSMTP;
           
@@ -1566,7 +1893,7 @@ $scope.loadHostedAdminDashboardAtApp = function()
                     if (timer == null) alert('Error With Workfront Query. msg:' + JSON.stringify(data.error));
                     else setTimeout($scope.reloadPage,60000);
                 }
-                else if (data.length > 0)
+                else if (data.length > 0 || processNoData)
                 {
             
                     if (!(typeof adminReport.postProcessFunction  === 'undefined') && adminReport.postProcessFunction != null)
@@ -1616,6 +1943,18 @@ $scope.loadHostedAdminDashboardAtApp = function()
     $scope.viewReport = function ()
 
     {
+
+    if (typeof $scope.currentProjectFilter === 'undefined' || $scope.currentProjectFilter == null) 
+    {
+      setTimeout($scope.viewReport,1000);
+       return;
+    }
+
+      if (pdfFrameHeight == "")
+        {
+            $scope.pdfFrameHeight = (window.innerHeight - 125) + "px";
+      }
+
         if (typeof $scope.selectedReport.rdl === 'undefined')
         {
             $scope.currentReportStep = "report definition not yet loaded.  Please retry.";
@@ -1623,10 +1962,19 @@ $scope.loadHostedAdminDashboardAtApp = function()
         else
         {
             $scope.currentReportStep = "Fetching Data from Workfront...";
-            document.getElementById("pdfFrame").src = "https://reports.corp.gs/loading.html";
+            document.getElementById("pdfFrame").src = loadingPage;
             document.getElementById("pdfFrame").style["background-color"] ="white";
             var fExt = (ext == "tiff" || ext == "png" || ext == "jpg" || ext == "gif" ? ext : null);
-            $scope.renderReport($scope.selectedReport,'Report',$scope.showBlob,null,fExt);
+            
+            if (loadingTimeout > 0)
+            {
+                    $scope.renderReport($scope.selectedReport,'Report',timeoutShowBlob,null,null);
+            }
+            else
+            {
+                    $scope.renderReport($scope.selectedReport,'Report',$scope.showBlob,null,null);
+            }
+            
         }
     }
  
@@ -2161,9 +2509,16 @@ $scope.loadHostedAdminDashboardAtApp = function()
                  url = atTaskHost + "/attask/api-internal/auth/sessionInfo?method=PUT&" + securityToken;
         }
 
+            if (ATTASK_INSTANCE.indexOf("hub") >= 0)
+        {
+                 url = atTaskHost + "/attask/api-internal/auth/sessionInfo?method=PUT&" + securityToken;
+        }
+
             atTaskWebService.atTaskGet(url, 
                 function (data)
                 {
+
+                if (sessionID == "") sessionID = data.result.sessionID;
 
                     var userUrl = atTaskHost + "/attask/api-internal/user/search?method=GET&ID=" + data.result.userID + "&fields=company:name,customer:name,emailAddr&" + securityToken;
 
@@ -2199,10 +2554,20 @@ $scope.loadHostedAdminDashboardAtApp = function()
                     location.reload();
                     return;
                 }
+
+                licenseCallback(null);
+                return;
+                
                 var json = {page:'AdminDashboard.aspx',request:location.search,custID:data.customer.ID,company:data.customer.name};
 
                 json.userCompany = data.userCompany == null ? "" : data.userCompany.name;
                 json.userID = data.userID;
+
+                if (userID == "")
+                {
+                userID = data.userID;
+                }
+                
                 json.userName = data.userName;
                 json.host = data.host;
                 json.email = data.email;
@@ -2287,13 +2652,15 @@ setDefaultsAfterAdminDashboardLoad = function ()
                 if (showProjectFilter == "false")
                 {
                     document.getElementById("projectTab").style["display"] = "none";
+                    $scope.projectFilters =  [{'name':'-ALL-',definition:'ID_Mod=notnull',filter:'&ID_Mod=notnull'}]; 
+                    $scope.currentProjectFilter = $scope.projectFilters[0];
                 }
                 else
                 {
                     $scope.loadProjectFilters('');
                 }
 
-                if (showTaskFilter != "")
+                if (showTaskFilter != "" && showTaskFilter != "false" )
                 {
                     $scope.loadTaskFilters('');  
                     document.getElementById("taskFilterSpan").style["display"] = "inline";
@@ -2303,6 +2670,22 @@ setDefaultsAfterAdminDashboardLoad = function ()
                 {
                     document.getElementById("taskFilterSpan").style["display"] = "none";
                     document.getElementById("taskTab").style["display"] = "none";
+                }
+
+
+
+                if (yearFilter != "")
+                {
+
+                    document.getElementById("yearFilterSpan").style["display"] = "inline";
+                    document.getElementById("dateTab").style["display"] = "inline";
+
+                }
+                else
+                {
+
+                    document.getElementById("yearFilterSpan").style["display"] = "none";
+                    document.getElementById("dateTab").style["display"] = "none";                
                 }
 
 
@@ -2316,7 +2699,7 @@ setDefaultsAfterAdminDashboardLoad = function ()
                         $scope.selectedUserFilter = $scope.userFilters[0];
                         if (defaultUserFilter != "")
                         {
-                             var dFilt = $scope.userFilters.map(function (uf) {  return uf.name == defaultUserFilter});
+                             var dFilt = $scope.userFilters.filter(function (uf) {  return uf.name == defaultUserFilter});
                              if (dFilt.length > 0)
                                 {
                                     $scope.selectedUserFilter = dFilt[0];
@@ -2339,6 +2722,7 @@ setDefaultsAfterAdminDashboardLoad = function ()
             }
             else
             {
+                document.getElementById("dateTab").style["display"] = "inline";
                 $scope.selectDateRangeForFilter(); 
             }
 }
@@ -2356,6 +2740,9 @@ setDefaultsAfterAdminDashboardLoad = function ()
 
 processLicense = function (response)
     {
+
+            response = {data:{isValid:true,isWarn:false}};
+
             if (!response.data.isValid)
             {
                 document.body.innerHTML =   response.data.message;
@@ -2430,7 +2817,7 @@ processLicense = function (response)
         if (credential != "" && host != "" )
         {
          
-            var  credURL = "https://reports.corp.gs/GetCredentialSession.aspx?credential=" + encodeURIComponent(credential) + "&host=" + host;
+            var  credURL = "https://test.corp.gs/GetCredentialSession.aspx?credential=" + encodeURIComponent(credential) + "&host=" + host;
 
             $http({
                 method: 'GET',
@@ -2479,10 +2866,3 @@ else
 } // controller function code
  
 ); // controller object
-
- 
-
-
-  
-  
- 
