@@ -1,3 +1,4 @@
+v5.6.1 increase accuracy of search from 0.5 to 0.9; upgrade chrome v3
 v5.6.0 show max 2000 projects; fix ordering toggle for project view
 v5.5.2 stop task if error (in some situations) show nicer error on start log and record time
 v5.5.1 add projectsAll to show all projects instead of filtered by user assignment
