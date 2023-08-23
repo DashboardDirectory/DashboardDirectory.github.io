@@ -1,0 +1,21 @@
+v5.6.5 add project to search
+v5.6.4 increase accuracy of search to 0.6 and removed exactSearch
+v5.6.3 added exactSearch and searchScore licence settings
+v5.6.2 increase accuracy of search from 0.9 to 0.8
+v5.6.1 increase accuracy of search from 0.5 to 0.9
+v5.6.0 show max 2000 projects; fix ordering toggle for project view
+v5.5.2 stop task if error (in some situations) show nicer error on start log and record time
+v5.5.1 add projectsAll to show all projects instead of filtered by user assignment
+v5.5 added showParent setting to show parent task in task name; fix duplicate hour types in list; fix hour type checking
+v5.4.4 fix interval time tracking
+v5.4.3 don't check done on general tasks
+v5.4.2 support testdrive.workfront.com domain
+v5.4.1 only show expire notification if logged in so increase filter of projected project completion date to 2 weeks just in case
+v5.4 fixed expiry of enterprise to show bottom renewal date, tiered colors, can't login with message upon expiry; projects query projectUsers instead; "Add Note" shows a bit after stop;
+v5.3.3 fix to check if assignment is done before setting task in progress; also prompt if 'done' task in workfront on running task to track time
+v4.3 updateAtInterval tracking every 5 min; change unfocused refresh to 7 min; fix saving updated tasks from api to db, todo also update each task interface with changes; fix saving updateDetails to db; support new white listed 'dashboard.directory' to skip using jsonp; new feature that timesheet profiles with 'Force Desktop Stopwatch Access' in description prevent mobile access; support new enterprise licence functionality, todo support display messaging; support attask apiKey instead of user login sessionId; support forceHourTypeID from licence to track time to particular hour type for stopwatch usage reporting, todo deprecate and use flexible method; enterprise hides general tasks, other shows my default; fix auto refresh calling more and more api calls; turn off event/debugging recording, todo save in object in attask; fixed keeping openended tasks and general tasks to bottom when sorting; add future support for defined default view; improve api efficiency  of adding all assigned tasks;now  hourtype chosen first (for timesheetprofiles) due to intermittent time tracking; change launch page for use with dashboard.directory
+v4.3 add prompt if closing stopwatch with a task running; prompt will track time if enterprise (jsonp wont); options stopOnClose enabled for enterprise to stop tasks if window closes; added offline.js to show user they are offline and hopefuly setup re-run missed ajax calls
+v4.2.4 fix odd showing of reset, remove, edit buttons
+v4.2.2/3 fix closing issue upon done and setting issues as in progress on time tracking
+v4.2.2/3 fix resolving issue upon done
+v4.2.2/3 fixed seeing general tasks created on same day; fix stopping and tracking time on tasks when "done" pressed; updated to v5.0;use different method to set task/assigment done; update stopwatch link
