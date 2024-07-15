@@ -1,4 +1,5 @@
-v5.6.5 add project to search
+v5.6.7 added different style renewal prompt for 90 and 14 days
+v5.6.6 fix search to use project and task name
 v5.6.4 increase accuracy of search to 0.6 and removed exactSearch
 v5.6.3 added exactSearch and searchScore licence settings
 v5.6.2 increase accuracy of search from 0.9 to 0.8
