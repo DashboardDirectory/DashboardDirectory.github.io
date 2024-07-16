@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="background: whitesmoke; overflow: hidden">
+<html style="background: whitesmoke; overflow: hidden;">
 <head>
     <title>Stopwatch</title>
     <meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
@@ -35,18 +35,14 @@
         <span id="sort-bar">
             <div id="active-filter" style="vertical-align: top; display: none;"></div>
             <div id="role-filter" class="btn-info btn-group open" style="vertical-align: top; display: none;">
-                <button type="button" class="btn btn-info btn-medium dropdown-toggle" style="padding: 4px;"
-                        data-toggle="dropdown"></button>
+                <button type="button" class="btn btn-info btn-medium dropdown-toggle"  style="padding: 4px;" data-toggle="dropdown"></button>
                 <ul class="dropdown-menu" role="menu">
                 </ul>
             </div>
         </span>
         <span id="button-bar">
             <div id="sort-menu" class="btn-group" style="vertical-align: top;">
-                <button type="button" class="btn btn-medium dropdown-toggle"
-                        style="padding: 4px; font-weight: 600; color: #9d9d9d; background-color: #f5f5f5;"
-                        data-toggle="dropdown">sort
-                </button>
+                <button type="button" class="btn btn-medium dropdown-toggle" style="padding: 4px; font-weight: 600; color: #9d9d9d; background-color: #f5f5f5;" data-toggle="dropdown">sort</button>
                 <ul class="dropdown-menu" style="right:0; left: initial;" role="menu">
                     <li><a href="#" id="sort-date" title="Sort by Due Date" class="">date</a></li>
                     <li><a href="#" id="sort-task" title="Sort by Task Name" class="">task</a></li>
@@ -63,6 +59,10 @@
     <div id="content">
         <div id="loading">Loading...</div>
         <div id="form-list" class="form"></div>
+
+        <div id="reminder" class="form" style="display:none">
+            <span id="licence-renew" class="bar-text"></span>
+        </div>
 
         <div id="form-create" class="form" style="display: none">
             <p>
@@ -126,10 +126,9 @@
         <a id="running" href="#" title="Stop Task" class="btn timer btn-primary" style="display: none;"></a>
         <a id="storelink" class="bar-text" target="_blank" href="http://store.atappstore.com/product/stopwatch/">AtAppStore</a>
         <span id="licence" class="bar-text"></span>
-        <span style="color: silver; position: fixed; right: 10px;">v5.6.3</span>
+        <span style="color: silver; position: fixed; right: 10px;">v5.6.7</span>
     </div>
 </div>
-<script type="text/javascript" src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
 <script type="text/javascript" src="lib/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="lib/jquery-3.0.0-migrate.min.js"></script>
 <script type="text/javascript" src="lib/jquery-3.0.3.qtip.min.js"></script>
@@ -140,6 +139,6 @@
 <script type="text/javascript" src="lib/jquery.domsearch.js"></script>
 <script type="text/javascript" src="lib/offline.min.js"></script>
 <script type="text/javascript" src="lib/html5sortable.min.js"></script>
-<script type="text/javascript" src="sw.min.js?ver=20230716"></script>
+<script type="text/javascript" src="sw.min.js?ver=567"></script>
 </body>
 </html>

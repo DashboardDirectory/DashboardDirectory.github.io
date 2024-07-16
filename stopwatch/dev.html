@@ -1,19 +1,26 @@
 <!DOCTYPE html>
-<html style="background: whitesmoke; overflow: hidden">
+<html style="background: whitesmoke; overflow: hidden;">
 <head>
     <title>Stopwatch</title>
     <meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
     <link rel="shortcut icon" type="image/png" href="icons/timer32x32.png"/>
     <link rel="stylesheet" type="text/css" href="core/css/metro-bootstrap.min.css"/>
-    <link rel="stylesheet" type="text/css" href="core/css/dev.min.css?ver=2018v20"/>
-    <link rel="stylesheet" type="text/css" href="lib/jquery.qtip.min.css"/>
+    <link rel="stylesheet" type="text/css" href="core/css/style.min.css?ver=2019"/>
+    <!--
+        <link rel="stylesheet" type="text/css" href="lib/jquery.qtip.min.css"/>
+    -->
+    <link rel="stylesheet" type="text/css" href="lib/jquery-3.0.3.qtip.min.css"/>
+
     <link rel="stylesheet" type="text/css" href="lib/offline-language-english.css"/>
     <link rel="stylesheet" type="text/css" href="lib/offline-theme-slide.css"/>
-    <link rel="stylesheet" type="text/css" href="lib/fontawesome-55-all.css"/>
     <meta name="viewport" content="height=device-height,width=device-width, initial-scale=0.75"/>
+    <!--
+        <script src="//console.re/connector.js" data-channel="Stopwatch" id="consolerescript"></script>
+    -->
 </head>
 <body>
 <div id="drop">
+
     <div id="window" class="window"></div>
     <div id="cover"></div>
 </div>
@@ -33,13 +40,13 @@
             <input id="searchfor" type="text" name="search" placeholder="Search" value="">
         </span>
         <span id="sort-bar">
-            <div id="active-filter" style="vertical-align: top; display: none;"></div>
-            <div id="role-filter" class="btn-info btn-group open" style="vertical-align: top; display: none;">
-                <button type="button" class="btn btn-info btn-medium dropdown-toggle" style="padding: 4px;"
-                        data-toggle="dropdown"></button>
-                <ul class="dropdown-menu" role="menu">
-                </ul>
-            </div>
+                <div id="active-filter" style="vertical-align: top; display: none;"></div>
+                <div id="role-filter" class="btn-info btn-group open" style="vertical-align: top; display: none;">
+                    <button type="button" class="btn btn-info btn-medium dropdown-toggle" style="padding: 4px;"
+                            data-toggle="dropdown"></button>
+                    <ul class="dropdown-menu" role="menu">
+                    </ul>
+                </div>
         </span>
         <span id="button-bar">
             <div id="sort-menu" class="btn-group" style="vertical-align: top;">
@@ -63,7 +70,9 @@
     <div id="content">
         <div id="loading">Loading...</div>
         <div id="form-list" class="form"></div>
-
+        <div id="reminder" class="form" style="display: none">
+            <span id="licence-renew" class="bar-text"></span>
+        </div>
         <div id="form-create" class="form" style="display: none">
             <p>
                 <label for="task-nameC">Task name</label>
@@ -126,20 +135,45 @@
         <a id="running" href="#" title="Stop Task" class="btn timer btn-primary" style="display: none;"></a>
         <a id="storelink" class="bar-text" target="_blank" href="http://store.atappstore.com/product/stopwatch/">AtAppStore</a>
         <span id="licence" class="bar-text"></span>
-        <span style="color: silver; position: fixed; right: 10px;">v5.3.4-dev</span>
+        <span style="color: silver; position: fixed; right: 10px;">v5.5.2</span>
     </div>
 </div>
-<script type="text/javascript" src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+<!--
+<script type="text/javascript" src="core/docs/jquery-1.8.0.min.js"></script>
+-->
 <script type="text/javascript" src="lib/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="lib/jquery-3.0.0-migrate.min.js"></script>
 <script type="text/javascript" src="lib/jquery-3.0.3.qtip.min.js"></script>
 <script type="text/javascript" src="lib/jquery.easing.1.4.1.min.js"></script>
+
 <script type="text/javascript" src="core/docs/bootstrap-dropdown.js"></script>
-<script type="text/javascript" src="lib/liquidmetal.js"></script>
-<script type="text/javascript" src="lib/tinysort.min.js"></script>
-<script type="text/javascript" src="lib/jquery.domsearch.js"></script>
-<script type="text/javascript" src="lib/html5sortable.min.js"></script>
-<script type="text/javascript" src="lib/offline.min.js"></script>
-<script type="text/javascript" src="dev.min.js?ver=202111"></script>
+<script src="lib/tinysort.min.js" type="text/javascript"></script>
+<script src="lib/html5sortable.min.js" type="text/javascript"></script>
+<!-- qrcode -->
+<script type="text/javascript" src="lib/base64.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/grid.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/version.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/detector.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/formatinf.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/errorlevel.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/bitmat.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/datablock.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/bmparser.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/datamask.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/rsdecoder.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/gf256poly.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/gf256.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/decoder.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/qrcode.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/findpat.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/alignpat.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/databr.js"></script>
+<script type="text/javascript" src="lib/jsqrcode/src/qrhelper.js"></script>
+<script src="lib/offline.min.js" type="text/javascript"></script>
+<script src="lib/liquidmetal.js" type="text/javascript"></script>
+<script src="lib/jquery.domsearch.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="dev.min.js?ver=202112"></script>
 </body>
 </html>

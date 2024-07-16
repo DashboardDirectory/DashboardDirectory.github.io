@@ -1,6 +1,9 @@
+v5.6.7 added different style renewal prompt for 90 and 14 days
+v5.6.6 fix search to use project and task name
+v5.6.4 increase accuracy of search to 0.6 and removed exactSearch
 v5.6.3 added exactSearch and searchScore licence settings
 v5.6.2 increase accuracy of search from 0.9 to 0.8
-v5.6.1 increase accuracy of search from 0.5 to 0.9; upgrade chrome v3
+v5.6.1 increase accuracy of search from 0.5 to 0.9
 v5.6.0 show max 2000 projects; fix ordering toggle for project view
 v5.5.2 stop task if error (in some situations) show nicer error on start log and record time
 v5.5.1 add projectsAll to show all projects instead of filtered by user assignment
