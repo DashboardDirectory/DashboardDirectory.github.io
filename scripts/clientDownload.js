@@ -1,5 +1,6 @@
  
  
+ 
  app.factory('$blob', function () {
             return {
                  xlsHTMLTableToURL: function (content) {
@@ -131,4 +132,4 @@ app.directive('downloadXls', function ($parse, $click, $blob, $log, $timeout) {
                 } // compile
             }; // return
         }); // client Download
-  
+ 

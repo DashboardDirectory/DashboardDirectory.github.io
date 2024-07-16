@@ -1,0 +1,158 @@
+var scope = angular.element(document.getElementById("_main").children[0]).scope();
+ EditorialCalendarPostProcessing = function(data,otherData)
+
+{ 
+
+    var output;
+
+    // initialize the minDate and maxDate
+if (!(typeof scope.testFromDate === 'undefined'))
+{
+scope.fromDate = scope.testFromDate;
+scope.toDate = scope.testToDate;
+}
+var minDate = scope.fromDate;
+var maxDate = scope.toDate;
+minDate.setHours(0,0,0);
+maxDate.setHours(23,59,0);
+
+// format each cell of data
+data.map(function(t)
+{
+     // drop the time component of the plannedCompletionDate to ensure the grouping is "by day" (only)
+     var d = new Date(t.plannedCompletionDate.replace(/:\d\d\d/,""));
+     d.setHours(0,0,0);
+
+     // for data beyond the specifed maxDate, null the planned completion date to force the task into the last column (noting that the taskNumber will then determine the sort of multiple tasks in that situation
+     if (d > maxDate)
+     {
+        t.name =  t.plannedCompletionDate.substring(5,10).replace("-","/") + " " + t.name.substr(0,39) + (t.name.length > 39 ? "..." : "");
+        t.plannedCompletionDate = null;
+     }
+     else
+     {
+         t.plannedCompletionDate = d.toJSON();
+     }
+ 
+     return true;
+});
+
+// append 1 row for every date between the start and end date to "force" every matrix date column
+fakeRow = data[0];
+t = minDate.getTime();
+maxDate = maxDate.getTime();
+while (t <= maxDate)
+{
+  var newRow =  jQuery.extend({}, fakeRow);
+  newRow.name = "";
+
+  // create a new date in the local timezone and convert it to yyyy-mm-dd format for comparison to nonWorkDays below
+  var dat = new Date(t);
+  var jsonDate = dat.getFullYear() + "-" + ("0" + (dat.getMonth() + 1)).slice(-2) + "-" + ("0" + dat.getDate()).slice(-2);
+
+  // prime the newRow with this "forced" date (using toJSON format), again, in the viewer's timezone
+  newRow.plannedCompletionDate = dat.toJSON();   
+
+  // shade non-work days as silver
+  if (otherData.schedule[0].nonWorkDays.filter(function(s) { 
+      return (s.nonWorkDate == jsonDate );
+      }).length > 0)    
+  {
+     // non-work day so shade the cell
+     newRow.cellShade = "silver";
+  }
+
+  data.push(newRow);
+
+  t = t + (1000 * 60 * 60 *24);
+}
+
+// use a map to remove weekend data entirely (collapsing the report) if showWeekend = false (default true)
+var showWeekends = ( getParameterByName("showWeekends") == "false" ?   false: true);
+if (showWeekends == false)
+{
+    data = data.filter(function (d) { 
+        var dow = new Date(d.plannedCompletionDate).getDay();
+        return (dow> 0 && dow < 6);
+    });
+}
+
+// no need to send other data; the cellShade is already set above
+//data.push(otherData);
+
+output=data;
+
+    return output;
+
+}
+
+
+
+EditorialCalendarSettings = {name: "Editorial Calendar" ,
+
+    query: "task/search?method=GET&project:portfolioID={ID}&project:portfolioID_Mod=eq&project:status=CUR&project:status_Mod=eq&DE:Hot%20Sheet%20Milestone=Yes&DE:Hot%20Sheet%20Milestone_Mod=eq&status=NEW&status=INP&status_Mod=in&fields=project:portfolio:name,project:program:name,DE:project:Hot%20Sheet%20Team,DE:project:Hot%20Sheet%20Client%20Team,DE:project:Hot%20Sheet%20Job%20Number,project:name,project:scheduleID,plannedCompletionDate,name,taskNumber,DE:Hot%20Sheet%20Task%20Type%20Color,percentComplete&sessionID={SESSIONID}",
+
+    otherQueries: [{"dataSetName":"schedule","query":"sched/search?method=GET&isDefault=true&fields=nonWorkDays:nonWorkDate,nonWorkDays:scheduleDay,*&sessionID={SESSIONID}"}],
+
+    template: "EditorialCalendar",
+
+    filters: [{"key":"dateFilter","value":"plannedCompletionDate={fromDate}&plannedCompletionDate_Mod=gte"}],
+
+    filterDescription: "",
+
+    postProcessFunction:EditorialCalendarPostProcessing,
+
+    reportParams: []
+
+}
+
+
+
+EditorialCalendarIsLoaded = true;
+
+
+loadAdminDashboard = function (callback) {
+
+    // Pass back configuration of Admin Tools and Reports 
+
+
+
+    var adminToolBox = [];   
+
+    var uberForms = [];
+
+    var adminReports = [];
+
+  
+
+    adminReports.push(EditorialCalendarSettings);
+
+
+
+    // Pass config back to dashboard 
+
+    callback(adminToolBox, adminReports, uberForms);
+
+}
+
+checkLoadedAll = function()
+
+{
+
+   waitingToLoad = (typeof EditorialCalendarIsLoaded === 'undefined');
+
+
+
+    if (!waitingToLoad)
+
+        {         
+
+
+
+        adminDashboardCallback(loadAdminDashboard);
+
+    }
+
+}
+
+checkLoadedAll()

@@ -24,8 +24,10 @@
 
 
     <script src="scripts/reportUtilities.js?ver=2"></script>
-    <script src="scripts/atTaskServicesModule.js?ver=2.01"></script>
-
+    <script src="scripts/atTaskServicesModule.js?ver=3"></script>
+ 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.4.5/select2.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.19.8/select.min.css"/>
     <style>
         button {
             font-size: 12px;
@@ -224,17 +226,17 @@
 
                     <div id="adminReports" style="display: none; width:100% ">
 
-                        <button id ="viewReportButton" type="button"  style="position:absolute;margin-left:60%;margin-top:20px" ng-click="viewReport()">🔍 View Report</button>
+                        <button id ="viewReportButton" type="button"  style="position:absolute;margin-left:90%;margin-top:10px" ng-click="viewReport()">🔍 View Report</button>
                         <div id= "reportParams" class="tabs">
 
                             <ul class="tab-links">
                                 <li class="active"><a href="#tab0">Select Report</a></li>
-                                <li><a href="#tab1">Project Filter</a></li>
+                                <li><a href="#tab1" id="projectTab">Project Filter</a></li>
                                 <li><a href="#tab2" id="taskTab" style="display:none">Task Filter</a></li>
+                                <li><a href="#tab6" id="userFilterTab" style="display:none">{{userFilterName}}</a></li>
                                 <li><a href="#tab3" id="dateTab" style="display:none">Dates</a></li>
                                 <li><a href="#tab4" id="otherTab" style="display:none">Other</a></li>
                                 <li><a href="#tab5" id="customValuesTab" style="display:none">{{customValueFilterName}}</a></li>
-
                             </ul>
 
                             <div class="tab-content">
@@ -292,19 +294,25 @@
                                 <div id="tab5" class="tab">
                                     <select id="customFilter" size="1" ng-model="selectedCustomValueFilter" ng-options="cf.key for cf in customFilterValues"></select>
                                 </div>
+                                <div id="tab6" class="tab">
+                                    <select id="customUserFilter" size="1" ng-model="selectedUserFilter"
+                                           ng-options ="filter.name for filter in userFilters | orderBy:'name' ">                                        
+                                    </select>
+                                </div>
                             </div>
                             <span style="float:right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{currentReportStep}}</span>
                         </div>
-                        <button type="button" id="downloadFile" style="position:absolute;visibility:hidden;margin-left:60%;margin-top:25px;padding:3px;background-color:#4a4a4a;border-color:transparent; color:white;border-style:solid;border-width:thin;cursor:pointer" ng-click="downloadFile()">➨ pdf</button>
+                        <button type="button" id="downloadFile" style="position:absolute;visibility:hidden;margin-left:60%;margin-top:25px;padding:3px;background-color:#4a4a4a;border-color:transparent; color:white;border-style:solid;border-width:thin;cursor:pointer" title="Download report, right click to change format"  oncontextmenu="return false;" ng-mousedown="downloadFile($event)">➨ pdf</button>
                         <button type="button" id="ieDownloadPDF" style="position:relative;visibility:hidden" ng-click="ieShowReport()">Download PDF</button>
                      </div>
-                <iframe width="100%" height="1000px" id="pdfFrame" style="border:none;visibility:hidden;background-color:black;display:none"></iframe>
+                <iframe width="100%" height="{{pdfFrameHeight}}" id="pdfFrame" style="border:none;visibility:hidden;background-color:black;display:none"></iframe>
 
                 </div>
         </div>
     </form>
-    <script src="controllers/AdminDashboard.js?ver="+ (new Date()).getTime()></script>
-    <script src="scripts/clientDownload.js?ver="+(new Date()).getTime()></script>
+
+    <script src="controllers/AdminDashboard.js?ver=3"></script>
+    <script src="scripts/clientDownload.js?ver=3"></script>
   
 </body>
 

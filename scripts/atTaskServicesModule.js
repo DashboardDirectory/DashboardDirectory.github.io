@@ -14,7 +14,8 @@
 // TODO: should go into a more suitable library.
 
 function getParameterByName(name) {
-    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]").replace(" ","%20");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
@@ -46,7 +47,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
 
     this.recalculateCustomValuesForProject = function (server, sessionID, projectID, callback, errorCallback) {
 
-        var URL = 'https://' + server + '/attask/api/v7.0/proj/search?method=GET&sessionID=' + sessionID + '&ID=' + projectID + '&fields=tasks:ID';
+        var URL = 'https://' + server + '/attask/api/v14.0/proj/search?method=GET&sessionID=' + sessionID + '&ID=' + projectID + '&fields=tasks:ID';
         var cCount = 0;
 
         batchedLoad(URL, 1000,
@@ -54,7 +55,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
         function (data) {
 
             data[0].tasks.map(function (t) {
-                var tUrl = 'https://' + server + '/attask/api/v7.0/task/' + t.ID + '/calculateDataExtension?method=PUT&sessionID=' + sessionID;
+                var tUrl = 'https://' + server + '/attask/api/v14.0/task/' + t.ID + '/calculateDataExtension?method=PUT&sessionID=' + sessionID;
                 cCount++;
 
                 $http.get(tUrl).then(                
@@ -152,9 +153,9 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                                     finalCallBack(response.data.data)
                                 }
                             }
-                          , function (response) {
+                          ,  
                               errorCallBack
-                          }
+                           
                       );
 
         }
@@ -182,9 +183,9 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                          }
                       }                  
             
-            , function (response) {
+            ,  
             errorCallBack
-            }
+             
                 );
         }
 
@@ -314,7 +315,7 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                 // hmmm - recursive call chain is broken here when r.data.error is null
             }
             else {
-                results.push({ type: objType, comments: 'UPDATES', updates: r.config.url, batch:batch });
+                results.push({ type: objType, comments: 'UPDATES', updates: r.data, batch:batch });
                 incrementalCallback();
             }
         }
@@ -425,6 +426,163 @@ atTaskServiceModule.service('atTaskWebService', function ($http) {
                 }:null))
             })
     }
+
+
+
+this.atTaskStepUpdateCustomFields = function(objType,url,obj,singleFieldMode,chunkData,callback,error)
+{
+    var id = obj.ID;
+    var baseFields = {};
+    var custFields = [{}];
+    var maxSize = 3000;
+    var i = 0;
+    var totSize = 0;
+    var context = this;
+
+
+    for (var fld in obj)
+    {
+        if (fld.indexOf("DE:") > -1 && fld != "ID")
+        { 
+    
+            if (totSize + JSON.stringify(obj[fld]).length + 1 > maxSize || singleFieldMode)
+            { 
+                i++;
+                custFields[i] = {};
+                totSize = 0;
+            }
+
+            totSize += JSON.stringify(obj[fld]).length + 1;
+
+            custFields[i][fld] = obj[fld];
+        } 
+        else if (fld != "ID")
+        {
+            baseFields[fld] = obj[fld];
+        }
+
+    }
+
+    putCustomFields = function (url, ID, custFields,chunkData,callback,error)
+    {
+        if (custFields.length > 0)
+        {
+            var custField = custFields.shift();
+            custField['ID'] = ID;
+
+            var tmpURL = url + '&updates=[' + JSON.stringify(custField).replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B') + ']';
+
+            context.atTaskPut(tmpURL , function (results) {
+                chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});              
+                putCustomFields(url,ID,custFields,chunkData,callback,error);  
+            }, function (error) {
+                chunkData.push({type:objType,comments:'Error',updates:error});
+                putCustomFields(url,ID,custFields,chunkData,callback,error);
+            });
+
+
+        }
+        else
+        {
+            callback(chunkData);
+        }
+    }
+
+    var tmpURL = JSON.stringify(baseFields);
+    if ( tmpURL != "{}")
+    {
+        baseFields[ID] = ID;
+
+        tmpURL = tmpURL.replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g,'%23').replace(/\+/g,'%2B');
+
+        tmpURL = url + '&updates=[' + tmpURL + ']';
+
+        context.atTaskPut(tmpURL, function (results) { 
+            chunkData.push({type:objType,comments:'UPDATE (Long Text)',updates:results.config.url});             
+            putCustomFields(url,ID,custFields,chunkData,callback,error);                          
+        }, error);
+
+    }
+    else
+    {
+        putCustomFields(url,id,custFields,chunkData,callback,error); 
+    }
+
+}
+
+
+
+
+ 
+
+    //Given a folder path, and an AtTask objectType, server, session, and optional document parent:
+    //    1) identify whether full path exists 2) create any subdirectories needed to build out path
+    //    3) Return ID of the end folder of the full path
+
+    this.createOrGetFolderPath = function (id, objectType, path, server, session, parentId, callback, errorCallback) 
+    {
+        var paths = path.split('\\');
+        var context = this;
+
+
+                    createDirectory = function (id, objectType, dirName, server, session, parentId, callback, errorCallback) 
+                {
+                    var URL = 'https://' + server + '/attask/api/v14.0/docfdr?method=POST&sessionID=' + session +
+                                           '&updates=[{ID:"",name:"' + dirName + '",' + objectType + 'ID:"' + id + '"';
+
+                    if (!(typeof parentId === 'undefined')) {
+                        URL += ',parentID:"' + parentId + '"';
+                    }
+                    URL += '}]';
+
+                   context.atTaskPut(URL,
+                        function (data) 
+                        {
+                            callback(data.data.data[0].ID)
+                        },    errorCallback    );
+
+                }
+
+
+        if (paths.length > 1) {
+            // If path has subdirs, get the ID of the head element and recurse on tail, passing the head element
+            // id along to the recursion.  Pass along incoming callback function to return bottom level Id when found/made
+
+            var head = paths[0]; paths.shift();
+            var tail = paths.join('\\');
+
+            this.createOrGetFolderPath(id, objectType, head, server, session, parentId,
+              function (dirId) {
+                  context.createOrGetFolderPath(id, objectType, tail, server, session, dirId, callback, errorCallback);
+              }
+
+    );
+        }
+        else {      // Dealing with single folder level.  See if it exists
+
+            var URL = 'https://' + server + '/attask/api/v14.0/docfdr/search?method=GET&sessionID=' + session +
+                       '&name=' + path + '&securityRootID=' + id;
+
+            if (!(typeof parentId === 'undefined')) {
+                URL += '&parentID=' + parentId;
+            }
+
+            this.atTaskGet(URL,
+                 function (data) {
+                     if (data.length > 0) {
+                         // Base return case for existing folder
+
+                         callback(data[0].ID);
+                     }
+                     else {
+                         // Base create case for non-existant folder.
+
+                          createDirectory(id, objectType, path, server, session, parentId, callback, errorCallback);
+                     }
+                 }
+             ,errorCallback);
+        }
+    };
 
 })  
 // JavaScript source code
