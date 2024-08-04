@@ -22,7 +22,9 @@
 
   <meta charset="utf-8" />
   <title>Adobe Workfront - Stopwatch OAuth2 with PKCE</title>
-  <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
+  <link rel="stylesheet" type="text/css" href="core/css/metro-bootstrap.min.css">
+  <link rel="shortcut icon" type="image/png" href="icons/timer32x32.png">
+  <script type="text/javascript" src="core/docs/jquery-1.8.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
   <script>
     const setCookie = (cname, cvalue, exdays) => {
@@ -83,14 +85,23 @@
     if (host != null) setCookie("host", host);
     if (taskid != null) setCookie("taskid", taskid);
 
-    function redirectToApp(sessionID) {
+    function launch(sessionID) {
+      if (!sessionID) {
+        const encrypted_access_token = getCookie("encrypted_access_token");
+        if (encrypted_access_token) 
+          sessionID = decrypt(encrypted_access_token, ACCESS_TOKEN_KEY); 
+        else {
+          updatePageState();
+          return;
+        }    
+      }
       document.getElementById("accessToken").innerHTML = sessionID;
 
       userID = getCookie("userID");
       host = getCookie("host");
       taskid = getCookie("taskid");
 
-      let url = location.origin + window.location.pathname + 'launch.html?taskid=' + taskid + "&u=" + userID + "&d=" + host + "&sid=" + sessionID;
+      let url = 'launch.html?taskid=' + taskid + "&u=" + userID + "&d=" + host + "&sid=" + sessionID;
       if (window.swpop && window.swpop.opener) { 
           window.swpop.location.href = url; 
           window.swpop.focus();
@@ -179,7 +190,7 @@
 
       const encrypted_access_token = getCookie("encrypted_access_token");
       if (encrypted_access_token) {
-        redirectToApp(decrypt(encrypted_access_token, ACCESS_TOKEN_KEY));     
+        launch(decrypt(encrypted_access_token, ACCESS_TOKEN_KEY));     
 
       } else {
         hideError();
@@ -272,7 +283,7 @@
         setCookie("encrypted_access_token", encrypted_access_token);
         setCookie("encrypted_refresh_token", encrypted_refresh_token);
 
-        redirectToApp(decrypt(encrypted_access_token, ACCESS_TOKEN_KEY));
+        launch(decrypt(encrypted_access_token, ACCESS_TOKEN_KEY));
       } catch (error) {
         processError(error);
       }
@@ -307,10 +318,12 @@
       await revokeToken();
       deleteCookie("encrypted_access_token");
       deleteCookie("encrypted_refresh_token");
-      location.replace(location.origin + location.pathname);
     };
   </script>
-  <style>
+  <style> 
+    .instr {
+      display: none;
+    } 
     #error {
       color: red;
       width: 100%;
@@ -322,25 +335,71 @@
 </head>
 
 <body>
-  <h3>
-    <br>
-    <b>Enterprise Stopwatch Launched in new browser tab (to the right of this tab)</b>
-    <br>
-    <br> NOTE: for best result, set allow pop-ups to "always"
-  </h3>
-  <div id="error"></div>
-  <div style="display: none" id="notAuthenticated">
-    <button id="startButton">Login</button>
-  </div>
-  <div id="authenticated" style="display: none">
-     Your access_token (sessionID) is <span id="accessToken"></span>
-    <br />
-    <button id="refresh" onclick="refreshToken()">
-      Refresh token (sessionID)
-    </button>
-    <button id="logout" onclick="logout()">Log out</button>
-  </div>
+  <div>
+    <div style="width: 550px; max-width: 550px; margin-left:auto; margin-right:auto;">
+      <div class="well-large chrome instr" style="text-align:center;"></div>
+      <div class="well-large ie6 instr"><h2>Sorry, This browser is not supported.</h2></div>
+      <div class="well-large" id="message"><h1 style="color:#2e63cc;">Stopwatch Launched!</h1>
+          <div class="well-small">
+            <h3>If you don't see the new window, make sure popup blocker is disabled, or perhaps it is behind this window, Then try launching again</h3>
+  
+            <p><a class='btn btn-primary bookmark' href="#" title="Launch Stopwatch" onclick="launch();">Launch Stopwatch</a></p>
 
+            <div class="well-small chrome instr"><p>For how to manage pop-up settings in Chrome, have a look at <a
+                    href="http://www.google.com/support/chrome/bin/answer.py?hl=en&amp;answer=95472"
+                    title="disable pop-ups in Chrome" target="_blank">Google's support documentation</a>.</p>
+            </div>
+            <div class="well-small firefox instr"><p>Mozilla's support pages show you how to <a
+                    href="http://support.mozilla.com/en-US/kb/Pop-up+blocker" title="disable pop-ups in Firefox"
+                    rel="external" target="_blank">manage pop-up blocker settings in Firefox</a>.</p>
+            </div>
+            <div class="well-small ie instr"><p><a
+                    href="http://windows.microsoft.com/en-us/Windows-vista/Internet-Explorer-Pop-up-Blocker-frequently-asked-questions"
+                    rel="external" title="pop ups in IE" target="_blank">Microsoft's FAQ</a> shows you how to turn
+                Internet Explorer's pop-up blocker on and off.</p>
+            </div>
+            <div class="well-small safari instr"><p>Safari's pop-up blocker doesn't block pop-ups from opening if you've
+                clicked on a button, so please <a class='btn btn-primary bookmark' href="#" title="Launch Stopwatch" onclick="launch();">launch stopwatch manually.</a></p>
+            </div>
+          </div>
+      </div>
+    </div>
+    <div id="error"></div>
+    <div style="display: none" id="notAuthenticated">
+      <button id="startButton">Login</button>
+    </div>
+    <div id="authenticated" style="display: none">
+      Your access_token (sessionID) is <span id="accessToken"></span>
+      <br />
+      <button id="refresh" onclick="refreshToken()">
+        Refresh token (sessionID)
+      </button>
+      <button id="logout" onclick="logout()">Log out</button>
+    </div>
+  </div>
+  <script>
+    let ua = navigator.userAgent;
+    let msie = ua.indexOf ( "MSIE " );
+    if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
+        // Gecko
+        jQuery('.firefox').show();
+    } else if (msie>0 && typeof window.external == "object") {
+       if(9 > parseInt (ua.substring (msie+5, ua.indexOf (".", msie )))) {
+            // IE 6
+            jQuery('#message').hide();
+            jQuery('.ie6').show();
+        } else {
+            jQuery('.ie').show();
+        }
+    } else if (window.opera) {
+        jQuery('.opera').show();
+    } else if (window.hasOwnProperty('chrome')) {
+        jQuery('.chrome').show();
+    } else if (ua.indexOf('Safari') != -1 &&
+        ua.indexOf('Chrome') == -1) {
+        jQuery('.safari').show();
+    }
+  </script>
   <script>
     updatePageState();
 
