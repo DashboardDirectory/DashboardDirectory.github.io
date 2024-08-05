@@ -136,9 +136,6 @@
       login = null;
     }
 
-    if (top.location != self.location) 
-      login = null;
-
     const generateRandomString = () => {
       const array = new Uint32Array(56 / 2);
       crypto.getRandomValues(array);
