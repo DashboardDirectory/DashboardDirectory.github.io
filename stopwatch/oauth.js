@@ -18,7 +18,7 @@ const setCookie = (cname, cvalue, exdays) => {
     exdate.setMinutes(0);
     exdate.setSeconds(0);
     exdate.setDate(exdate.getDate() + exdays);
-    document.cookie = cname + "=" + cvalue + "; expires=" + exdate.toUTCString() + ";  path=/; SameSite=None; Secure";
+    document.cookie = cname + "=" + cvalue + "; expires=" + exdate.toUTCString() + "; path=/; SameSite=None; Secure";
 };
 const getCookie = (cname) => {
     let name = cname + "=";
