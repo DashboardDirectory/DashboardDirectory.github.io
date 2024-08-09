@@ -15,8 +15,7 @@ const setCookie = (cname, cvalue, exdays) => {
     if (typeof exdays === 'undefined' || exdays == null) exdays = 1000;
     const d = new Date();
     d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-    let expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    document.cookie = cname + "=" + cvalue + "; expires=" + d.toUTCString() + "; path=/; SameSite=Lax";
 };
 const getCookie = (cname) => {
     let name = cname + "=";
