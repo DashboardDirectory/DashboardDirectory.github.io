@@ -22,9 +22,9 @@
       }
       document.getElementById("accessToken").innerHTML = sessionID;
 
-      userID = getCookie("userID");
-      host = getCookie("host");
-      taskid = getCookie("taskid");
+      userID = params.get("u");
+      host = params.get("h");
+      taskid = params.get("taskid");
 
       let url = 'launch.html?taskid=' + taskid + "&u=" + userID + "&d=" + host + "&sid=" + sessionID;
       if (window.swpop && window.swpop.opener) {
