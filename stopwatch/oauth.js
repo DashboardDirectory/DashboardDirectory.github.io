@@ -137,7 +137,7 @@ const updatePageState = () => {
 const getParams = () => {
     const args = new URLSearchParams(location.search);
     const code = args.get("code");
-    const domain = args.get("oauth_domain");
+    const domain = args.get("domain");
     const lane = args.get("lane");
 
     return { code, domain, lane };
@@ -148,7 +148,7 @@ const setParamsCookie = ({ code, domain, lane }) => {
     setCookie("encrypted_domain", encrypt(domain, DOMAIN_KEY));
     setCookie("encrypted_lane", encrypt(lane, LANE_KEY));
     setCookie("code", code);
-    setCookie("oauth_domain", domain);
+    setCookie("domain", domain);
     setCookie("lane", lane);
 };
 
