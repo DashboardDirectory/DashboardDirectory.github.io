@@ -12,16 +12,18 @@ const decrypt = (cipherText, key) => {
     return (CryptoJS.AES.decrypt(cipherText, key)).toString(CryptoJS.enc.Utf8);
 };
 const setCookie = (cname, cvalue, exdays) => {
-    if (typeof exdays === 'undefined' || exdays == null) exdays = 1000;
+    localStorage.setItem('oauth_'+cname, cvalue);
+    /*if (typeof exdays === 'undefined' || exdays == null) exdays = 1000;
     var exdate = new Date();
     exdate.setHours(0);
     exdate.setMinutes(0);
     exdate.setSeconds(0);
     exdate.setDate(exdate.getDate() + exdays);
     document.cookie = cname + "=" + cvalue + "; expires=" + exdate.toUTCString() + "; path=/; SameSite=None; Secure";
+    */
 };
 const getCookie = (cname) => {
-    let name = cname + "=";
+    /*let name = cname + "=";
     let ca = document.cookie.split(";");
     for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
@@ -31,17 +33,18 @@ const getCookie = (cname) => {
         if (c.indexOf(name) == 0) {
             return c.substring(name.length, c.length);
         }
-    }
-    return "";
+    }*/
+    return localStorage.getItem('oauth_'+cname);
 };
 const deleteCookie = (cname, path, domain) => {
     if (getCookie(cname)) {
-        document.cookie =
+        /*document.cookie =
             cname +
             "=" +
             (path ? ";path=" + path : "") +
             (domain ? ";domain=" + domain : "") +
-            ";expires=Thu, 01 Jan 1970 00:00:01 GMT";
+            ";expires=Thu, 01 Jan 1970 00:00:01 GMT";*/
+        localStorage.removeItem('oauth_'+cname);
     }
 };
 
