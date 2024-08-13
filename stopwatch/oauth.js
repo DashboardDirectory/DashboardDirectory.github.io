@@ -106,14 +106,13 @@ function updatePageState() {
     document.getElementById("error").style = "display:none";
     let s;
     const encrypted_access_token = getCookie("encrypted_access_token");
-    if (encrypted_access_token && s = decrypt(encrypted_access_token, ACCESS_TOKEN_KEY)) {
+    if (encrypted_access_token && (s = decrypt(encrypted_access_token, ACCESS_TOKEN_KEY))) {
         launch(s);
     } else {
         hideError();
 
         const encrypted_refresh_token = getCookie("encrypted_refresh_token");
-        let refresh_token;
-        if (encrypted_refresh_token && refresh_token = decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY) ){
+        if (encrypted_refresh_token && decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY)) {
             refreshToken();
         }else {
             getToken();
