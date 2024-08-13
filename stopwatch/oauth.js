@@ -102,7 +102,7 @@ const hideError = () => {
     document.getElementById("authenticated").style = "display:none";
 }
 
-const updatePageState = () => {
+function updatePageState() {
     document.getElementById("error").style = "display:none";
     let s;
     const encrypted_access_token = getCookie("encrypted_access_token");
@@ -120,7 +120,7 @@ const updatePageState = () => {
         }
         //login ? login() : console.log('logged in');
     }
-};
+}
 
 const getParams = () => {
     const args = new URLSearchParams(location.search);
@@ -148,7 +148,7 @@ const getParamsCookie = () => {
     };
 };
 
-const getToken = async () => {
+async function getToken() {
     console.log('get token');
     const { code, domain, lane } = getParamsCookie();
     try {
@@ -179,9 +179,9 @@ const getToken = async () => {
     } catch (error) {
         processError(error);
     }
-};
+}
 
-const refreshToken = async () => {
+async function refreshToken() {
     const { domain, lane } = getParamsCookie();
     const encrypted_refresh_token = getCookie("encrypted_refresh_token");
     const refresh_token = decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY);
@@ -212,9 +212,9 @@ const refreshToken = async () => {
     } catch (error) {
         processError(error);
     }
-};
+}
 
-const revokeToken = async () => {
+async function revokeToken() {
     const { domain, lane } = getParamsCookie();
     const encrypted_refresh_token = getCookie("encrypted_refresh_token");
     const refresh_token = decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY);
@@ -237,10 +237,10 @@ const revokeToken = async () => {
     } catch (error) {
         processError(error);
     }
-};
+}
 
-const logout = async () => {
+async function logout() {
     await revokeToken();
     deleteCookie("encrypted_access_token");
     deleteCookie("encrypted_refresh_token");
-};
+}
