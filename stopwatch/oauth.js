@@ -13,16 +13,17 @@ const decrypt = (cipherText, key) => {
 };
 var params = new URLSearchParams(document.location.search);
 var clientId = params.get("cid");
+var domain_key = params.get("domain");
 
 const setCookie = (cname, cvalue, exdays) => {
-    localStorage.setItem(clientId + '_oauth_'+cname, cvalue);
+    localStorage.setItem(domain_key + '_oauth_'+cname, cvalue);
 };
 const getCookie = (cname) => {
-    return localStorage.getItem(clientId + '_oauth_'+cname);
+    return localStorage.getItem(domain_key + '_oauth_'+cname);
 };
 const deleteCookie = (cname, path, domain) => {
     if (getCookie(cname)) {
-        localStorage.removeItem(clientId + '_oauth_'+cname);
+        localStorage.removeItem(domain_key + '_oauth_'+cname);
     }
 };
 const getUrl = () => {
