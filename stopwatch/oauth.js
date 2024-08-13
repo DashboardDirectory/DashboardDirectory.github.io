@@ -11,15 +11,18 @@ const encrypt = (text, key) => CryptoJS.AES.encrypt(text, key).toString();
 const decrypt = (cipherText, key) => {
     return (CryptoJS.AES.decrypt(cipherText, key)).toString(CryptoJS.enc.Utf8);
 };
+var params = new URLSearchParams(document.location.search);
+var clientId = params.get("cid");
+
 const setCookie = (cname, cvalue, exdays) => {
-    localStorage.setItem('oauth_'+cname, cvalue);
+    localStorage.setItem(clientId + '_oauth_'+cname, cvalue);
 };
 const getCookie = (cname) => {
-    return localStorage.getItem('oauth_'+cname);
+    return localStorage.getItem(clientId + '_oauth_'+cname);
 };
 const deleteCookie = (cname, path, domain) => {
     if (getCookie(cname)) {
-        localStorage.removeItem('oauth_'+cname);
+        localStorage.removeItem(clientId + '_oauth_'+cname);
     }
 };
 const getUrl = () => {
@@ -29,8 +32,7 @@ const getUrl = () => {
 
     return url.href;
 };
-var params = new URLSearchParams(document.location.search);
-var clientId = params.get("cid");
+
 
 let login = async () => {
     const codeVerifier = generateRandomString(64);
@@ -115,9 +117,8 @@ function updatePageState() {
         if (encrypted_refresh_token && decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY)) {
             refreshToken();
         }else {
-            getToken();
+            login ? login() : console.log('logged in');
         }
-        //login ? login() : console.log('logged in');
     }
 }
 
@@ -149,6 +150,10 @@ const getParamsCookie = () => {
 
 async function getToken() {
     console.log('get token');
+    if (!getCookie("encrypted_code")) {
+        login();
+        return;
+    }
     const { code, domain, lane } = getParamsCookie();
     try {
          fetch(
