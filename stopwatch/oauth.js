@@ -13,41 +13,22 @@ const decrypt = (cipherText, key) => {
 };
 const setCookie = (cname, cvalue, exdays) => {
     localStorage.setItem('oauth_'+cname, cvalue);
-    /*if (typeof exdays === 'undefined' || exdays == null) exdays = 1000;
-    var exdate = new Date();
-    exdate.setHours(0);
-    exdate.setMinutes(0);
-    exdate.setSeconds(0);
-    exdate.setDate(exdate.getDate() + exdays);
-    document.cookie = cname + "=" + cvalue + "; expires=" + exdate.toUTCString() + "; path=/; SameSite=None; Secure";
-    */
 };
 const getCookie = (cname) => {
-    /*let name = cname + "=";
-    let ca = document.cookie.split(";");
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == " ") {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }*/
     return localStorage.getItem('oauth_'+cname);
 };
 const deleteCookie = (cname, path, domain) => {
     if (getCookie(cname)) {
-        /*document.cookie =
-            cname +
-            "=" +
-            (path ? ";path=" + path : "") +
-            (domain ? ";domain=" + domain : "") +
-            ";expires=Thu, 01 Jan 1970 00:00:01 GMT";*/
         localStorage.removeItem('oauth_'+cname);
     }
 };
+const getUrl = () => {
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.hash = '';
 
+    return url.href;
+};
 var params = new URLSearchParams(document.location.search);
 var clientId = params.get("cid");
 
@@ -61,7 +42,7 @@ let login = async () => {
         client_id: clientId,
         code_challenge_method: "S256",
         code_challenge: codeChallenge,
-        redirect_uri: location.href.replace(location.search, ""),
+        redirect_uri: getUrl(),
         search: location.search
     });
     location = authorizeEndpoint + "?" + args;
@@ -123,14 +104,21 @@ const hideError = () => {
 
 const updatePageState = () => {
     document.getElementById("error").style = "display:none";
-
+    let s;
     const encrypted_access_token = getCookie("encrypted_access_token");
-    if (encrypted_access_token) {
-        launch(decrypt(encrypted_access_token, ACCESS_TOKEN_KEY));
-
+    if (encrypted_access_token && s = decrypt(encrypted_access_token, ACCESS_TOKEN_KEY)) {
+        launch(s);
     } else {
         hideError();
-        login ? login() : console.log('logged in');
+
+        const encrypted_refresh_token = getCookie("encrypted_refresh_token");
+        let refresh_token;
+        if (encrypted_refresh_token && refresh_token = decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY) ){
+            refreshToken();
+        }else {
+            getToken();
+        }
+        //login ? login() : console.log('logged in');
     }
 };
 
@@ -161,6 +149,7 @@ const getParamsCookie = () => {
 };
 
 const getToken = async () => {
+    console.log('get token');
     const { code, domain, lane } = getParamsCookie();
     try {
         const response = await fetch(
@@ -174,7 +163,7 @@ const getToken = async () => {
                     client_id: clientId,
                     code_verifier: getCookie("code_verifier"),
                     grant_type: "authorization_code",
-                    redirect_uri: location.href.replace(location.search, ""),
+                    redirect_uri: getUrl(),
                     code: code,
                 }),
             }
@@ -208,7 +197,7 @@ const refreshToken = async () => {
                     client_id: clientId,
                     refresh_token,
                     grant_type: "refresh_token",
-                    redirect_uri: location.href.replace(location.search, ""),
+                    redirect_uri: getUrl(),
                 }),
             }
         );
@@ -240,7 +229,7 @@ const revokeToken = async () => {
                 body: JSON.stringify({
                     client_id: clientId,
                     refresh_token,
-                    redirect_uri: location.href.replace(location.search, ""),
+                    redirect_uri: getUrl(),
                 }),
             }
         );
