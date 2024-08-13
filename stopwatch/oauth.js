@@ -151,7 +151,7 @@ async function getToken() {
     console.log('get token');
     const { code, domain, lane } = getParamsCookie();
     try {
-        const response = await fetch(
+         fetch(
             `https://${domain}.${lane}.workfront.com/${tokenEndpoint}`,
             {
                 method: "POST",
@@ -166,15 +166,32 @@ async function getToken() {
                     code: code,
                 }),
             }
-        );
-        const data = await response.json();
+        ).then(response => {
+            if (response.ok) {
+                let data = response.json(); // or response.text() depending on the response type
+                setCookie("encrypted_access_token", encrypt(data.access_token, ACCESS_TOKEN_KEY));
+                setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
+                setCookie("access_token", data.access_token);
+                setCookie("refresh_token", data.refresh_token);
 
-        setCookie("encrypted_access_token", encrypt(data.access_token, ACCESS_TOKEN_KEY));
-        setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
-        setCookie("access_token", data.access_token);
-        setCookie("refresh_token", data.refresh_token);
+                updatePageState();
+            } else if (response.status === 400) {
+                login();
+            } else if (response.status === 404) {
+                // Handle 404 Not Found
+                throw new Error('Resource not found');
+            } else {
+                // Handle other status codes
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+        })
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
 
-        updatePageState();
     } catch (error) {
         processError(error);
     }
