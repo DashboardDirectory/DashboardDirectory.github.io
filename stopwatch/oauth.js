@@ -13,7 +13,7 @@ const decrypt = (cipherText, key) => {
 };
 var params = new URLSearchParams(document.location.search);
 var clientId = params.get("cid");
-var domain_key = params.get("domain");
+var domain_key = params.get("domain") ? localStorage.getItem("domain_key") : 'domain_key';
 
 const setCookie = (cname, cvalue, exdays) => {
     localStorage.setItem(domain_key + '_oauth_'+cname, cvalue);
@@ -139,6 +139,7 @@ const setParamsCookie = ({ code, domain, lane }) => {
     setCookie("code", code);
     setCookie("domain", domain);
     setCookie("lane", lane);
+    localStorage.setItem("domain_key", domain);
 };
 
 const getParamsCookie = () => {
