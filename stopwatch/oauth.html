@@ -20,7 +20,7 @@
           return;
         }
       }
-      document.getElementById("accessToken").innerHTML = sessionID;
+      console.log('session: ' + sessionID);
 
       userID = params.get("u");
       host = params.get("h");
@@ -43,10 +43,6 @@
     var userID = params.get("u");
     var host = params.get("h");
     var taskid = params.get("taskid");
-
-    if (userID != null) setCookie("userID", userID);
-    if (host != null) setCookie("host", host);
-    if (taskid != null) setCookie("taskid", taskid);
   </script>
   
   <style>
