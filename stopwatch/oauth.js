@@ -13,7 +13,7 @@ const decrypt = (cipherText, key) => {
 };
 var params = new URLSearchParams(document.location.search);
 var clientId = params.get("cid");
-var domain_key = params.get("domain") ? params.get("domain") : (localStorage.getItem("domain_key") ? localStorage.getItem("domain_key") : 'domain_key');
+var domain_key = params.get("domain") ? params.get("domain") : 'domain_key';
 
 const setCookie = (cname, cvalue, exdays) => {
     localStorage.setItem(domain_key + '_oauth_'+cname, cvalue);
@@ -34,11 +34,17 @@ const getUrl = () => {
     return url.href;
 };
 
+if (clientId != null) {
+    localStorage.setItem("clientId", clientId);
+}
+else {
+    clientId = localStorage.getItem("clientId");
+}
 
 let login = async () => {
     const codeVerifier = generateRandomString(64);
     const codeChallenge = await generateCodeChallenge(codeVerifier);
-    setCookie("code_verifier", codeVerifier);
+    localStorage.setItem("code_verifier", codeVerifier);
 
     const args = new URLSearchParams({
         response_type: "code",
@@ -49,14 +55,6 @@ let login = async () => {
         search: location.search
     });
     location = authorizeEndpoint + "?" + args;
-}
-
-if (clientId != null) {
-    setCookie("clientId", clientId);
-}
-else {
-    clientId = getCookie("clientId");
-    login = null;
 }
 
 const generateRandomString = () => {
@@ -167,7 +165,7 @@ async function getToken() {
                 },
                 body: JSON.stringify({
                     client_id: clientId,
-                    code_verifier: getCookie("code_verifier"),
+                    code_verifier: localStorage.getItem("code_verifier"),
                     grant_type: "authorization_code",
                     redirect_uri: getUrl(),
                     code: code,
@@ -181,7 +179,7 @@ async function getToken() {
                 setCookie("access_token", data.access_token);
                 setCookie("refresh_token", data.refresh_token);
 
-                updatePageState();
+
             } else if (response.status === 400) {
                 login();
             } else if (response.status === 404) {
@@ -194,6 +192,7 @@ async function getToken() {
         })
         .then(data => {
             console.log('Success:', data);
+            updatePageState();
         })
         .catch(error => {
             console.error('Fetch error:', error);
