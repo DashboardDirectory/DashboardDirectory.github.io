@@ -34,12 +34,6 @@ const getUrl = () => {
     return url.href;
 };
 
-if (clientId != null) {
-    localStorage.setItem("clientId", clientId);
-}
-else {
-    clientId = localStorage.getItem("clientId");
-}
 
 let login = async () => {
     const codeVerifier = generateRandomString(64);
@@ -57,6 +51,14 @@ let login = async () => {
     location = authorizeEndpoint + "?" + args;
 }
 
+if (clientId != null) {
+    localStorage.setItem("clientId", clientId);
+}
+else {
+    clientId = localStorage.getItem("clientId");
+    login = null;
+    console.log('clear login');
+}
 const generateRandomString = () => {
     const array = new Uint32Array(56 / 2);
     crypto.getRandomValues(array);
@@ -116,7 +118,7 @@ function updatePageState() {
         if (encrypted_refresh_token && decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY)) {
             refreshToken();
         }else {
-            login ? login() : console.log('logged in');
+            login ? login() : console.log('logged in up');
         }
     }
 }
@@ -151,7 +153,8 @@ const getParamsCookie = () => {
 async function getToken() {
     console.log('get token');
     if (!getCookie("encrypted_code")) {
-        login();
+        login ? login() : console.log('logged in gt');
+
         return;
     }
     const { code, domain, lane } = getParamsCookie();
@@ -181,7 +184,8 @@ async function getToken() {
 
 
             } else if (response.status === 400) {
-                login();
+                login ? login() : console.log('logged in gt2');
+
             } else if (response.status === 404) {
                 // Handle 404 Not Found
                 throw new Error('Resource not found');
