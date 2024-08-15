@@ -163,13 +163,13 @@ async function getToken() {
             }
         ).then(response => {
             if (response.ok) {
-                let data = response.json(); // or response.text() depending on the response type
+                let json = await response.json();
                 setCookie("encrypted_access_token", encrypt(data.access_token, ACCESS_TOKEN_KEY));
                 setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
                 setCookie("access_token", data.access_token);
                 setCookie("refresh_token", data.refresh_token);
-
-
+                console.log('getting token ' + data.access_token);
+                updatePageState();
             } else if (response.status === 400) {
                 login ? login() : console.log('logged in gt2');
 
@@ -180,10 +180,6 @@ async function getToken() {
                 // Handle other status codes
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-        })
-        .then(data => {
-            console.log('Success:', data);
-            updatePageState();
         })
         .catch(error => {
             console.error('Fetch error:', error);
