@@ -163,12 +163,14 @@ async function getToken() {
             }
         ).then(response => {
             if (response.ok) {
-                let json = await response.json();
-                setCookie("encrypted_access_token", encrypt(data.access_token, ACCESS_TOKEN_KEY));
-                setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
+                let json = response.json();
+                console.log('getting token ' + data.access_token);
+
                 setCookie("access_token", data.access_token);
                 setCookie("refresh_token", data.refresh_token);
-                console.log('getting token ' + data.access_token);
+                setCookie("encrypted_access_token", encrypt(data.access_token, ACCESS_TOKEN_KEY));
+                setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
+
                 updatePageState();
             } else if (response.status === 400) {
                 login ? login() : console.log('logged in gt2');
