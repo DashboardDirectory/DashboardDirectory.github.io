@@ -172,7 +172,8 @@ async function getToken() {
             } else {
                 // Handle other status codes
                 throw new Error(`HTTP error! Status: ${response.status}`);
-            }).then((data) => {
+            }
+        }).then(data => {
                 console.log('getting token ' + data.access_token);
 
                 setCookie("access_token", data.access_token);
