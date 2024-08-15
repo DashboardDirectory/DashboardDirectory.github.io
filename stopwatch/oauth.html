@@ -9,6 +9,38 @@
   <script type="text/javascript" src="core/docs/jquery-1.8.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
   <script>
+      // setup local storage for oath
+      localStorage.setItem("cookie_prefix", 'cookie_prefix');
+      const setCookie = (cname, cvalue, exdays) => {
+          let cookie_prefix =  localStorage.getItem("cookie_prefix");
+          localStorage.setItem(cookie_prefix + '_oauth_'+cname, cvalue);
+      };
+      const getCookie = (cname) => {
+          let cookie_prefix =  localStorage.getItem("cookie_prefix");
+          return localStorage.getItem(cookie_prefix + '_oauth_'+cname);
+      };
+      const deleteCookie = (cname, path, domain) => {
+          let cookie_prefix =  localStorage.getItem("cookie_prefix");
+          if (getCookie(cname)) {
+              localStorage.removeItem(cookie_prefix + '_oauth_'+cname);
+          }
+      };
+      // sav initial values to pass to stopwatch
+      var params = new URLSearchParams(document.location.search);
+      var host = params.get("h");
+      if (host) {
+          localStorage.setItem("cookie_prefix", host);
+          setCookie('host', host);
+      }
+      var userID = params.get("u");
+      if (userID) {
+          setCookie('userID', userID);
+      }
+      var taskid = params.get("taskid");
+      if (taskid) {
+          setCookie('taskid', taskid);
+      }
+
     function launch(sessionID) {
       if (!sessionID) {
         const encrypted_access_token = getCookie("encrypted_access_token");
@@ -22,9 +54,9 @@
       }
       console.log('session: ' + sessionID);
 
-      userID = params.get("u");
-      host = params.get("h");
-      taskid = params.get("taskid");
+      userID = getCookie('userID');
+      host = getCookie('host');
+      taskid = getCookie('taskid');
 
       let url = 'launch.html?taskid=' + taskid + "&u=" + userID + "&d=" + host + "&sid=" + sessionID;
       if (window.swpop && window.swpop.opener) {
@@ -38,13 +70,7 @@
     }
   </script>
   <script type="text/javascript" src="oauth.js"></script>
-  <script>
-    var params = new URLSearchParams(document.location.search);
-    var userID = params.get("u");
-    var host = params.get("h");
-    var taskid = params.get("taskid");
-  </script>
-  
+
   <style>
     .instr {
       display: none;
