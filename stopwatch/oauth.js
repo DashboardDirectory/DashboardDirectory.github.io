@@ -163,7 +163,16 @@ async function getToken() {
             }
         ).then(response => {
             if (response.ok) {
-                let data = response.json();
+                return response.json();
+            } else if (response.status === 400) {
+                login ? login() : console.log('logged in gt2');
+            } else if (response.status === 404) {
+                // Handle 404 Not Found
+                throw new Error('Resource not found');
+            } else {
+                // Handle other status codes
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }).then((data) => {
                 console.log('getting token ' + data.access_token);
 
                 setCookie("access_token", data.access_token);
@@ -172,18 +181,7 @@ async function getToken() {
                 setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
 
                 updatePageState();
-            } else if (response.status === 400) {
-                login ? login() : console.log('logged in gt2');
-
-            } else if (response.status === 404) {
-                // Handle 404 Not Found
-                throw new Error('Resource not found');
-            } else {
-                // Handle other status codes
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-        })
-        .catch(error => {
+        }).catch(error => {
             console.error('Fetch error:', error);
         });
 
