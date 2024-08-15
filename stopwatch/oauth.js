@@ -163,7 +163,7 @@ async function getToken() {
             }
         ).then(response => {
             if (response.ok) {
-                let json = response.json();
+                let data = response.json();
                 console.log('getting token ' + data.access_token);
 
                 setCookie("access_token", data.access_token);
