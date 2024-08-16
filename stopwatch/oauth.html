@@ -73,14 +73,118 @@
     }
   </script>
   <script type="text/javascript" src="oauth.js.test"></script>
-    <script>
-        const getUrl = () => {
+  <script>
+      const REFRESH_TOKEN_KEY = "REFRESH_TOKEN_KEY";
+      const ACCESS_TOKEN_KEY = "ACCESS_TOKEN_KEY";
+      const CODE_KEY = "CODE_KEY";
+      const DOMAIN_KEY = "DOMAIN_KEY";
+      const LANE_KEY = "LANE_KEY";
+      const tokenEndpoint = "integrations/oauth2/api/v1/token";
+      const revokeEndpoint = "integrations/oauth2/api/v1/revoke";
+
+     /* const getUrl = () => {
+          const url = new URL(window.location.href);
+          url.search = '';
+          url.hash = '';
+
+          return url.href;
+      };*/
+
+      const setCookie = (cname, cvalue, exdays) => {
+          localStorage.setItem('_oauth_'+cname, cvalue);
+      };
+      const getCookie = (cname) => {
+          return localStorage.getItem('_oauth_'+cname);
+      };
+      const deleteCookie = (cname, path, domain) => {
+          if (getCookie(cname)) {
+              localStorage.removeItem('_oauth_'+cname);
+          }
+      };
+
+      const encrypt = (text, key) => CryptoJS.AES.encrypt(text, key).toString();
+      const decrypt = (cipherText, key) => {
+          return (CryptoJS.AES.decrypt(cipherText, key)).toString(CryptoJS.enc.Utf8);
+      };
+
+      const getParams = () => {
+          const args = new URLSearchParams(location.search);
+          const code = args.get("code");
+          const domain = args.get("domain");
+          const lane = args.get("lane");
+
+          return { code, domain, lane };
+      };
+
+      const setParamsCookie = ({ code, domain, lane }) => {
+          setCookie("encrypted_code", encrypt(code, CODE_KEY));
+          setCookie("encrypted_domain", encrypt(domain, DOMAIN_KEY));
+          setCookie("encrypted_lane", encrypt(lane, LANE_KEY));
+          setCookie("code", code);
+          setCookie("domain", domain);
+          setCookie("lane", lane);
+      };
+
+      async function getToken() {
+          console.log('get token');
+          const { code, domain, lane } = getParamsCookie();
+          try {
+              fetch(
+            `https://${domain}.${lane}.workfront.com/${tokenEndpoint}`,
+              {
+                  method: "POST",
+                          headers: { "Content-Type": "application/json;charset=utf-8", },
+                  body: JSON.stringify({
+                      client_id: clientId,
+                      code_verifier: localStorage.getItem("code_verifier"),
+                      grant_type: "authorization_code",
+                      redirect_uri: getUrl(),
+                      code: code,
+                  }),
+              }).then(response => {
+                  if (response.ok) {
+                  return response.json();
+              } else if (response.status === 400) {
+                  console.log('logged in gt2');
+              } else if (response.status === 404) {
+                  // Handle 404 Not Found
+                  throw new Error('Resource not found');
+              } else {
+                  // Handle other status codes
+                  throw new Error(`HTTP error! Status: ${response.status}`);
+              }
+          }).then(data => {
+              console.log('getting token ' + data.access_token);
+
+          setCookie("access_token", data.access_token);
+          setCookie("refresh_token", data.refresh_token);
+          setCookie("encrypted_access_token", encrypt(data.access_token, ACCESS_TOKEN_KEY));
+          setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
+
+          // Send the token back to the opener window (the main page)
+          window.opener.postMessage({ token: data.access_token }, '*');
+          setTimeout(() => {
+              window.close();
+      }, 100);
+      }).catch(error => {
+          console.error('Fetch error:', error);
+      });
+      } catch (error) {
+          console.log(error);
+      }
+      }
+
+
+  </script>
+
+  <script>
+        /*const getUrl = () => {
             const url = new URL(window.location.href);
             url.search = '';
             url.hash = '';
 
             return url.href;
-        };
+        };*/
         const dec2hex = (dec) => {
             return ("0" + dec.toString(16)).substr(-2);
         };
@@ -124,7 +228,7 @@
                 client_id: clientId,
                 code_challenge_method: "S256",
                 code_challenge: codeChallenge,
-                redirect_uri: directoryPath + 'oauth_set.html',
+                redirect_uri: getUrl(),//directoryPath + 'oauth_set.html',
                 search: location.search
             });
             const oauthWindow = window.open(authorizeEndpoint + "?" + args, 'OAuthWindow', 'width=600,height=740');
@@ -142,16 +246,24 @@
             });
         }
 
-        let clientId = params.get("cid");
-        if (clientId != null) {
-            localStorage.setItem("clientId", clientId);
-        } else {
-            clientId = localStorage.getItem("clientId");
-            console.log('clear login');
-        }
+        if (location.search) {
+            const { code, domain, lane } = getParams();
+            if (code) { // && !getCookie("encrypted_access_token")
+                setParamsCookie({ code, domain, lane })
+                getToken();
+            } else {
+                let clientId = params.get("cid");
+                if (clientId != null) {
+                    localStorage.setItem("clientId", clientId);
+                } else {
+                    clientId = localStorage.getItem("clientId");
+                    console.log('clear login');
+                }
 
-        if (!localStorage.getItem('session_token')) {
-            openOAuthWindow(clientId);
+                if (!localStorage.getItem('session_token')) {
+                    openOAuthWindow(clientId);
+                }
+            }
         }
     </script>
   <style>
