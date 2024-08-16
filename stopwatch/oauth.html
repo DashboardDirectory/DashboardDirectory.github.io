@@ -124,6 +124,13 @@
           setCookie("domain", domain);
           setCookie("lane", lane);
       };
+      const getParamsCookie = () => {
+          return {
+              code: decrypt(getCookie("encrypted_code"), CODE_KEY),
+              domain: decrypt(getCookie("encrypted_domain"), DOMAIN_KEY),
+              lane: decrypt(getCookie("encrypted_lane"), LANE_KEY),
+          };
+      };
 
       async function getToken() {
           console.log('get token');
