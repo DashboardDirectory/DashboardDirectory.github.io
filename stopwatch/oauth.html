@@ -132,7 +132,7 @@
           };
       };
 
-      async function getToken() {
+      async function getToken(clientId) {
           console.log('get token');
           const { code, domain, lane } = getParamsCookie();
           try {
@@ -254,24 +254,24 @@
         }
 
         if (location.search) {
+            let clientId = params.get("cid");
+            if (clientId != null) {
+                localStorage.setItem("clientId", clientId);
+            } else {
+                clientId = localStorage.getItem("clientId");
+                console.log('clear login');
+            }
+
             const { code, domain, lane } = getParams();
             if (code) { // && !getCookie("encrypted_access_token")
                 setParamsCookie({ code, domain, lane })
-                getToken();
+                getToken(clientId);
             } else {
-                let clientId = params.get("cid");
-                if (clientId != null) {
-                    localStorage.setItem("clientId", clientId);
-                } else {
-                    clientId = localStorage.getItem("clientId");
-                    console.log('clear login');
-                }
-
                 if (!localStorage.getItem('session_token')) {
                     openOAuthWindow(clientId);
                 }
             }
-        }
+    }
     </script>
   <style>
     .instr {
