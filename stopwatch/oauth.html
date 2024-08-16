@@ -74,7 +74,13 @@
   </script>
   <script type="text/javascript" src="oauth.js.test"></script>
     <script>
+        const getUrl = () => {
+            const url = new URL(window.location.href);
+            url.search = '';
+            url.hash = '';
 
+            return url.href;
+        };
         const dec2hex = (dec) => {
             return ("0" + dec.toString(16)).substr(-2);
         };
