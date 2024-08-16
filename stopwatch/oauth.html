@@ -112,6 +112,7 @@
             return base64urlencode(hashed);
         };
         async function openOAuthWindow(clientId) {
+            const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
             const codeVerifier = generateRandomString(64);
             const codeChallenge = await generateCodeChallenge(codeVerifier);
             localStorage.setItem("code_verifier", codeVerifier);
