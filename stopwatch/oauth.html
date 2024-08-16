@@ -116,16 +116,18 @@
             const codeVerifier = generateRandomString(64);
             const codeChallenge = await generateCodeChallenge(codeVerifier);
             localStorage.setItem("code_verifier", codeVerifier);
+            let fullUrl = getUrl();
+            let directoryPath = fullUrl.substring(0, fullUrl.lastIndexOf('/') + 1);
 
             const args = new URLSearchParams({
                 response_type: "code",
                 client_id: clientId,
                 code_challenge_method: "S256",
                 code_challenge: codeChallenge,
-                redirect_uri: getUrl() + '/oauth_set.html',
+                redirect_uri: directoryPath + '/oauth_set.html',
                 search: location.search
             });
-            const oauthWindow = window.open(authorizeEndpoint + "?" + args, 'OAuthWindow', 'width=600,height=400');
+            const oauthWindow = window.open(authorizeEndpoint + "?" + args, 'OAuthWindow', 'width=600,height=740');
             window.addEventListener('message', function(event) {
                 if (event.origin !== 'https://oauth.my.workfront.com') {
                     return;
