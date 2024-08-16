@@ -226,11 +226,12 @@
             const oauthWindow = window.open(location.href, 'OAuthWindow', 'width=600,height=740');
             oauthWindow.addEventListener('message', async function(event) {
                 oauthWindow.localStorage.setItem('clientId', event.data.clientId);
-                oauthWindow.localStorage.setItem("code_verifier", event.data.codeVerifier);
                 const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
                 const codeVerifier = generateRandomString(64);
                 const codeChallenge = await generateCodeChallenge(codeVerifier);
-                //let fullUrl = getUrl();
+                oauthWindow.localStorage.setItem("code_verifier", codeVerifier);
+
+                 //let fullUrl = getUrl();
                 //let directoryPath = fullUrl.substring(0, fullUrl.lastIndexOf('/') + 1);
 
                 const args = new URLSearchParams({
@@ -274,7 +275,7 @@
                 setParamsCookie({ code, domain, lane })
                 getToken(clientId);
             } else {
-                if (!localStorage.getItem('session_token')) {
+                if (!localStorage.getItem('session_token') && !window.opener) {
                     openOAuthWindow(clientId);
                 }
             }
