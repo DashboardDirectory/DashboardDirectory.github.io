@@ -226,9 +226,8 @@
             const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
             const codeVerifier = generateRandomString(64);
             const codeChallenge = await generateCodeChallenge(codeVerifier);
-            localStorage.setItem("code_verifier", codeVerifier);
-            let fullUrl = getUrl();
-            let directoryPath = fullUrl.substring(0, fullUrl.lastIndexOf('/') + 1);
+            //let fullUrl = getUrl();
+            //let directoryPath = fullUrl.substring(0, fullUrl.lastIndexOf('/') + 1);
 
             const args = new URLSearchParams({
                 response_type: "code",
@@ -239,10 +238,16 @@
                 search: location.search
             });
             const oauthWindow = window.open(authorizeEndpoint + "?" + args, 'OAuthWindow', 'width=600,height=740');
+            oauthWindow.addEventListener('message', function(event) {
+                localStorage.setItem('clientId', event.data.clientId);
+                localStorage.setItem("code_verifier", event.data.codeVerifier);
+            });
+            window.postMessage({clientId: clientId, codeVerifier: codeVerifier});
+
             window.addEventListener('message', function(event) {
-                if (event.origin !== 'https://oauth.my.workfront.com') {
-                    return;
-                }
+                //if (event.origin !== 'https://oauth.my.workfront.com') {
+                  //  return;
+                //}
 
                 if (event.data && event.data.token) {
                     oauthWindow.close();
@@ -264,6 +269,7 @@
 
             const { code, domain, lane } = getParams();
             if (code) { // && !getCookie("encrypted_access_token")
+                // in oauth popup
                 setParamsCookie({ code, domain, lane })
                 getToken(clientId);
             } else {
@@ -271,7 +277,7 @@
                     openOAuthWindow(clientId);
                 }
             }
-    }
+        }
     </script>
   <style>
     .instr {
