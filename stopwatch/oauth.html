@@ -70,7 +70,7 @@
   </script>
   <script type="text/javascript" src="oauth.js.test"></script>
     <script>
-        function openOAuthWindow(clientId) {
+        async function openOAuthWindow(clientId) {
             const codeVerifier = generateRandomString(64);
             const codeChallenge = await generateCodeChallenge(codeVerifier);
             localStorage.setItem("code_verifier", codeVerifier);
