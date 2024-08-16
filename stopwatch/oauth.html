@@ -124,7 +124,7 @@
                 client_id: clientId,
                 code_challenge_method: "S256",
                 code_challenge: codeChallenge,
-                redirect_uri: directoryPath + '/oauth_set.html',
+                redirect_uri: directoryPath + 'oauth_set.html',
                 search: location.search
             });
             const oauthWindow = window.open(authorizeEndpoint + "?" + args, 'OAuthWindow', 'width=600,height=740');
