@@ -88,7 +88,7 @@
           url.hash = '';
 
           return url.href;
-      };*/
+      };
 
       const setCookie = (cname, cvalue, exdays) => {
           localStorage.setItem('_oauth_'+cname, cvalue);
@@ -106,7 +106,7 @@
       const decrypt = (cipherText, key) => {
           return (CryptoJS.AES.decrypt(cipherText, key)).toString(CryptoJS.enc.Utf8);
       };
-
+      */
       const getParams = () => {
           const args = new URLSearchParams(location.search);
           const code = args.get("code");
