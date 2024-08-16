@@ -222,9 +222,9 @@
 
             return base64urlencode(hashed);
         };
-        async function openOAuthWindow(clientId) {
+         function openOAuthWindow(clientId) {
             const oauthWindow = window.open(location.href, 'OAuthWindow', 'width=600,height=740');
-            oauthWindow.addEventListener('message', function(event) {
+            oauthWindow.addEventListener('message', async function(event) {
                 oauthWindow.localStorage.setItem('clientId', event.data.clientId);
                 oauthWindow.localStorage.setItem("code_verifier", event.data.codeVerifier);
                 const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
