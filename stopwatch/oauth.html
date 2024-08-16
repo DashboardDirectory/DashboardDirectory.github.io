@@ -46,7 +46,7 @@
         if (encrypted_access_token)
           sessionID = decrypt(encrypted_access_token, ACCESS_TOKEN_KEY);
         else {
-          updatePageState();
+         // updatePageState();
 
           return;
         }
@@ -68,8 +68,48 @@
       }
     }
   </script>
-  <script type="text/javascript" src="oauth.js"></script>
+  <script type="text/javascript" src="oauth.js.test"></script>
+    <script>
+        function openOAuthWindow(clientId) {
+            const codeVerifier = generateRandomString(64);
+            const codeChallenge = await generateCodeChallenge(codeVerifier);
+            localStorage.setItem("code_verifier", codeVerifier);
 
+            const args = new URLSearchParams({
+                response_type: "code",
+                client_id: clientId,
+                code_challenge_method: "S256",
+                code_challenge: codeChallenge,
+                redirect_uri: getUrl() + '/oauth_set.html',
+                search: location.search
+            });
+            const oauthWindow = window.open(authorizeEndpoint + "?" + args, 'OAuthWindow', 'width=600,height=400');
+            window.addEventListener('message', function(event) {
+                if (event.origin !== 'https://oauth.my.workfront.com') {
+                    return;
+                }
+
+                if (event.data && event.data.token) {
+                    oauthWindow.close();
+                    localStorage.setItem('session_token', event.data.token);
+                    //document.postMessage({ token: event.data.token }, '*');
+                    launch(event.data.token);
+                }
+            });
+        }
+
+        let clientId = params.get("cid");
+        if (clientId != null) {
+            localStorage.setItem("clientId", clientId);
+        } else {
+            clientId = localStorage.getItem("clientId");
+            console.log('clear login');
+        }
+
+        if (!localStorage.getItem('session_token')) {
+            openOAuthWindow(clientId);
+        }
+    </script>
   <style>
     .instr {
       display: none;
@@ -165,7 +205,7 @@
     }
   </script>
   <script>
-    updatePageState();
+    /*updatePageState();
 
     if (location.search) {
       const { code, domain, lane } = getParams();
@@ -176,7 +216,7 @@
     }
     document.getElementById("startButton").onclick = async () => {
       login ? login() : console.log('logged in');
-    };
+    };*/
   </script>
 </body>
 
