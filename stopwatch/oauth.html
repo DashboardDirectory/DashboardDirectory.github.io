@@ -264,8 +264,8 @@
                 if (event.data && event.data.encrypted_access_token) {
                     console.log(event.data.encrypted_access_token);
                     oauthWindow.close();
-                    window.localStorage.setItem('encrypted_access_token', encrypted_access_token);
-                    window.localStorage.setItem('encrypted_refresh_token', encrypted_refresh_token);
+                    window.localStorage.setItem('encrypted_access_token', event.data.encrypted_access_token);
+                    window.localStorage.setItem('encrypted_refresh_token', event.data.encrypted_refresh_token);
                     launch();
                 }
             });
