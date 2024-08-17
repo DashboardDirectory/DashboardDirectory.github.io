@@ -226,6 +226,7 @@
             const oauthWindow = window.open(location.href, 'OAuthWindow', 'width=600,height=740');
              // open window will get the client id to save in it's local storage before redirecting to login
             oauthWindow.addEventListener('message', async function(event) {
+                 console.log('oauth got message')
                 oauthWindow.localStorage.setItem('clientId', event.data.clientId);
                 const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
                 const codeVerifier = generateRandomString(64);
@@ -248,7 +249,7 @@
              oauthWindow.onload = function() {
                  // send client id to open window for local storage saving to use for token get
                  oauthWindow.postMessage({clientId: clientId});//, codeVerifier: codeVerifier
-            });
+            };
 
 
              // get token from open window and launch new window for stopwatch
@@ -256,8 +257,9 @@
                 //if (event.origin !== 'https://oauth.my.workfront.com') {
                   //  return;
                 //}
-
+                console.log('main got message');
                 if (event.data && event.data.token) {
+                    console.log(event.data.token);
                     oauthWindow.close();
                     window.localStorage.setItem('session_token', event.data.token);
                     //document.postMessage({ token: event.data.token }, '*');
