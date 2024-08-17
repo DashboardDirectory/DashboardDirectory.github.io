@@ -17,136 +17,142 @@
       const tokenEndpoint = "integrations/oauth2/api/v1/token";
       const revokeEndpoint = "integrations/oauth2/api/v1/revoke";
 
-      // setup local storage for oath
-      const setCookie = (cname, cvalue, exdays) => {
-          let cookie_prefix =  localStorage.getItem("cookie_prefix");
-          localStorage.setItem(cookie_prefix + '_oauth_'+cname, cvalue);
-      };
-      const getCookie = (cname) => {
-          let cookie_prefix =  localStorage.getItem("cookie_prefix");
-          return localStorage.getItem(cookie_prefix + '_oauth_'+cname);
-      };
-      const deleteCookie = (cname, path, domain) => {
-          let cookie_prefix =  localStorage.getItem("cookie_prefix");
+      // Utility function to get cookie prefix
+      function getCookiePrefix() {
+          return localStorage.getItem("cookie_prefix");
+      }
+
+      // Setup local storage for OAuth
+      function setCookie(cname, cvalue) {
+          localStorage.setItem(`${getCookiePrefix()}_oauth_${cname}`, cvalue);
+      }
+
+      function getCookie(cname) {
+          return localStorage.getItem(`${getCookiePrefix()}_oauth_${cname}`);
+      }
+
+      function deleteCookie(cname) {
           if (getCookie(cname)) {
-              localStorage.removeItem(cookie_prefix + '_oauth_'+cname);
+              localStorage.removeItem(`${getCookiePrefix()}_oauth_${cname}`);
           }
-      };
-      const encrypt = (text, key) => CryptoJS.AES.encrypt(text, key).toString();
-      const decrypt = (cipherText, key) => {
-          return (CryptoJS.AES.decrypt(cipherText, key)).toString(CryptoJS.enc.Utf8);
-      };
-      // sav initial values to pass to stopwatch
-      var params = new URLSearchParams(document.location.search);
-      var host = params.get("h");
+      }
+
+      // Encryption and Decryption functions
+      function encrypt(text, key) {
+          return CryptoJS.AES.encrypt(text, key).toString();
+      }
+
+      function decrypt(cipherText, key) {
+          return CryptoJS.AES.decrypt(cipherText, key).toString(CryptoJS.enc.Utf8);
+      }
+
+      // Save initial values from URL params
+      const params = new URLSearchParams(document.location.search);
+      const host = params.get("h");
       if (host) {
           localStorage.setItem("cookie_prefix", host);
           setCookie('host', host);
       }
-      var userID = params.get("u");
+      const userID = params.get("u");
       if (userID) {
           setCookie('userID', userID);
       }
-      var taskid = params.get("taskid");
+      const taskid = params.get("taskid");
       if (taskid) {
           setCookie('taskid', taskid);
       }
 
-    function launch() {
-        const encrypted_access_token = getCookie("encrypted_access_token");
-        if (encrypted_access_token)
-          sessionID = decrypt(encrypted_access_token, ACCESS_TOKEN_KEY);
-        else {
-         // updatePageState();
+      function launch() {
+          const encrypted_access_token = getCookie("encrypted_access_token");
+          if (encrypted_access_token) {
+              sessionID = decrypt(encrypted_access_token, ACCESS_TOKEN_KEY);
+          } else {
+              return;
+          }
 
-          return;
-        }
+          const userID = getCookie('userID');
+          const host = getCookie('host');
+          const taskid = getCookie('taskid');
 
-      userID = getCookie('userID');
-      host = getCookie('host');
-      taskid = getCookie('taskid');
-
-      let url = 'launch.html?taskid=' + taskid + "&u=" + userID + "&d=" + host + "&sid=" + sessionID;
-      if (window.swpop && window.swpop.opener) {
-        window.swpop.location.href = url;
-        window.swpop.focus();
-      } else {
-        window.swpop = window.open(url, 'swpop'
-          , 'height=600,width=500,left=100,top=100,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,directories=no,status=no'
-        );
+          const url = `launch.html?taskid=${taskid}&u=${userID}&d=${host}&sid=${sessionID}`;
+          if (window.swpop && window.swpop.opener) {
+              window.swpop.location.href = url;
+              window.swpop.focus();
+          } else {
+              window.swpop = window.open(
+                      url,
+                      'swpop',
+                      'height=600,width=500,left=100,top=100,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,directories=no,status=no'
+              );
+          }
       }
-    }
-  </script>
-  <script>
-     const getUrl = () => {
+
+      function getUrl() {
           const url = new URL(window.location.href);
           url.search = '';
           url.hash = '';
 
           return url.href;
-      };
-      /*
-      const setCookie = (cname, cvalue, exdays) => {
-          localStorage.setItem('_oauth_'+cname, cvalue);
-      };
-      const getCookie = (cname) => {
-          return localStorage.getItem('_oauth_'+cname);
-      };
-      const deleteCookie = (cname, path, domain) => {
-          if (getCookie(cname)) {
-              localStorage.removeItem('_oauth_'+cname);
-          }
-      };
+      }
 
-      const encrypt = (text, key) => CryptoJS.AES.encrypt(text, key).toString();
-      const decrypt = (cipherText, key) => {
-          return (CryptoJS.AES.decrypt(cipherText, key)).toString(CryptoJS.enc.Utf8);
-      };
-      */
-      const getParams = () => {
+      function getParams() {
           const args = new URLSearchParams(location.search);
           const code = args.get("code");
           const domain = args.get("domain");
           const lane = args.get("lane");
 
           return { code, domain, lane };
-      };
+      }
 
-      const setParamsCookie = ({ code, domain, lane }) => {
+      function setParamsCookie({ code, domain, lane }) {
           setCookie("encrypted_code", encrypt(code, CODE_KEY));
           setCookie("encrypted_domain", encrypt(domain, DOMAIN_KEY));
           setCookie("encrypted_lane", encrypt(lane, LANE_KEY));
-          /*setCookie("code", code);
-          setCookie("domain", domain);
-          setCookie("lane", lane);*/
-      };
-      const getParamsCookie = () => {
+      }
+
+      function getParamsCookie() {
           return {
-              code: getCookie("encrypted_code") ?  decrypt(getCookie("encrypted_code"), CODE_KEY) : '',
+              code: getCookie("encrypted_code") ? decrypt(getCookie("encrypted_code"), CODE_KEY) : '',
               domain: getCookie("encrypted_domain") ? decrypt(getCookie("encrypted_domain"), DOMAIN_KEY) : '',
               lane: getCookie("encrypted_lane") ? decrypt(getCookie("encrypted_lane"), LANE_KEY) : '',
           };
-      };
+      }
 
       async function getToken(clientId) {
           console.log('get token');
           const { code, domain, lane } = getParamsCookie();
           try {
-              fetch(
-            `https://${domain}.${lane}.workfront.com/${tokenEndpoint}`,
-              {
-                  method: "POST",
-                          headers: { "Content-Type": "application/json;charset=utf-8", },
-                  body: JSON.stringify({
-                      client_id: clientId,
-                      code_verifier: localStorage.getItem("code_verifier"),
-                      grant_type: "authorization_code",
-                      redirect_uri: getUrl(),
-                      code: code,
-                  }),
-              }).then(response => {
-                  if (response.ok) {
-                  return response.json();
+              const response = await fetch(
+                `https://${domain}.${lane}.workfront.com/${tokenEndpoint}`,
+                  {
+                      method: "POST",
+                              headers: { "Content-Type": "application/json;charset=utf-8" },
+                      body: JSON.stringify({
+                          client_id: clientId,
+                          code_verifier: localStorage.getItem("code_verifier"),
+                          grant_type: "authorization_code",
+                          redirect_uri: getUrl(),
+                          code: code,
+                      }),
+                  }
+              );
+
+              if (response.ok) {
+                  const data = await response.json();
+                  console.log('getting token ' + data.access_token);
+
+                  setCookie("encrypted_access_token", encrypt(data.access_token, ACCESS_TOKEN_KEY));
+                  setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
+
+                  // Send the token back to the opener window (the main page)
+                  window.opener.postMessage({
+                      encrypted_access_token: getCookie("encrypted_access_token"),
+                      encrypted_refresh_token: getCookie("encrypted_refresh_token"),
+                      encrypted_code: getCookie("encrypted_code"),
+                      encrypted_lane: getCookie("encrypted_lane"),
+                      encrypted_domain: getCookie("encrypted_domain")
+                  }, '*');
+                  setTimeout(() => { window.close(); }, 100);
               } else if (response.status === 400) {
                   console.log('logged in gt2');
               } else if (response.status === 404) {
@@ -156,165 +162,138 @@
                   // Handle other status codes
                   throw new Error(`HTTP error! Status: ${response.status}`);
               }
-          }).then(data => {
-              console.log('getting token ' + data.access_token);
-
-          //setCookie("access_token", data.access_token);
-          //setCookie("refresh_token", data.refresh_token);
-          setCookie("encrypted_access_token", encrypt(data.access_token, ACCESS_TOKEN_KEY));
-          setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
-
-          // Send the token back to the opener window (the main page)
-          window.opener.postMessage({
-              encrypted_access_token: getCookie("encrypted_access_token"),
-              encrypted_refresh_token: getCookie("encrypted_refresh_token"),
-              encrypted_code: getCookie("encrypted_code"),
-              encrypted_lane: getCookie("encrypted_lane"),
-              encrypted_domain: getCookie("encrypted_domain")
-          }, '*');
-          setTimeout(() => {
-              window.close();
-      }, 100);
-      }).catch(error => {
-          console.error('Fetch error:', error);
-      });
-      } catch (error) {
-          console.log(error);
-      }
+          } catch (error) {
+              console.error('Fetch error:', error);
+          }
       }
 
-
-      async function refreshToken() {
-
+      async function refreshToken(clientId) {
           try {
               const { code, domain, lane } = getParamsCookie();
               if (!code) {
-                  console.log('no domain,lane,code');
+                  console.log('no domain, lane, code');
                   return;
               }
+
               const encrypted_refresh_token = getCookie("encrypted_refresh_token");
               const refresh_token = decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY);
               const response = await fetch(
             `https://${domain}.${lane}.workfront.com/${tokenEndpoint}`,
               {
                   method: "POST",
-                          headers: {
-                  "Content-Type": "application/json;charset=utf-8",
-              },
+                          headers: { "Content-Type": "application/json;charset=utf-8" },
                   body: JSON.stringify({
                       client_id: clientId,
-                      refresh_token,
+                      refresh_token: refresh_token,
                       grant_type: "refresh_token",
                       redirect_uri: getUrl(),
                   }),
               }
           );
-              const data = await response.json();
-              const encrypted_access_token = encrypt(data.access_token, ACCESS_TOKEN_KEY);
-              const encrypted_refresh_token = encrypt(data.refresh_token, REFRESH_TOKEN_KEY);
 
-              setCookie("encrypted_access_token", encrypted_access_token);
-              setCookie("encrypted_refresh_token", encrypted_refresh_token);
+              const data = await response.json();
+              setCookie("encrypted_access_token", encrypt(data.access_token, ACCESS_TOKEN_KEY));
+              setCookie("encrypted_refresh_token", encrypt(data.refresh_token, REFRESH_TOKEN_KEY));
 
               launch();
           } catch (error) {
               console.log(error);
           }
       }
+
   </script>
 
   <script>
-        /*const getUrl = () => {
-            const url = new URL(window.location.href);
-            url.search = '';
-            url.hash = '';
+      // Convert decimal to hex
+      function dec2hex(dec) {
+          return ("0" + dec.toString(16)).substr(-2);
+      }
 
-            return url.href;
-        };*/
-        const dec2hex = (dec) => {
-            return ("0" + dec.toString(16)).substr(-2);
-        };
-        const sha256 = (plain) => {
-            return crypto.subtle.digest("SHA-256", (new TextEncoder()).encode(plain));
-        };
-        const base64urlencode = (a) => {
-            let str = "";
-            const bytes = new Uint8Array(a);
-            const len = bytes.byteLength;
-            for (let i = 0; i < len; i++) {
-                str += String.fromCharCode(bytes[i]);
-            }
+      // Compute SHA-256 hash
+      function sha256(plain) {
+          return crypto.subtle.digest("SHA-256", (new TextEncoder()).encode(plain));
+      }
 
-            return btoa(str)
-                    .replace(/\+/g, "-")
-                    .replace(/\//g, "_")
-                    .replace(/=+$/, "");
-        };
-        const generateRandomString = () => {
-            const array = new Uint32Array(56 / 2);
-            crypto.getRandomValues(array);
+      // Encode a byte array to a base64url string
+      function base64urlencode(a) {
+          let str = "";
+          const bytes = new Uint8Array(a);
+          const len = bytes.byteLength;
+          for (let i = 0; i < len; i++) {
+              str += String.fromCharCode(bytes[i]);
+          }
 
-            return Array.from(array, dec2hex).join("");
-        };
-        const generateCodeChallenge = async (v) => {
-            hashed = await sha256(v);
+          return btoa(str)
+                  .replace(/\+/g, "-")
+                  .replace(/\//g, "_")
+                  .replace(/=+$/, "");
+      }
 
-            return base64urlencode(hashed);
-        };
-         function openOAuthWindow(clientId) {
-             if (window.OAuthWindow && window.OAuthWindow.opener) {
-                 window.OAuthWindow.close();
-             }
-            const oauthWindow = window.open(location.href, 'OAuthWindow', 'width=600,height=740');
-             // open window will get the client id to save in it's local storage before redirecting to login
-            oauthWindow.addEventListener('message', async function(event) {
-                 console.log('oauth got message')
-                 oauthWindow.localStorage.clear();
-                oauthWindow.localStorage.setItem('clientId', event.data.clientId);
-                const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
-                const codeVerifier = generateRandomString(64);
-                const codeChallenge = await generateCodeChallenge(codeVerifier);
-                oauthWindow.localStorage.setItem("code_verifier", codeVerifier);
-                 //let fullUrl = getUrl();
-                //let directoryPath = fullUrl.substring(0, fullUrl.lastIndexOf('/') + 1);
+      // Generate a random string
+      function generateRandomString() {
+          const array = new Uint32Array(56 / 2);
+          crypto.getRandomValues(array);
 
-                const args = new URLSearchParams({
-                    response_type: "code",
-                    client_id: clientId,
-                    code_challenge_method: "S256",
-                    code_challenge: codeChallenge,
-                    redirect_uri: getUrl(),//directoryPath + 'oauth_set.html',
-                    search: location.search
-                });
-                oauthWindow.location = authorizeEndpoint + "?" + args;
-            });
-             oauthWindow.onload = function() {
-                 // send client id to open window for local storage saving to use for token get
-                 oauthWindow.postMessage({clientId: clientId});//, codeVerifier: codeVerifier
-            };
+          return Array.from(array, dec2hex).join("");
+      }
 
+      // Generate a code challenge
+      async function generateCodeChallenge(v) {
+          const hashed = await sha256(v);
+          return base64urlencode(hashed);
+      }
 
-             // get token from open window and launch new window for stopwatch
-            window.addEventListener('message', function(event) {
-                //if (event.origin !== 'https://oauth.my.workfront.com') {
-                  //  return;
-                //}
-                console.log('main got message');
-                if (event.data && event.data.encrypted_access_token) {
-                    event.source.close();
-                    jQuery('#loggedIn').show();
-                    setCookie('encrypted_access_token', event.data.encrypted_access_token);
-                    setCookie('encrypted_refresh_token', event.data.encrypted_refresh_token);
-                    setCookie('encrypted_code', event.data.encrypted_code);
-                    setCookie('encrypted_domain', event.data.encrypted_domain);
-                    setCookie('encrypted_lane', event.data.encrypted_lane);
-                    launch();
-                }
-            });
-        }
+      // Open OAuth window and handle the OAuth process
+      function openOAuthWindow(clientId) {
+          if (window.OAuthWindow && window.OAuthWindow.opener) {
+              window.OAuthWindow.close();
+          }
+          const oauthWindow = window.open(location.href, 'OAuthWindow', 'width=600,height=740');
 
+          // Handle messages received from the OAuth window
+          oauthWindow.addEventListener('message', async function(event) {
+              console.log('oauth got message');
+              oauthWindow.localStorage.clear();
+              oauthWindow.localStorage.setItem('clientId', event.data.clientId);
+              const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
+              const codeVerifier = generateRandomString(64);
+              const codeChallenge = await generateCodeChallenge(codeVerifier);
+              oauthWindow.localStorage.setItem("code_verifier", codeVerifier);
 
-    </script>
+              const args = new URLSearchParams({
+                  response_type: "code",
+                  client_id: clientId,
+                  code_challenge_method: "S256",
+                  code_challenge: codeChallenge,
+                  redirect_uri: getUrl(),
+                  search: location.search
+              });
+
+              oauthWindow.location = authorizeEndpoint + "?" + args;
+          });
+
+          // Send client ID to the OAuth window for local storage
+          oauthWindow.onload = function() {
+              oauthWindow.postMessage({ clientId: clientId });
+          };
+
+          // Handle messages received in the main window
+          window.addEventListener('message', function(event) {
+              console.log('main got message');
+              if (event.data && event.data.encrypted_access_token) {
+                  event.source.close();
+                  jQuery('#loggedIn').show();
+                  setCookie('encrypted_access_token', event.data.encrypted_access_token);
+                  setCookie('encrypted_refresh_token', event.data.encrypted_refresh_token);
+                  setCookie('encrypted_code', event.data.encrypted_code);
+                  setCookie('encrypted_domain', event.data.encrypted_domain);
+                  setCookie('encrypted_lane', event.data.encrypted_lane);
+                  launch();
+              }
+          });
+      }
+
+  </script>
   <style>
     .instr {
       display: none;
