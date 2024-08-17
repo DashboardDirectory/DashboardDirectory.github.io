@@ -230,12 +230,12 @@
              // open window will get the client id to save in it's local storage before redirecting to login
             oauthWindow.addEventListener('message', async function(event) {
                  console.log('oauth got message')
+                 oauthWindow.localStorage.clear();
                 oauthWindow.localStorage.setItem('clientId', event.data.clientId);
                 const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
                 const codeVerifier = generateRandomString(64);
                 const codeChallenge = await generateCodeChallenge(codeVerifier);
                 oauthWindow.localStorage.setItem("code_verifier", codeVerifier);
-
                  //let fullUrl = getUrl();
                 //let directoryPath = fullUrl.substring(0, fullUrl.lastIndexOf('/') + 1);
 
@@ -264,8 +264,8 @@
                 if (event.data && event.data.encrypted_access_token) {
                     console.log(event.data.encrypted_access_token);
                     oauthWindow.close();
-                    window.localStorage.setItem('encrypted_access_token', event.data.encrypted_access_token);
-                    window.localStorage.setItem('encrypted_refresh_token', event.data.encrypted_refresh_token);
+                    setCookie('encrypted_access_token', event.data.encrypted_access_token);
+                    setCookie('encrypted_refresh_token', event.data.encrypted_refresh_token);
                     launch();
                 }
             });
