@@ -116,9 +116,9 @@
           setCookie("encrypted_code", encrypt(code, CODE_KEY));
           setCookie("encrypted_domain", encrypt(domain, DOMAIN_KEY));
           setCookie("encrypted_lane", encrypt(lane, LANE_KEY));
-          setCookie("code", code);
+          /*setCookie("code", code);
           setCookie("domain", domain);
-          setCookie("lane", lane);
+          setCookie("lane", lane);*/
       };
       const getParamsCookie = () => {
           return {
@@ -167,7 +167,10 @@
           // Send the token back to the opener window (the main page)
           window.opener.postMessage({
               encrypted_access_token: getCookie("encrypted_access_token"),
-              encrypted_refresh_token: getCookie("encrypted_refresh_token")
+              encrypted_refresh_token: getCookie("encrypted_refresh_token"),
+              encrypted_code: getCookie("encrypted_code"),
+              encrypted_lane: getCookie("encrypted_lane"),
+              encrypted_domain: getCookie("encrypted_domain")
           }, '*');
           setTimeout(() => {
               window.close();
@@ -182,9 +185,15 @@
 
 
       async function refreshToken() {
-          const encrypted_refresh_token = getCookie("encrypted_refresh_token");
-          const refresh_token = decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY);
+
           try {
+              const { code, domain, lane } = getParamsCookie();
+              if (!code) {
+                  console.log('no domain,lane,code');
+                  return;
+              }
+              const encrypted_refresh_token = getCookie("encrypted_refresh_token");
+              const refresh_token = decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY);
               const response = await fetch(
             `https://${domain}.${lane}.workfront.com/${tokenEndpoint}`,
               {
@@ -209,7 +218,7 @@
 
               launch();
           } catch (error) {
-              processError(error);
+              console.log(error);
           }
       }
   </script>
@@ -296,6 +305,9 @@
                     jQuery('#loggedIn').show();
                     setCookie('encrypted_access_token', event.data.encrypted_access_token);
                     setCookie('encrypted_refresh_token', event.data.encrypted_refresh_token);
+                    setCookie('encrypted_code', event.data.encrypted_code);
+                    setCookie('encrypted_domain', event.data.encrypted_domain);
+                    setCookie('encrypted_lane', event.data.encrypted_lane);
                     launch();
                 }
             });
@@ -373,7 +385,7 @@
           const { code, domain, lane } = getParams();
           if (code) {
               // in oauth popup
-              setParamsCookie({ code, domain, lane })
+              setParamsCookie({ code, domain, lane });
               // get token from oauth
               getToken(clientId);
           } else {
