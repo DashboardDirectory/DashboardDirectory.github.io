@@ -294,6 +294,7 @@
                 console.log('main got message');
                 if (event.data && event.data.encrypted_access_token) {
                     event.source.close();
+                    jQuery('#loggedIn').show();
                     setCookie('encrypted_access_token', event.data.encrypted_access_token);
                     setCookie('encrypted_refresh_token', event.data.encrypted_refresh_token);
                     launch();
