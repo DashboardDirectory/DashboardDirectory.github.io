@@ -69,7 +69,6 @@
       }
     }
   </script>
-  <script type="text/javascript" src="oauth.js.test"></script>
   <script>
       const REFRESH_TOKEN_KEY = "REFRESH_TOKEN_KEY";
       const ACCESS_TOKEN_KEY = "ACCESS_TOKEN_KEY";
@@ -281,9 +280,13 @@
                 console.log('get clientId '+ clientId);
             }
 
+            if (window.opener) {
+                jQuery('#message').hide();
+                jQuery('body').css('background-color', rgb(51, 51, 51))
+            }
             // get oauth params from popup window redirect
             const { code, domain, lane } = getParams();
-            if (code) { // && !getCookie("encrypted_access_token")
+            if (code) {
                 // in oauth popup
                 setParamsCookie({ code, domain, lane })
                 // get token from oauth
@@ -292,6 +295,7 @@
                 if (!getCookie('encrypted_access_token') && !window.opener) {
                     openOAuthWindow(clientId);
                 } else {
+                    jQuery('#loggedIn').show();
                     launch();
                 }
             }
@@ -300,14 +304,6 @@
   <style>
     .instr {
       display: none;
-    }
-
-    #error {
-      color: red;
-      width: 100%;
-      height: 20px;
-      background-color: pink;
-      margin-bottom: 20px;
     }
   </style>
 </head>
@@ -325,9 +321,6 @@
         <div class="well-small">
           <h3>If you don't see the new window, make sure popup blocker is disabled, or perhaps it is behind this window,
             Then try launching again</h3>
-
-          <p><a class='btn btn-primary bookmark' href="#" title="Launch Stopwatch" onclick="launch();">Launch
-              Stopwatch and Start Task</a></p>
 
           <div class="well-small chrome instr">
             <p>For how to manage pop-up settings in Chrome, have a look at <a
@@ -349,23 +342,15 @@
             <p>Safari's pop-up blocker doesn't block pop-ups from opening if you've
               clicked on a button, so please <a class='btn btn-primary bookmark' href="#" title="Launch Stopwatch"
                 onclick="launch();">launch stopwatch manually.</a></p>
-          </div>
-            <p><a class='btn btn-secondary bookmark' href="#" title="Refresh Access" onclick="refreshToken();">
-                Refresh access and relaunch</a></p>
+
+            <div id="loggedIn" class='instr'>
+                <p><a class='btn btn-primary bookmark' href="#" title="Launch Stopwatch" onclick="launch();">Launch
+                    Stopwatch and Start Task</a></p>
+                <p><a class='btn btn-secondary bookmark' href="#" title="Refresh Access" onclick="refreshToken();">
+                    Refresh access and relaunch</a></p>
+            </div>
         </div>
       </div>
-    </div>
-    <div id="error"></div>
-    <div style="display: none" id="notAuthenticated">
-      <button id="startButton">Login</button>
-    </div>
-    <div id="authenticated" style="display: none">
-      Your access_token (sessionID) is <span id="accessToken"></span>
-      <br />
-      <button id="refresh" onclick="refreshToken()">
-        Refresh token (sessionID)
-      </button>
-      <button id="logout" onclick="logout()">Log out</button>
     </div>
   </div>
   <script>
