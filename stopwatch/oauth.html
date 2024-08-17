@@ -245,8 +245,11 @@
                 });
                 oauthWindow.location = authorizeEndpoint + "?" + args;
             });
-             // send client id to open window for local storage saving to use for token get
-            window.postMessage({clientId: clientId});//, codeVerifier: codeVerifier
+             oauthWindow.onload = function() {
+                 // send client id to open window for local storage saving to use for token get
+                 oauthWindow.postMessage({clientId: clientId});//, codeVerifier: codeVerifier
+            });
+
 
              // get token from open window and launch new window for stopwatch
             window.addEventListener('message', function(event) {
