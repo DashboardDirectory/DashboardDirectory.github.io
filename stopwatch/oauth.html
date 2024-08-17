@@ -280,10 +280,6 @@
                 console.log('get clientId '+ clientId);
             }
 
-            if (window.opener) {
-                jQuery('#message').hide();
-                jQuery('body').css('background-color', 'rgb(51, 51, 51)')
-            }
             // get oauth params from popup window redirect
             const { code, domain, lane } = getParams();
             if (code) {
@@ -354,6 +350,10 @@
     </div>
   </div>
   <script>
+      if (window.opener) {
+          jQuery('#message').hide();
+          jQuery('body').css('background-color', 'rgb(51, 51, 51)')
+      }
     let ua = navigator.userAgent;
     let msie = ua.indexOf("MSIE ");
     if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
