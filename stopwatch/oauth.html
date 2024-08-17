@@ -9,6 +9,14 @@
   <script type="text/javascript" src="core/docs/jquery-1.8.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
   <script>
+      const REFRESH_TOKEN_KEY = "REFRESH_TOKEN_KEY";
+      const ACCESS_TOKEN_KEY = "ACCESS_TOKEN_KEY";
+      const CODE_KEY = "CODE_KEY";
+      const DOMAIN_KEY = "DOMAIN_KEY";
+      const LANE_KEY = "LANE_KEY";
+      const tokenEndpoint = "integrations/oauth2/api/v1/token";
+      const revokeEndpoint = "integrations/oauth2/api/v1/revoke";
+
       // setup local storage for oath
       const setCookie = (cname, cvalue, exdays) => {
           let cookie_prefix =  localStorage.getItem("cookie_prefix");
@@ -70,14 +78,6 @@
     }
   </script>
   <script>
-      const REFRESH_TOKEN_KEY = "REFRESH_TOKEN_KEY";
-      const ACCESS_TOKEN_KEY = "ACCESS_TOKEN_KEY";
-      const CODE_KEY = "CODE_KEY";
-      const DOMAIN_KEY = "DOMAIN_KEY";
-      const LANE_KEY = "LANE_KEY";
-      const tokenEndpoint = "integrations/oauth2/api/v1/token";
-      const revokeEndpoint = "integrations/oauth2/api/v1/revoke";
-
      const getUrl = () => {
           const url = new URL(window.location.href);
           url.search = '';
