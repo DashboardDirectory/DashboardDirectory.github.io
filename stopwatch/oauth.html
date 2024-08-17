@@ -224,6 +224,7 @@
         };
          function openOAuthWindow(clientId) {
             const oauthWindow = window.open(location.href, 'OAuthWindow', 'width=600,height=740');
+             // open window will get the client id to save in it's local storage before redirecting to login
             oauthWindow.addEventListener('message', async function(event) {
                 oauthWindow.localStorage.setItem('clientId', event.data.clientId);
                 const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
@@ -244,8 +245,10 @@
                 });
                 oauthWindow.location = authorizeEndpoint + "?" + args;
             });
-            window.postMessage({clientId: clientId, codeVerifier: codeVerifier});
+             // send client id to open window for local storage saving to use for token get
+            window.postMessage({clientId: clientId});//, codeVerifier: codeVerifier
 
+             // get token from open window and launch new window for stopwatch
             window.addEventListener('message', function(event) {
                 //if (event.origin !== 'https://oauth.my.workfront.com') {
                   //  return;
@@ -263,16 +266,19 @@
         if (location.search) {
             let clientId = params.get("cid");
             if (clientId != null) {
+                console.log('set clientId '+ clientId);
                 localStorage.setItem("clientId", clientId);
             } else {
                 clientId = localStorage.getItem("clientId");
-                console.log('clear login');
+                console.log('get clientId '+ clientId);
             }
 
+            // get oauth params from popup window redirect
             const { code, domain, lane } = getParams();
             if (code) { // && !getCookie("encrypted_access_token")
                 // in oauth popup
                 setParamsCookie({ code, domain, lane })
+                // get token from oauth
                 getToken(clientId);
             } else {
                 if (!localStorage.getItem('session_token') && !window.opener) {
