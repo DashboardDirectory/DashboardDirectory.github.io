@@ -122,9 +122,9 @@
       };
       const getParamsCookie = () => {
           return {
-              code: decrypt(getCookie("encrypted_code"), CODE_KEY),
-              domain: decrypt(getCookie("encrypted_domain"), DOMAIN_KEY),
-              lane: decrypt(getCookie("encrypted_lane"), LANE_KEY),
+              code: getCookie("encrypted_code") ?  decrypt(getCookie("encrypted_code"), CODE_KEY) : '',
+              domain: getCookie("encrypted_domain") ? decrypt(getCookie("encrypted_domain"), DOMAIN_KEY) : '',
+              lane: getCookie("encrypted_lane") ? decrypt(getCookie("encrypted_lane"), LANE_KEY) : '',
           };
       };
 
@@ -182,7 +182,6 @@
 
 
       async function refreshToken() {
-          const { domain, lane } = getParamsCookie();
           const encrypted_refresh_token = getCookie("encrypted_refresh_token");
           const refresh_token = decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY);
           try {
@@ -298,10 +297,6 @@
                     setCookie('encrypted_access_token', event.data.encrypted_access_token);
                     setCookie('encrypted_refresh_token', event.data.encrypted_refresh_token);
                     launch();
-                } else if(event.data && event.data.refresh) {
-                    console.log('refresh');
-                    event.source.close();
-                    refreshToken();
                 }
             });
         }
@@ -385,6 +380,18 @@
               if (!getCookie('encrypted_access_token') && !window.opener) {
                   openOAuthWindow(clientId);
               } else {
+                  // get token from open window and launch new window for stopwatch
+                  window.addEventListener('message', function(event) {
+                      //if (event.origin !== 'https://oauth.my.workfront.com') {
+                      //  return;
+                      //}
+                      console.log('main got message');
+                      if(event.data && event.data.refresh) {
+                          console.log('refresh');
+                          event.source.close();
+                          refreshToken();
+                      }
+                  });
                   jQuery('#loggedIn').show();
                   launch();
               }
