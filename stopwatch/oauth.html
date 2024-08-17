@@ -270,32 +270,7 @@
             });
         }
 
-        if (location.search) {
-            let clientId = params.get("cid");
-            if (clientId != null) {
-                console.log('set clientId '+ clientId);
-                localStorage.setItem("clientId", clientId);
-            } else {
-                clientId = localStorage.getItem("clientId");
-                console.log('get clientId '+ clientId);
-            }
 
-            // get oauth params from popup window redirect
-            const { code, domain, lane } = getParams();
-            if (code) {
-                // in oauth popup
-                setParamsCookie({ code, domain, lane })
-                // get token from oauth
-                getToken(clientId);
-            } else {
-                if (!getCookie('encrypted_access_token') && !window.opener) {
-                    openOAuthWindow(clientId);
-                } else {
-                    jQuery('#loggedIn').show();
-                    launch();
-                }
-            }
-        }
     </script>
   <style>
     .instr {
@@ -353,6 +328,32 @@
       if (window.opener) {
           jQuery('#message').hide();
           jQuery('body').css('background-color', 'rgb(51, 51, 51)')
+      }
+      if (location.search) {
+          let clientId = params.get("cid");
+          if (clientId != null) {
+              console.log('set clientId '+ clientId);
+              localStorage.setItem("clientId", clientId);
+          } else {
+              clientId = localStorage.getItem("clientId");
+              console.log('get clientId '+ clientId);
+          }
+
+          // get oauth params from popup window redirect
+          const { code, domain, lane } = getParams();
+          if (code) {
+              // in oauth popup
+              setParamsCookie({ code, domain, lane })
+              // get token from oauth
+              getToken(clientId);
+          } else {
+              if (!getCookie('encrypted_access_token') && !window.opener) {
+                  openOAuthWindow(clientId);
+              } else {
+                  jQuery('#loggedIn').show();
+                  launch();
+              }
+          }
       }
     let ua = navigator.userAgent;
     let msie = ua.indexOf("MSIE ");
