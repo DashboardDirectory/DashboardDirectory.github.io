@@ -289,7 +289,7 @@
                 // get token from oauth
                 getToken(clientId);
             } else {
-                if (!localStorage.getItem('encrypted_access_token') && !window.opener) {
+                if (!getCookie('encrypted_access_token') && !window.opener) {
                     openOAuthWindow(clientId);
                 } else {
                     launch();
