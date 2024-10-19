@@ -7,7 +7,7 @@
   <link rel="stylesheet" type="text/css" href="core/css/metro-bootstrap.min.css">
   <link rel="shortcut icon" type="image/png" href="icons/timer32x32.png">
   <script type="text/javascript" src="core/docs/jquery-1.8.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+  <script type="text/javascript" src="lib/crypto-js.js"></script>
   <script>
       const REFRESH_TOKEN_KEY = "REFRESH_TOKEN_KEY";
       const ACCESS_TOKEN_KEY = "ACCESS_TOKEN_KEY";
@@ -211,7 +211,7 @@
 
       // Compute SHA-256 hash
       function sha256(plain) {
-          return crypto.subtle.digest("SHA-256", (new TextEncoder()).encode(plain));
+          return CryptoJS.SHA256(plain).toString(CryptoJS.enc.Hex);;
       }
 
       // Encode a byte array to a base64url string
@@ -231,10 +231,16 @@
 
       // Generate a random string
       function generateRandomString() {
-          const array = new Uint32Array(56 / 2);
-          crypto.getRandomValues(array);
+          const randomWordArray = CryptoJS.lib.WordArray.random(28);
 
-          return Array.from(array, dec2hex).join("");
+          return Array.from(randomWordArray.words, word => {
+              return [
+                  (word >>> 24) & 0xff,
+                  (word >>> 16) & 0xff,
+                  (word >>> 8) & 0xff,
+                  word & 0xff
+              ].map(dec2hex).join('');
+           }).join('');
       }
 
       // Generate a code challenge
