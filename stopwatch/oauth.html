@@ -169,6 +169,9 @@
 
       async function refreshToken(clientId) {
           try {
+              if (!clientId) {
+                  clientId = localStorage.getItem("clientId");
+              }
               const { code, domain, lane } = getParamsCookie();
               if (!code) {
                   console.log('no domain, lane, code');
