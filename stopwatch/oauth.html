@@ -244,16 +244,7 @@
 
       // Generate a random string
       function generateRandomString() {
-          const randomWordArray = CryptoJS.lib.WordArray.random(28);
-
-          return Array.from(randomWordArray.words, word => {
-              return [
-                  (word >>> 24) & 0xff,
-                  (word >>> 16) & 0xff,
-                  (word >>> 8) & 0xff,
-                  word & 0xff
-              ].map(dec2hex).join('');
-           }).join('');
+          return Array.from(CryptoJS.lib.WordArray.random(28).words, dec2hex).join('');
       }
 
       // Generate a code challenge
@@ -275,7 +266,7 @@
               oauthWindow.localStorage.clear();
               oauthWindow.localStorage.setItem('clientId', event.data.clientId);
               const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
-              const codeVerifier = generateRandomString(64);
+              const codeVerifier = generateRandomString();
               const codeChallenge = await generateCodeChallenge(codeVerifier);
               oauthWindow.localStorage.setItem("code_verifier", codeVerifier);
 
