@@ -68,10 +68,10 @@
               sessionID = decrypt(encrypted_access_token, ACCESS_TOKEN_KEY);
               if (!sessionID) {
                   console.log('no session id decrypted');
-                  return;
+                  return false;
               }
           } else {
-              return;
+              return false;
           }
 
           const userID = getCookie('userID');
@@ -89,6 +89,8 @@
                       'height=600,width=500,left=100,top=100,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,directories=no,status=no'
               );
           }
+
+          return true;
       }
 
       function getUrl() {
@@ -386,7 +388,7 @@
               getToken(clientId);
           } else {
               let encrypted_access_token = getCookie('encrypted_access_token');
-              if ((//!window.opener && 
+              if (!window.opener && (
                   !encrypted_access_token ||
                   !decrypt(encrypted_access_token, ACCESS_TOKEN_KEY)
               )) {
@@ -404,8 +406,12 @@
                           refreshToken();
                       }
                   });
-                  jQuery('#loggedIn').show();
-                  launch();
+
+                  if (launch()) {
+                      jQuery('#loggedIn').show();
+                  } else {
+                      openOAuthWindow(clientId);
+                  }
               }
           }
       }
