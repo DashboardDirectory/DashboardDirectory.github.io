@@ -409,7 +409,7 @@
 
                   if (launch()) {
                       jQuery('#loggedIn').show();
-                  } else {
+                  } else if (!window.opener) {
                       openOAuthWindow(clientId);
                   }
               }
