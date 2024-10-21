@@ -222,11 +222,6 @@
           return ("0" + dec.toString(16)).substr(-2);
       }
 
-      // Compute SHA-256 hash
-      function sha256(plain) {
-          return CryptoJS.SHA256(plain).toString(CryptoJS.enc.Hex);;
-      }
-
       // Encode a byte array to a base64url string
       function base64urlencode(a) {
           let str = "";
@@ -244,13 +239,15 @@
 
       // Generate a random string
       function generateRandomString() {
-          return Array.from(CryptoJS.lib.WordArray.random(28).words, dec2hex).join('');
+          const array = new Uint32Array(28);
+          CryptoJS.crypto().getRandomValues(array);
+//CryptoJS.lib.WordArray.random(28).words
+          return Array.from(array, dec2hex).join("");
       }
 
       // Generate a code challenge
       async function generateCodeChallenge(v) {
-          const hashed = await sha256(v);
-          return base64urlencode(hashed);
+          return base64urlencode(CryptoJS.SHA256(v));
       }
 
       // Open OAuth window and handle the OAuth process
