@@ -66,6 +66,10 @@
           const encrypted_access_token = getCookie("encrypted_access_token");
           if (encrypted_access_token) {
               sessionID = decrypt(encrypted_access_token, ACCESS_TOKEN_KEY);
+              if (!sessionID) {
+                  console.log('no session id decrypted');
+                  return;
+              }
           } else {
               return;
           }
@@ -180,6 +184,10 @@
 
               const encrypted_refresh_token = getCookie("encrypted_refresh_token");
               const refresh_token = decrypt(encrypted_refresh_token, REFRESH_TOKEN_KEY);
+              if(!refresh_token) {
+                  console.log('no refresh token decrypted');
+                  return;
+              }
               const response = await fetch(
             `https://${domain}.${lane}.workfront.com/${tokenEndpoint}`,
               {
@@ -377,7 +385,11 @@
               // get token from oauth
               getToken(clientId);
           } else {
-              if (!getCookie('encrypted_access_token') && !window.opener) {
+              let encrypted_access_token = getCookie('encrypted_access_token');
+              if (!window.opener && (
+                  !encrypted_access_token ||
+                  !decrypt(encrypted_access_token, ACCESS_TOKEN_KEY)
+              )) {
                   openOAuthWindow(clientId);
               } else {
                   // get token from open window and launch new window for stopwatch
