@@ -386,7 +386,7 @@
               getToken(clientId);
           } else {
               let encrypted_access_token = getCookie('encrypted_access_token');
-              if (!window.opener && (
+              if ((//!window.opener && 
                   !encrypted_access_token ||
                   !decrypt(encrypted_access_token, ACCESS_TOKEN_KEY)
               )) {
