@@ -238,13 +238,21 @@
       }
 
       // Generate a random string
-      function generateRandomString() {
-          return Array.from(CryptoJS.lib.WordArray.random(112).words, dec2hex).join("");
+      function generateCodeVerifier() {
+          const randomWordArray = CryptoJS.lib.WordArray.random(112);
+          return randomWordArray.toString(CryptoJS.enc.Base64)
+                  .replace(/\+/g, '-')
+                  .replace(/\//g, '_')
+                  .replace(/=+$/, ''); // Base64-URL encode
       }
 
       // Generate a code challenge
       async function generateCodeChallenge(v) {
-          return base64urlencode(CryptoJS.SHA256(v));
+          const sha256Hash = CryptoJS.SHA256(v);
+          return CryptoJS.enc.Base64.stringify(sha256Hash)
+                  .replace(/\+/g, '-')
+                  .replace(/\//g, '_')
+                  .replace(/=+$/, ''); // Base64-URL encode
       }
 
       // Open OAuth window and handle the OAuth process
@@ -260,9 +268,10 @@
               oauthWindow.localStorage.clear();
               oauthWindow.localStorage.setItem('clientId', event.data.clientId);
               const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
-              const codeVerifier = generateRandomString();
+              const codeVerifier = generateCodeVerifier();
               const codeChallenge = await generateCodeChallenge(codeVerifier);
               oauthWindow.localStorage.setItem("code_verifier", codeVerifier);
+              oauthWindow.localStorage.setItem("code_challenge", codeChallenge);
 
               const args = new URLSearchParams({
                   response_type: "code",
