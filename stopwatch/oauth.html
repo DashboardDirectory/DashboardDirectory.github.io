@@ -239,10 +239,7 @@
 
       // Generate a random string
       function generateRandomString() {
-          const array = new Uint32Array(28);
-          CryptoJS.crypto().getRandomValues(array);
-//CryptoJS.lib.WordArray.random(28).words
-          return Array.from(array, dec2hex).join("");
+          return Array.from(CryptoJS.lib.WordArray.random(112).words, dec2hex).join("");
       }
 
       // Generate a code challenge
