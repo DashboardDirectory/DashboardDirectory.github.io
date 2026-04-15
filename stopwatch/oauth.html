@@ -47,6 +47,7 @@
       }
 
       // Save initial values from URL params
+      localStorage.clear();
       const params = new URLSearchParams(document.location.search);
       const host = params.get("h");
       if (host) {
