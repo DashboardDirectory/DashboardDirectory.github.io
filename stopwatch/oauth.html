@@ -61,6 +61,8 @@
       const taskid = params.get("taskid");
       if (taskid) {
           setCookie('taskid', taskid);
+      } else {
+          deleteCookie('taskid');
       }
 
       function launch() {
