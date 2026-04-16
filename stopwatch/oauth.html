@@ -47,7 +47,7 @@
       }
 
       // Save initial values from URL params
-      localStorage.clear();
+      //localStorage.clear();
       const params = new URLSearchParams(document.location.search);
       const host = params.get("h");
       if (host) {
@@ -265,7 +265,11 @@
 
           // Handle messages received from the OAuth window
           oauthWindow.addEventListener('message', async function(event) {
-              console.log('oauth got message');
+              console.log('oauth got message with clientID:' + event?.data?.clientId);
+              if (!event?.data?.clientId){
+                console.log('invalid clientId in message');
+                return
+              }
               oauthWindow.localStorage.clear();
               oauthWindow.localStorage.setItem('clientId', event.data.clientId);
               const authorizeEndpoint = "https://oauth.my.workfront.com/integrations/oauth2/authorize";
@@ -288,6 +292,7 @@
 
           // Send client ID to the OAuth window for local storage
           oauthWindow.onload = function() {
+              console.log('post message to oauth window clientID:' + clientId);
               oauthWindow.postMessage({ clientId: clientId });
           };
 
